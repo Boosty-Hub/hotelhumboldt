@@ -1,0 +1,734 @@
+WORKBOOK: Sportbitz - Cotización.xlsx
+
+======================================================================
+SHEET: conferencia
+MERGED: I30:M30, A64:B64, A73:B73, A51:B51, A109:G109, A22:G22, B8:G8, A88:B88, A70:B70, A111:G111, A54:B54, B10:G10, A90:B90, I32:M32, N42:R42, A74:B74, A56:B56, A27:B27, A76:B76, A33:B33, A53:B53, A62:B62, A68:B68, A28:B28, B12:G12, A39:B39, A23:G23, A48:B48, A30:B30, A116:G116, A59:B59, B14:G14, A45:B45, B13:G13, A79:B79, A61:B61, A115:G115, A87:B87, A46:B46, A37:B37, A89:B89, I28:M28, A36:G36, A26:B26, A71:B71, A91:B91, A52:B52, A63:B63, A113:G113, A77:B77, B11:G11, A92:B92, A106:G106, A49:B49, A69:B69, A78:B78, A65:B65, A83:D83, U42:V43, A75:B75, A24:G24, A80:B80, B15:G15, A55:B55, A110:G110, A57:B57, A32:B32, A108:G108, B7:G7, B16:G16, A38:B38, A43:B43, A86:G86, B18:G18, A67:B67, I31:M31, A60:B60, B17:G17, A20:G20, A112:G112...
+----------------------------------------------------------------------
+  ... (5 filas vacías)
+  A6=Cliente: | B6=TS Sport
+  A7=Rif o cédula:  | B7=V15.419.123
+  A8=Dirección: | B8=Caracas
+  A9=Contacto: | B9=Antonio Linares
+  A10=Teléfono:
+  A11=Email:
+  A12=Nombre del Evento: | B12=Conferencia deportiva
+  A13=Cantidad de Persona: | B13=80 personas, aproximadamente
+  A14=Hora de Inicio: | B14=09:00:00
+  A15=Hora de culminacion: | B15=13:00:00
+  A16=Fecha Presupuesto: | B16=miércoles, 21 de enero de 2026 | K16=Àrea | L16=Cantidad
+  A17=Fecha del Acuerdo: | K17=àrea p | L17=1
+  A18=Fecha del Evento: | B18=jueves, 07 de mayo de 2026 (fechas en revisión) | K18=ayb | L18=4
+  K19=cocina | L19=1
+  A20=Gracias por preferir al Hotel Humboldt para realizar su evento. Según su solicitud le presentamos la siguiente propuesta. | K20=bartender | L20=1
+  K21=montaje | L21=1
+  A22=COTIZACION DE EVENTO | K22=prevencion | L22=1
+  K23=coordinador | L23=1
+  A24=MISCELANEOS | K24=Total | L24=10 [=SUM(L17:L23)]
+  A25=Ítem | C25=OCULTO | D25=Precio Unit. | E25=Cantidad | F25=Comentarios
+  A26=PROTOCOLO DE MARIPEREZ (Menos de 100 pers.) | C26=90 [=VLOOKUP(A26,[1]Productos!$A$1:$C$511,2,FALSE)] | D26=90 | E26=1 | F26=Protocolo de recibimiento en mariperez - brazaletes. | G26=90 [=D26*E26]
+  A27=Mobiliario | C27=0 [=VLOOKUP(A27,[1]Productos!$A$1:$C$511,2,FALSE)] | D27=300 | E27=1 | F27=Mobiliario mixto para 90 personas -  banquetes y áreas lounge  | G27=300 [=D27*E27]
+  A28=. | C28=0 [=VLOOKUP(A28,[1]Productos!$A$1:$C$511,2,FALSE)] | D28=0 | E28=1 | F28=Planta eléctrica con operador (precio especial) | G28=0 [=D28*E28]
+  A29=Servicio | C29=0 [=VLOOKUP(A29,[1]Productos!$A$1:$C$511,2,FALSE)] | D29=600 | E29=1 | F29=Personal de servicio: prevención, áreas públicas, montaje, coordinador general.  | G29=600 [=D29*E29]
+  A30=Audiovisuales | C30=0 [=VLOOKUP(A30,[1]Productos!$A$1:$C$511,2,FALSE)] | D30=2500 | E30=1 | F30=1 pantalla 4x2 mts 
+1 rack de 4 micrófonos inalámbricos senheizer 
+2 luces móviles 
+2 truss de aluminio 
+1 consola de iluminación pequeña  | G30=2500 [=D30*E30] | I30=Sonido del Hotel - pantalla  y micrófonos con Evenplus 1.740$ camión de evnplus 240
+  A31=. | C31=0 [=VLOOKUP(A31,[1]Productos!$A$1:$C$511,2,FALSE)] | D31=0 | E31=1 | F31=Servicio profesional de DJ durante el evento | G31=0 [=D31*E31]
+  A32=. | D32=0 | E32=1 | F32=Servicio de animación (4 horas) desde las 6:00 pm | G32=0 [=D32*E32]
+  A33=. | D33=0 | E33=1 | G33=0 [=D33*E33]
+  F34=Sub Total | G34=3490 [=SUM(G26:G33)]
+  A36=TRASLADOS
+  A37=Ítem | C37=OCULTO | D37=Precio Unit. | E37=Cantidad | F37=Comentarios
+  A38=Traslado Ida-Vuelta p/persona | C38=10 [=VLOOKUP(A38,[1]Productos!$A$1:$C$511,2,FALSE)] | D38=0 | E38=90 | F38=Traslado en teleférico  - Por favor, considerar los horarios de subida y bajada. (coordinado con VENTEL) | G38=0 [=D38*E38]
+  A39=Traslado Ida-Vuelta p/persona | C39=10 [=VLOOKUP(A39,[1]Productos!$A$1:$C$511,2,FALSE)] | D39=60 | E39=0 | F39=Precios de referencia por traslados vía terrestre - entre 9 a 10 personas por unidad. | G39=0 [=D39*E39]
+  F40=Sub Total | G40=0 [=SUM(G38:G39)]
+  A42=ALIMENTOS Y BEBIDAS | I42=Provedor: Alternativa Gastronómica | N42=Proveedo vino FIRIUS | T42=15% extra | U42=10% de servicio al precio full lista del 19/07
+  A43=Ítem | C43=OCULTO | D43=Precio Unit. | E43=Cantidad | F43=Comentarios | G43=Sub Total | I43=Monto  | J43=Cantidad  | K43=Total  | L43=0.6 | M43=PVP | N43=Monto | O43=Cantidad  | P43=Total  | Q43=0.2 | R43=PVP | S43=TOTAL FINAL
+  A44=AGUA MINERAL (BOTELLA 330 ML) | C44=1.5 [=VLOOKUP(A44,[1]Productos!$A$1:$C$511,2,FALSE)] | D44=2.4 [=M44] | E44=0 | F44=Coffee break líquido (dos por persona) | G44=0 [=E44*D44] | I44=1.5 [=C44] | J44=0 [=E44] | K44=0 [=I44*J44] | L44=0.8999999999999999 [=I44*60%] | M44=2.4 [=I44+L44] | T44=2.76 [=(M44*15%)+M44] | U44=3 [=I44*2] | V44=0 [=U44*J44]
+  A45=ESTACION DE CAFÉ (AMERICANO O LATTE)  | C45=2 [=VLOOKUP(A45,[1]Productos!$A$1:$C$511,2,FALSE)] | D45=3.2 | E45=180 | F45=Coffee break líquido (dos por persona) | G45=576 [=E45*D45] | I45=2.8 | J45=180 [=E45] | K45=503.99999999999994 [=I45*J45] | L45=0.84 [=I45*30%] | M45=3.6399999999999997 [=I45+L45] | T45=4.186 [=(M45*15%)+M45] | U45=5.6 [=I45*2] | V45=1007.9999999999999 [=U45*J45]
+  A46=. | C46=0 [=VLOOKUP(A46,[1]Productos!$A$1:$C$511,2,FALSE)] | D46=0 [=M46] | E46=120 | F46=Coffee break líquido | G46=0 [=E46*D46] | I46=0 [=C46] | J46=120 [=E46] | K46=0 [=I46*J46] | L46=0 [=I46*60%] | M46=0 [=I46+L46] | T46=0 [=(M46*15%)+M46] | U46=0 [=I46*2] | V46=0 [=U46*J46]
+  A47=REFRESCOS DE LATA  | C47=2 [=VLOOKUP(A47,[1]Productos!$A$1:$C$511,2,FALSE)] | D47=3.2 [=M47] | E47=0 | F47=Coffee break líquido (uno por persona) | G47=0 [=E47*D47] | I47=2 [=C47] | J47=0 [=E47] | K47=0 [=I47*J47] | L47=1.2 [=I47*60%] | M47=3.2 [=I47+L47] | T47=3.68 [=(M47*15%)+M47] | U47=4 [=I47*2] | V47=0 [=U47*J47]
+  A48=. | C48=0 [=VLOOKUP(A48,[1]Productos!$A$1:$C$511,2,FALSE)] | D48=0 [=M48] | E48=60 | F48=Estación de chocolate | G48=0 [=E48*D48] | I48=0 [=C48] | J48=60 [=E48] | K48=0 [=I48*J48] | L48=0 [=I48*60%] | M48=0 [=I48+L48] | T48=0 [=(M48*15%)+M48] | U48=0 [=I48*2] | V48=0 [=U48*J48]
+  A49=. | C49=0 [=VLOOKUP(A49,[1]Productos!$A$1:$C$511,2,FALSE)] | D49=0 [=M49] | E49=140 | F49=Pasapalo | G49=0 [=E49*D49] | I49=0 [=C49] | J49=140 [=E49] | K49=0 [=I49*J49] | L49=0 [=I49*60%] | M49=0 [=I49+L49] | T49=0 [=(M49*15%)+M49] | U49=0 [=I49*2] | V49=0 [=U49*J49]
+  A50=. | C50=0 [=VLOOKUP(A50,[1]Productos!$A$1:$C$511,2,FALSE)] | D50=0 [=M50] | E50=90 | F50=Refresco para servicio | G50=0 [=E50*D50] | I50=0 [=C50] | J50=90 [=E50] | K50=0 [=I50*J50] | L50=0 [=I50*60%] | M50=0 [=I50+L50] | T50=0 [=(M50*15%)+M50] | U50=0 [=I50*2] | V50=0 [=U50*J50]
+  A51=. | C51=0 [=VLOOKUP(A51,[1]Productos!$A$1:$C$511,2,FALSE)] | D51=0 [=M51] | E51=140 | F51=Agua para servicio | G51=0 [=E51*D51] | I51=0 [=C51] | J51=140 [=E51] | K51=0 [=I51*J51] | L51=0 [=I51*60%] | M51=0 [=I51+L51] | T51=0 [=(M51*15%)+M51] | U51=0 [=I51*2] | V51=0 [=U51*J51]
+  A52=DESCORCHE DE VINOS Y ESPUMANTES (por botella) | C52=15 [=VLOOKUP(A52,[1]Productos!$A$1:$C$511,2,FALSE)] | D52=15 | E52=0 | F52=Cantidades a definir con el cliente, precio de referencia. | G52=0 [=E52*D52] | I52=7 | J52=0 | K52=0 [=I52*J52] | L52=4.2 [=I52*60%] | M52=11.2 [=I52+L52] | T52=12.879999999999999 [=(M52*15%)+M52] | U52=14 [=I52*2] | V52=0 [=U52*J52]
+  A53=. | C53=0 [=VLOOKUP(A53,[1]Productos!$A$1:$C$511,2,FALSE)] | D53=25 | E53=0 | F53=Cantidades a definir con el cliente, precio de referencia. | G53=0 [=E53*D53] | I53=12.5 | J53=0 [=E53] | K53=0 [=I53*J53] | L53=7.5 [=I53*60%] | M53=20 [=I53+L53] | T53=23 [=(M53*15%)+M53] | U53=25 [=I53*2] | V53=0 [=U53*J53]
+  A54=. | C54=0 [=VLOOKUP(A54,[1]Productos!$A$1:$C$511,2,FALSE)] | D54=0 [=M54] | E54=96 | F54=Refrigerio AM | G54=0 [=E54*D54] | I54=0 [=C54] | J54=96 [=E54] | K54=0 [=I54*J54] | L54=0 [=I54*60%] | M54=0 [=I54+L54] | T54=0 [=(M54*15%)+M54] | U54=0 [=I54*2] | V54=0 [=U54*J54]
+  A55=. | C55=0 [=VLOOKUP(A55,[1]Productos!$A$1:$C$511,2,FALSE)] | D55=0 [=M55] | E55=60 | F55=Refrigerio AM | G55=0 [=E55*D55] | I55=0 [=C55] | J55=60 [=E55] | K55=0 [=I55*J55] | L55=0 [=I55*60%] | M55=0 [=I55+L55] | T55=0 [=(M55*15%)+M55] | U55=0 [=I55*2] | V55=0 [=U55*J55]
+  A56=. | C56=0 [=VLOOKUP(A56,[1]Productos!$A$1:$C$511,2,FALSE)] | D56=0 [=M56] | E56=96 | F56=Refrigerio AM | G56=0 [=E56*D56] | I56=0 [=C56] | J56=96 [=E56] | K56=0 [=I56*J56] | L56=0 [=I56*60%] | M56=0 [=I56+L56] | T56=0 [=(M56*15%)+M56] | U56=0 [=I56*2] | V56=0 [=U56*J56]
+  A57=. | C57=0 [=VLOOKUP(A57,[1]Productos!$A$1:$C$511,2,FALSE)] | D57=0 [=M57] | E57=48 | F57=Almuerzo ligero | G57=0 [=E57*D57] | I57=0 [=C57] | J57=48 [=E57] | K57=0 [=I57*J57] | L57=0 [=I57*60%] | M57=0 [=I57+L57] | N57=0 [=(M57*15%)+M57] | T57=0 [=(M57*15%)+M57] | U57=0 [=I57*2] | V57=0 [=U57*J57]
+  A58=. | C58=0 [=VLOOKUP(A58,[1]Productos!$A$1:$C$511,2,FALSE)] | D58=0 [=M58] | E58=48 | F58=Postre para almuerzo | G58=0 [=E58*D58] | I58=0 [=C58] | J58=48 [=E58] | K58=0 [=I58*J58] | L58=0 [=I58*60%] | M58=0 [=I58+L58] | N58=0 [=(M58*15%)+M58] | T58=0 [=(M58*15%)+M58] | U58=0 [=I58*2] | V58=0 [=U58*J58]
+  A59=. | C59=0 [=VLOOKUP(A59,[1]Productos!$A$1:$C$511,2,FALSE)] | D59=0 [=M59] | E59=60 | F59=Refrigerio PM | G59=0 [=E59*D59] | I59=0 [=C59] | J59=60 [=E59] | K59=0 [=I59*J59] | L59=0 [=I59*60%] | M59=0 [=I59+L59] | N59=0 [=(M59*15%)+M59] | T59=0 [=(M59*15%)+M59] | U59=0 [=I59*2] | V59=0 [=U59*J59]
+  A60=. | C60=0 [=VLOOKUP(A60,[1]Productos!$A$1:$C$511,2,FALSE)] | D60=0 [=M60] | E60=60 | F60=Refrigerio PM | G60=0 [=E60*D60] | I60=0 [=C60] | J60=60 [=E60] | K60=0 [=I60*J60] | L60=0 [=I60*60%] | M60=0 [=I60+L60] | N60=0 [=(M60*15%)+M60] | T60=0 [=(M60*15%)+M60] | U60=0 [=I60*2] | V60=0 [=U60*J60]
+  A61=. | C61=0 [=VLOOKUP(A61,[1]Productos!$A$1:$C$511,2,FALSE)] | D61=0 [=M61] | E61=120 | F61=Estación de café para los servicios durante el dia (40 refrigerio AM, 40 almuerzo y 40 refrigerio PM) | G61=0 [=E61*D61] | I61=0 [=C61] | J61=120 [=E61] | K61=0 [=I61*J61] | L61=0 [=I61*60%] | M61=0 [=I61+L61] | N61=0 [=(M61*15%)+M61] | T61=0 [=(M61*15%)+M61] | U61=0 [=I61*2] | V61=0 [=U61*J61]
+  A62=. | C62=0 [=VLOOKUP(A62,[1]Productos!$A$1:$C$511,2,FALSE)] | D62=0 [=M62] | E62=70 | F62=Bebida para almuerzo y refrigerio PM | G62=0 [=E62*D62] | I62=0 [=C62] | J62=70 [=E62] | K62=0 [=I62*J62] | L62=0 [=I62*60%] | M62=0 [=I62+L62] | N62=0 [=(M62*15%)+M62] | T62=0 [=(M62*15%)+M62] | U62=0 [=I62*2] | V62=0 [=U62*J62]
+  A63=. | C63=0 [=VLOOKUP(A63,[1]Productos!$A$1:$C$511,2,FALSE)] | D63=0 [=M63] | E63=144 | F63=Agua para cada servicio (AM - Almuerzo - PM) | G63=0 [=E63*D63] | I63=0 [=C63] | J63=0 | K63=0 [=I63*J63] | L63=0 [=I63*60%] | M63=0 [=I63+L63] | T63=0 [=(M63*15%)+M63] | U63=0 [=I63*2] | V63=0 [=U63*J63]
+  A64=. | C64=0 [=VLOOKUP(A64,[1]Productos!$A$1:$C$511,2,FALSE)] | D64=0 [=M64] | E64=150 | F64=Pasapalo durante el evento - 3 por persona aproximadamente. | G64=0 [=E64*D64] | I64=0 [=C64] | J64=150 [=E64] | K64=0 [=I64*J64] | L64=0 [=I64*60%] | M64=0 [=I64+L64] | T64=0 [=(M64*15%)+M64] | U64=0 [=I64*2] | V64=0 [=U64*J64]
+  A65=. | C65=0 [=VLOOKUP(A65,[1]Productos!$A$1:$C$511,2,FALSE)] | D65=0 [=M65] | E65=100 | F65=Pasapalo durante el evento - 1 por persona aproximadamente. | G65=0 [=E65*D65] | I65=0 [=C65] | J65=100 [=E65] | K65=0 [=I65*J65] | L65=0 [=I65*60%] | M65=0 [=I65+L65] | T65=0 [=(M65*15%)+M65] | U65=0 [=I65*2] | V65=0 [=U65*J65]
+  A66=. | C66=0 [=VLOOKUP(A66,[1]Productos!$A$1:$C$511,2,FALSE)] | D66=0 [=M66] | E66=100 | F66=Pasapalo durante el evento - 1 por persona aproximadamente. | G66=0 [=E66*D66] | I66=0 [=C66] | J66=100 [=E66] | K66=0 [=I66*J66] | L66=0 [=I66*60%] | M66=0 [=I66+L66] | T66=0 [=(M66*15%)+M66] | U66=0 [=I66*2] | V66=0 [=U66*J66]
+  A67=. | C67=0 [=VLOOKUP(A67,[1]Productos!$A$1:$C$511,2,FALSE)] | D67=0 [=M67] | E67=93 | F67=Agua durante el evento de noche | G67=0 [=E67*D67] | I67=0 [=C67] | J67=81 | K67=0 [=I67*J67] | L67=0 [=I67*60%] | M67=0 [=I67+L67] | T67=0 [=(M67*15%)+M67] | U67=0 [=I67*2] | V67=0 [=U67*J67]
+  A68=. | C68=0 [=VLOOKUP(A68,[1]Productos!$A$1:$C$511,2,FALSE)] | D68=0 [=M68] | E68=90 | F68=Refrescos durante el evento de noche | G68=0 [=E68*D68] | I68=0 [=C68] | J68=118 | K68=0 [=I68*J68] | L68=0 [=I68*60%] | M68=0 [=I68+L68] | T68=0 [=(M68*15%)+M68] | U68=0 [=I68*2] | V68=0 [=U68*J68]
+  A69=. | C69=0 [=VLOOKUP(A69,[1]Productos!$A$1:$C$511,2,FALSE)] | D69=0 [=M69] | E69=0 | F69=Servicio para preparación de cóctel - MOJITO TRADICIONAL - cliente trae el licor | G69=0 [=E69*D69] | I69=0 [=C69] | J69=0 [=E69] | K69=0 [=I69*J69] | L69=0 [=I69*60%] | M69=0 [=I69+L69] | T69=0 [=(M69*15%)+M69] | U69=0 [=I69*2] | V69=0 [=U69*J69]
+  A70=. | C70=0 [=VLOOKUP(A70,[1]Productos!$A$1:$C$511,2,FALSE)] | D70=0 [=M70] | E70=0 | F70=Servicio para preparación de cóctel - WHISKY AND GINGER - cliente trae el licor | G70=0 [=E70*D70] | I70=0 [=C70] | J70=0 [=E70] | K70=0 [=I70*J70] | L70=0 [=I70*60%] | M70=0 [=I70+L70] | T70=0 [=(M70*15%)+M70] | U70=0 [=I70*2] | V70=0 [=U70*J70]
+  A71=. | C71=0 [=VLOOKUP(A71,[1]Productos!$A$1:$C$511,2,FALSE)] | D71=0 [=M71] | E71=0 | F71=Servicio para preparación de cóctel - VODKA MARACUYA - cliente trae el licor | G71=0 [=E71*D71] | I71=0 [=C71] | J71=0 [=E71] | K71=0 [=I71*J71] | L71=0 [=I71*60%] | M71=0 [=I71+L71] | T71=0 [=(M71*15%)+M71] | U71=0 [=I71*2] | V71=0 [=U71*J71]
+  A72=. | C72=0 [=VLOOKUP(A72,[1]Productos!$A$1:$C$511,2,FALSE)] | D72=0 [=M72] | E72=0 | F72=Servicio para preparación de cóctel - TEQUILA SUNRISE - cliente trae el licor | G72=0 [=E72*D72] | I72=0 [=C72] | J72=0 [=E72] | K72=0 [=I72*J72] | L72=0 [=I72*60%] | M72=0 [=I72+L72] | T72=0 [=(M72*15%)+M72] | U72=0 [=I72*2] | V72=0 [=U72*J72]
+  A73=. | C73=0 [=VLOOKUP(A73,[1]Productos!$A$1:$C$511,2,FALSE)] | D73=0 [=M73] | E73=0 | F73=Servicio para preparación de cóctel - GIN TONIC - cliente trae el licor | G73=0 [=E73*D73] | I73=0 [=C73] | J73=0 [=E73] | K73=0 [=I73*J73] | L73=0 [=I73*60%] | M73=0 [=I73+L73] | T73=0 [=(M73*15%)+M73] | U73=0 [=I73*2] | V73=0 [=U73*J73]
+  A74=. | C74=0 [=VLOOKUP(A74,[1]Productos!$A$1:$C$511,2,FALSE)] | D74=0 [=M74] | E74=0 | F74=Servicio para preparación de cóctel - VODKA CRANBERRY - cliente trae el licor | G74=0 [=E74*D74] | I74=0 [=C74] | J74=0 [=E74] | K74=0 [=I74*J74] | L74=0 [=I74*60%] | M74=0 [=I74+L74] | T74=0 [=(M74*15%)+M74] | U74=0 [=I74*2] | V74=0 [=U74*J74]
+  A75=. | C75=0 [=VLOOKUP(A75,[1]Productos!$A$1:$C$511,2,FALSE)] | D75=0 [=M75] | E75=0 | F75=Servicio para preparación de cóctel - RON FIZZ TROPICAL - cliente trae el licor | G75=0 [=E75*D75] | I75=0 [=C75] | J75=0 [=E75] | K75=0 [=I75*J75] | L75=0 [=I75*60%] | M75=0 [=I75+L75] | T75=0 [=(M75*15%)+M75] | U75=0 [=I75*2] | V75=0 [=U75*J75]
+  A76=. | C76=0 [=VLOOKUP(A76,[1]Productos!$A$1:$C$511,2,FALSE)] | D76=0 [=M76] | E76=15 | F76=10 botellas de vino y 5 botellas de proseco | G76=0 [=E76*D76] | I76=0 [=C76] | J76=10 | K76=0 [=I76*J76] | L76=0 [=I76*60%] | M76=0 [=I76+L76] | T76=0 [=(M76*15%)+M76] | U76=0 [=I76*2] | V76=0 [=U76*J76]
+  A77=. | C77=0 [=VLOOKUP(A77,[1]Productos!$A$1:$C$511,2,FALSE)] | D77=0 [=M77] | E77=25 | F77=10 botellas de whisky, 05 de ron y 10 de vodka (cada uno con tres mezcladores) | G77=0 [=E77*D77] | I77=0 [=C77] | J77=6 | K77=0 [=I77*J77] | L77=0 [=I77*60%] | M77=0 [=I77+L77] | U77=0 [=I77*2] | V77=0 [=U77*J77]
+  A78=. | C78=0 [=VLOOKUP(A78,[1]Productos!$A$1:$C$511,2,FALSE)] | D78=0 [=M78] | E78=0 | G78=0 [=E78*D78] | I78=0 [=C78] | J78=0 [=E78] | K78=0 [=I78*J78] | L78=0 [=I78*60%] | M78=0 [=I78+L78]
+  A79=. | C79=0 [=VLOOKUP(A79,[1]Productos!$A$1:$C$511,2,FALSE)] | D79=0 [=M79] | E79=0 | G79=0 [=E79*D79] | I79=0 [=C79] | J79=0 [=E79] | K79=0 [=I79*J79] | L79=0 [=I79*60%] | M79=0 [=I79+L79]
+  A80=. | C80=0 [=VLOOKUP(A80,[1]Productos!$A$1:$C$511,2,FALSE)] | D80=0 [=M80] | E80=0 | G80=0 [=E80*D80] | I80=0 [=C80] | J80=0 [=E80] | K80=0 [=I80*J80] | L80=0 [=I80*60%] | M80=0 [=I80+L80]
+  A81=. | C81=0 [=VLOOKUP(A81,[1]Productos!$A$1:$C$511,2,FALSE)] | D81=0 [=M81] | E81=0 | G81=0 [=E81*D81] | I81=0 [=C81] | J81=0 [=E81] | K81=0 [=I81*J81] | L81=0 [=I81*60%] | M81=0 [=I81+L81]
+  F82=Sub Total  | G82=576 [=SUM(G44:G81)] | I82=Sub Total | K82=503.99999999999994 [=SUM(K44:K81)] | U82=Sub Total | V82=1007.9999999999999 [=SUM(V44:V77)]
+  F83=10% Servicio | G83=57.6 [=G82*10%] | I83=10% Servicio | K83=50.4 [=K82*10%] | Q83=Precio vino | R83=0 [=M48+R48] | U83=Servicio FULL | V83=100.8 [=V82*10%]
+  F84=Total Alimentos y Bebidas | G84=633.6 [=SUM(G82:G83)] | I84=Total  | K84=554.4 [=SUM(K82:K83)]
+  A86=ESPACIOS
+  A87=Ítem | C87=OCULTO | D87=Precio Unit. | E87=Cantidad | F87=Comentarios | G87=Sub Total
+  A88=discoteca La Boite (uso DIARIO) | C88=1000 [=VLOOKUP(A88,[1]Productos!$A$1:$C$511,2,FALSE)] | D88=2000 | E88=1 | F88=Espacio para evento.(descuento especial) | G88=1500
+  A89=ESTAR GENERAL | C89=3000 [=VLOOKUP(A89,[1]Productos!$A$1:$C$511,2,FALSE)] | D89=0 | E89=1 | F89=Espacio para evento - Montaje (preventivo) | G89=0 [=E89*D89]
+  A90=Restaurante Humboldt | C90=#N/A [=VLOOKUP(A90,[1]Productos!$A$1:$C$511,2,FALSE)] | D90=3000 | E90=1 | F90=Espacio durante almuerzos o cenas por definir (cortesía) | G90=0
+  A91=. | C91=0 [=VLOOKUP(A91,[1]Productos!$A$1:$C$511,2,FALSE)] | D91=0 [=C91] | E91=1 | F91=Espacio durante el evento | G91=0 [=E91*D91]
+  A92=. | C92=0 [=VLOOKUP(A92,[1]Productos!$A$1:$C$511,2,FALSE)] | D92=0 [=C92] | E92=1 | F92=Espacio durante el evento (descuento especial) | G92=0
+  F93=Sub Total | G93=1500 [=SUM(G88:G92)]
+  F95=Total Misceláneos  | G95=3490 [=G34]
+  F96=Total AyB | G96=576 [=G82]
+  F97=Total Salones  | G97=1500 [=G93]
+  F98=Sub Total USD | G98=5566 [=SUM(G95:G97)]
+  F99=Traslado (exento de IVA) | G99=0 [=G40]
+  F100=Total 10% de servicio  | G100=57.6 [=G83]
+  F101=16% IVA | G101=890.5600000000001 [=+G98*16%]
+  F102=Total USD | G102=6514.160000000001 [=SUM(G98:G101)]
+  F103=Garantìa 10% | G103=651.4160000000002 [=G102*10%]
+  F104=TOTAL  | G104=7165.576000000001 [=SUM(G102:G103)]
+  A106=CONDICIONES IMPORTANTES 
+  A107=El 16% de IVA será reflejado al momento de la facturación en Bolívares. 
+  A108=Todo pago realizado en moneda extranjera, general un 3% por IGTF.
+  A109=Las tarifas mencionadas en este presupuesto están sujetas a cambios sin previo aviso. Las mismas debes ser revisadas al momento de la conformación de su evento.
+  A110=En caso de confirmar su evento, debe contactar a su ejecutivo de ventas para verificar la disponibilidad del espacio.
+  A111=Al momento de la conformación de su evento solicitamos un 100% de anticipo del total del presupuesto el cual debe estar pago completamente 48 horas antes de la ejecución del evento.
+  A112=Se solicitara un 10% de garantia para cubrir lo gastos adicionales que se puedan generar en el evento.
+  A113=Agradecemos su interés en nuestras instalaciones y servicios, esperamos por su información para afinar los detalles de su evento. 
+  A114=El presente documento es solo una cotización de carácter informativo, no implica un bloqueo de los espacios.  
+  A115=Los precios contemplados en esta propuesta tendrán una vigencia de siete (7) dias a partir de la fecha de este presupuesto. Estos precios están sujetos a modificación.
+  A116=Al momento de confirmar su evento, si contamos con la disponibilidad de los espacios, le haremos llegar el contrato definitivo.
+  ... (3 filas vacías)
+  A120=K. Jaén
+
+======================================================================
+SHEET: CENA
+MERGED: I30:M30, A64:B64, A73:B73, A51:B51, A109:G109, A22:G22, B8:G8, A88:B88, A70:B70, A111:G111, A54:B54, B10:G10, A90:B90, I32:M32, N42:R42, A74:B74, A56:B56, A27:B27, A76:B76, A33:B33, A53:B53, A62:B62, A68:B68, A28:B28, B12:G12, A39:B39, A23:G23, A48:B48, A30:B30, A116:G116, A59:B59, B14:G14, A45:B45, B13:G13, A79:B79, A61:B61, A115:G115, A87:B87, A46:B46, A37:B37, A89:B89, I28:M28, A36:G36, A26:B26, A71:B71, A91:B91, A52:B52, A63:B63, A113:G113, A77:B77, B11:G11, A92:B92, A106:G106, A49:B49, A69:B69, A78:B78, A65:B65, A83:D83, U42:V43, A75:B75, A24:G24, A80:B80, B15:G15, A55:B55, A110:G110, A57:B57, A32:B32, A108:G108, B7:G7, B16:G16, A38:B38, A43:B43, A86:G86, B18:G18, A67:B67, I31:M31, A60:B60, B17:G17, A20:G20, A112:G112...
+----------------------------------------------------------------------
+  ... (5 filas vacías)
+  A6=Cliente: | B6=TS Sport
+  A7=Rif o cédula:  | B7=V15.419.123
+  A8=Dirección: | B8=Caracas
+  A9=Contacto: | B9=Antonio Linares
+  A10=Teléfono:
+  A11=Email:
+  A12=Nombre del Evento: | B12=Cena especial
+  A13=Cantidad de Persona: | B13=30 personas, aproximadamente
+  A14=Hora de Inicio: | B14=18:00:00
+  A15=Hora de culminacion: | B15=21:00:00
+  A16=Fecha Presupuesto: | B16=miércoles, 21 de enero de 2026 | K16=Àrea | L16=Cantidad
+  A17=Fecha del Acuerdo: | K17=àrea p | L17=1
+  A18=Fecha del Evento: | B18=jueves, 07 de mayo de 2026 (fechas en revisión) | K18=ayb | L18=4
+  K19=cocina | L19=0
+  A20=Gracias por preferir al Hotel Humboldt para realizar su evento. Según su solicitud le presentamos la siguiente propuesta. | K20=bartender | L20=1
+  K21=montaje | L21=1
+  A22=COTIZACION DE EVENTO | K22=prevencion | L22=1
+  K23=coordinador | L23=1
+  A24=MISCELANEOS | K24=Total | L24=9 [=SUM(L17:L23)]
+  A25=Ítem | C25=OCULTO | D25=Precio Unit. | E25=Cantidad | F25=Comentarios
+  A26=PROTOCOLO DE MARIPEREZ (Menos de 100 pers.) | C26=90 [=VLOOKUP(A26,[1]Productos!$A$1:$C$511,2,FALSE)] | D26=50 | E26=1 | F26=Protocolo de recibimiento en mariperez - brazaletes. | G26=50 [=D26*E26]
+  A27=Mobiliario | C27=0 [=VLOOKUP(A27,[1]Productos!$A$1:$C$511,2,FALSE)] | D27=0 | E27=1 | F27=Mobiliario mixto para 30 personas -  banquetes y áreas lounge  | G27=0 [=D27*E27]
+  A28=. | C28=0 [=VLOOKUP(A28,[1]Productos!$A$1:$C$511,2,FALSE)] | D28=0 | E28=1 | F28=Planta eléctrica con operador (precio especial) | G28=0 [=D28*E28]
+  A29=Servicio | C29=0 [=VLOOKUP(A29,[1]Productos!$A$1:$C$511,2,FALSE)] | D29=540 | E29=1 | F29=Personal de servicio: prevención, áreas públicas, montaje, coordinador general.  | G29=540 [=D29*E29]
+  A30=Audiovisuales | C30=0 [=VLOOKUP(A30,[1]Productos!$A$1:$C$511,2,FALSE)] | D30=200 | E30=1 | F30=Sonido para sala de eventos - música de ambiente sin operador. | G30=200 [=D30*E30]
+  A31=. | C31=0 [=VLOOKUP(A31,[1]Productos!$A$1:$C$511,2,FALSE)] | D31=0 | E31=1 | F31=Servicio profesional de DJ durante el evento | G31=0 [=D31*E31]
+  A32=. | D32=0 | E32=1 | F32=Servicio de animación (4 horas) desde las 6:00 pm | G32=0 [=D32*E32]
+  A33=. | D33=0 | E33=1 | G33=0 [=D33*E33]
+  F34=Sub Total | G34=790 [=SUM(G26:G33)]
+  A36=TRASLADOS
+  A37=Ítem | C37=OCULTO | D37=Precio Unit. | E37=Cantidad | F37=Comentarios
+  A38=Traslado Ida-Vuelta p/persona | C38=10 [=VLOOKUP(A38,[1]Productos!$A$1:$C$511,2,FALSE)] | D38=15 | E38=0 | F38=Traslado en teleférico  - Por favor, considerar los horarios de subida y bajada.  | G38=0 [=D38*E38]
+  A39=Traslado Ida-Vuelta p/persona | C39=10 [=VLOOKUP(A39,[1]Productos!$A$1:$C$511,2,FALSE)] | D39=60 | E39=0 | F39=Precios de referencia por traslados vía terrestre - entre 9 a 10 personas por unidad. | G39=0 [=D39*E39]
+  F40=Sub Total | G40=0 [=SUM(G38:G39)]
+  A42=ALIMENTOS Y BEBIDAS | I42=Provedor: Alternativa Gastronómica | N42=Proveedo vino FIRIUS | T42=15% extra | U42=10% de servicio al precio full lista del 19/07
+  A43=Ítem | C43=OCULTO | D43=Precio Unit. | E43=Cantidad | F43=Comentarios | G43=Sub Total | I43=Monto  | J43=Cantidad  | K43=Total  | L43=0.6 | M43=PVP | N43=Monto | O43=Cantidad  | P43=Total  | Q43=0.2 | R43=PVP | S43=TOTAL FINAL
+  A44=MENÚ 3 TIEMPOS  | C44=25.5 [=VLOOKUP(A44,[1]Productos!$A$1:$C$511,2,FALSE)] | D44=61.3 | E44=30 | F44=Sugerencia de menú
+Entrada: chupe de pollo
+Principal: lomito en mantequilla de hierbas con cremoso de papas
+Postre: ponqué cremoso de chocolate (Waraira) | G44=1839 [=E44*D44] | I44=35.7 | J44=30 [=E44] | K44=1071 [=I44*J44] | L44=24.990000000000002 [=I44*70%] | M44=60.690000000000005 [=I44+L44] | T44=69.79350000000001 [=(M44*15%)+M44] | U44=71.4 [=I44*2] | V44=2142 [=U44*J44]
+  A45=AGUA MINERAL (BOTELLA 330 ML) | C45=1.5 [=VLOOKUP(A45,[1]Productos!$A$1:$C$511,2,FALSE)] | D45=3.2 [=M45] | E45=0 | F45=Agua durante la cena, 1 por persona (aproximadamente) | G45=0 [=E45*D45] | I45=2 | J45=0 [=E45] | K45=0 [=I45*J45] | L45=1.2 [=I45*60%] | M45=3.2 [=I45+L45] | T45=3.68 [=(M45*15%)+M45] | U45=4 [=I45*2] | V45=0 [=U45*J45]
+  A46=Bebida por seleccionar (vino) | C46=0 [=VLOOKUP(A46,[1]Productos!$A$1:$C$511,2,FALSE)] | D46=6.4 | E46=60 | F46=Copa de vino (2 por persona) | G46=384 [=E46*D46] | I46=10.5 | J46=6 | K46=63 [=I46*J46] | L46=6.3 [=I46*60%] | M46=16.8 [=I46+L46] | T46=19.32 [=(M46*15%)+M46] | U46=21 [=I46*2] | V46=126 [=U46*J46]
+  A47=DESCORCHE DE VINOS Y ESPUMANTES (por botella) | C47=15 [=VLOOKUP(A47,[1]Productos!$A$1:$C$511,2,FALSE)] | D47=15 | E47=0 | F47=Cantidades a definir con el cliente, precio de referencia. | G47=0 [=E47*D47] | I47=15 [=C47] | J47=0 [=E47] | K47=0 [=I47*J47] | L47=9 [=I47*60%] | M47=24 [=I47+L47] | T47=27.6 [=(M47*15%)+M47] | U47=30 [=I47*2] | V47=0 [=U47*J47]
+  A48=DESCORCHE DE OTROS LICORES (por botella) | C48=20 [=VLOOKUP(A48,[1]Productos!$A$1:$C$511,2,FALSE)] | D48=25 | E48=0 | F48=Cantidades a definir con el cliente, precio de referencia. | G48=0 [=E48*D48] | I48=20 [=C48] | J48=0 [=E48] | K48=0 [=I48*J48] | L48=12 [=I48*60%] | M48=32 [=I48+L48] | T48=36.8 [=(M48*15%)+M48] | U48=40 [=I48*2] | V48=0 [=U48*J48]
+  A49=. | C49=0 [=VLOOKUP(A49,[1]Productos!$A$1:$C$511,2,FALSE)] | D49=0 [=M49] | E49=140 | F49=Pasapalo | G49=0 [=E49*D49] | I49=0 [=C49] | J49=140 [=E49] | K49=0 [=I49*J49] | L49=0 [=I49*60%] | M49=0 [=I49+L49] | T49=0 [=(M49*15%)+M49] | U49=0 [=I49*2] | V49=0 [=U49*J49]
+  A50=. | C50=0 [=VLOOKUP(A50,[1]Productos!$A$1:$C$511,2,FALSE)] | D50=0 [=M50] | E50=90 | F50=Refresco para servicio | G50=0 [=E50*D50] | I50=0 [=C50] | J50=90 [=E50] | K50=0 [=I50*J50] | L50=0 [=I50*60%] | M50=0 [=I50+L50] | T50=0 [=(M50*15%)+M50] | U50=0 [=I50*2] | V50=0 [=U50*J50]
+  A51=. | C51=0 [=VLOOKUP(A51,[1]Productos!$A$1:$C$511,2,FALSE)] | D51=0 [=M51] | E51=140 | F51=Agua para servicio | G51=0 [=E51*D51] | I51=0 [=C51] | J51=140 [=E51] | K51=0 [=I51*J51] | L51=0 [=I51*60%] | M51=0 [=I51+L51] | T51=0 [=(M51*15%)+M51] | U51=0 [=I51*2] | V51=0 [=U51*J51]
+  A52=. | C52=0 [=VLOOKUP(A52,[1]Productos!$A$1:$C$511,2,FALSE)] | D52=15 | E52=0 | F52=Cantidades a definir con el cliente, precio de referencia. | G52=0 [=E52*D52] | I52=7 | J52=0 | K52=0 [=I52*J52] | L52=4.2 [=I52*60%] | M52=11.2 [=I52+L52] | T52=12.879999999999999 [=(M52*15%)+M52] | U52=14 [=I52*2] | V52=0 [=U52*J52]
+  A53=. | C53=0 [=VLOOKUP(A53,[1]Productos!$A$1:$C$511,2,FALSE)] | D53=25 | E53=0 | F53=Cantidades a definir con el cliente, precio de referencia. | G53=0 [=E53*D53] | I53=12.5 | J53=0 [=E53] | K53=0 [=I53*J53] | L53=7.5 [=I53*60%] | M53=20 [=I53+L53] | T53=23 [=(M53*15%)+M53] | U53=25 [=I53*2] | V53=0 [=U53*J53]
+  A54=. | C54=0 [=VLOOKUP(A54,[1]Productos!$A$1:$C$511,2,FALSE)] | D54=0 [=M54] | E54=96 | F54=Refrigerio AM | G54=0 [=E54*D54] | I54=0 [=C54] | J54=96 [=E54] | K54=0 [=I54*J54] | L54=0 [=I54*60%] | M54=0 [=I54+L54] | T54=0 [=(M54*15%)+M54] | U54=0 [=I54*2] | V54=0 [=U54*J54]
+  A55=. | C55=0 [=VLOOKUP(A55,[1]Productos!$A$1:$C$511,2,FALSE)] | D55=0 [=M55] | E55=60 | F55=Refrigerio AM | G55=0 [=E55*D55] | I55=0 [=C55] | J55=60 [=E55] | K55=0 [=I55*J55] | L55=0 [=I55*60%] | M55=0 [=I55+L55] | T55=0 [=(M55*15%)+M55] | U55=0 [=I55*2] | V55=0 [=U55*J55]
+  A56=. | C56=0 [=VLOOKUP(A56,[1]Productos!$A$1:$C$511,2,FALSE)] | D56=0 [=M56] | E56=96 | F56=Refrigerio AM | G56=0 [=E56*D56] | I56=0 [=C56] | J56=96 [=E56] | K56=0 [=I56*J56] | L56=0 [=I56*60%] | M56=0 [=I56+L56] | T56=0 [=(M56*15%)+M56] | U56=0 [=I56*2] | V56=0 [=U56*J56]
+  A57=. | C57=0 [=VLOOKUP(A57,[1]Productos!$A$1:$C$511,2,FALSE)] | D57=0 [=M57] | E57=48 | F57=Almuerzo ligero | G57=0 [=E57*D57] | I57=0 [=C57] | J57=48 [=E57] | K57=0 [=I57*J57] | L57=0 [=I57*60%] | M57=0 [=I57+L57] | N57=0 [=(M57*15%)+M57] | T57=0 [=(M57*15%)+M57] | U57=0 [=I57*2] | V57=0 [=U57*J57]
+  A58=. | C58=0 [=VLOOKUP(A58,[1]Productos!$A$1:$C$511,2,FALSE)] | D58=0 [=M58] | E58=48 | F58=Postre para almuerzo | G58=0 [=E58*D58] | I58=0 [=C58] | J58=48 [=E58] | K58=0 [=I58*J58] | L58=0 [=I58*60%] | M58=0 [=I58+L58] | N58=0 [=(M58*15%)+M58] | T58=0 [=(M58*15%)+M58] | U58=0 [=I58*2] | V58=0 [=U58*J58]
+  A59=. | C59=0 [=VLOOKUP(A59,[1]Productos!$A$1:$C$511,2,FALSE)] | D59=0 [=M59] | E59=60 | F59=Refrigerio PM | G59=0 [=E59*D59] | I59=0 [=C59] | J59=60 [=E59] | K59=0 [=I59*J59] | L59=0 [=I59*60%] | M59=0 [=I59+L59] | N59=0 [=(M59*15%)+M59] | T59=0 [=(M59*15%)+M59] | U59=0 [=I59*2] | V59=0 [=U59*J59]
+  A60=. | C60=0 [=VLOOKUP(A60,[1]Productos!$A$1:$C$511,2,FALSE)] | D60=0 [=M60] | E60=60 | F60=Refrigerio PM | G60=0 [=E60*D60] | I60=0 [=C60] | J60=60 [=E60] | K60=0 [=I60*J60] | L60=0 [=I60*60%] | M60=0 [=I60+L60] | N60=0 [=(M60*15%)+M60] | T60=0 [=(M60*15%)+M60] | U60=0 [=I60*2] | V60=0 [=U60*J60]
+  A61=. | C61=0 [=VLOOKUP(A61,[1]Productos!$A$1:$C$511,2,FALSE)] | D61=0 [=M61] | E61=120 | F61=Estación de café para los servicios durante el dia (40 refrigerio AM, 40 almuerzo y 40 refrigerio PM) | G61=0 [=E61*D61] | I61=0 [=C61] | J61=120 [=E61] | K61=0 [=I61*J61] | L61=0 [=I61*60%] | M61=0 [=I61+L61] | N61=0 [=(M61*15%)+M61] | T61=0 [=(M61*15%)+M61] | U61=0 [=I61*2] | V61=0 [=U61*J61]
+  A62=. | C62=0 [=VLOOKUP(A62,[1]Productos!$A$1:$C$511,2,FALSE)] | D62=0 [=M62] | E62=70 | F62=Bebida para almuerzo y refrigerio PM | G62=0 [=E62*D62] | I62=0 [=C62] | J62=70 [=E62] | K62=0 [=I62*J62] | L62=0 [=I62*60%] | M62=0 [=I62+L62] | N62=0 [=(M62*15%)+M62] | T62=0 [=(M62*15%)+M62] | U62=0 [=I62*2] | V62=0 [=U62*J62]
+  A63=. | C63=0 [=VLOOKUP(A63,[1]Productos!$A$1:$C$511,2,FALSE)] | D63=0 [=M63] | E63=144 | F63=Agua para cada servicio (AM - Almuerzo - PM) | G63=0 [=E63*D63] | I63=0 [=C63] | J63=0 | K63=0 [=I63*J63] | L63=0 [=I63*60%] | M63=0 [=I63+L63] | T63=0 [=(M63*15%)+M63] | U63=0 [=I63*2] | V63=0 [=U63*J63]
+  A64=. | C64=0 [=VLOOKUP(A64,[1]Productos!$A$1:$C$511,2,FALSE)] | D64=0 [=M64] | E64=150 | F64=Pasapalo durante el evento - 3 por persona aproximadamente. | G64=0 [=E64*D64] | I64=0 [=C64] | J64=150 [=E64] | K64=0 [=I64*J64] | L64=0 [=I64*60%] | M64=0 [=I64+L64] | T64=0 [=(M64*15%)+M64] | U64=0 [=I64*2] | V64=0 [=U64*J64]
+  A65=. | C65=0 [=VLOOKUP(A65,[1]Productos!$A$1:$C$511,2,FALSE)] | D65=0 [=M65] | E65=100 | F65=Pasapalo durante el evento - 1 por persona aproximadamente. | G65=0 [=E65*D65] | I65=0 [=C65] | J65=100 [=E65] | K65=0 [=I65*J65] | L65=0 [=I65*60%] | M65=0 [=I65+L65] | T65=0 [=(M65*15%)+M65] | U65=0 [=I65*2] | V65=0 [=U65*J65]
+  A66=. | C66=0 [=VLOOKUP(A66,[1]Productos!$A$1:$C$511,2,FALSE)] | D66=0 [=M66] | E66=100 | F66=Pasapalo durante el evento - 1 por persona aproximadamente. | G66=0 [=E66*D66] | I66=0 [=C66] | J66=100 [=E66] | K66=0 [=I66*J66] | L66=0 [=I66*60%] | M66=0 [=I66+L66] | T66=0 [=(M66*15%)+M66] | U66=0 [=I66*2] | V66=0 [=U66*J66]
+  A67=. | C67=0 [=VLOOKUP(A67,[1]Productos!$A$1:$C$511,2,FALSE)] | D67=0 [=M67] | E67=93 | F67=Agua durante el evento de noche | G67=0 [=E67*D67] | I67=0 [=C67] | J67=81 | K67=0 [=I67*J67] | L67=0 [=I67*60%] | M67=0 [=I67+L67] | T67=0 [=(M67*15%)+M67] | U67=0 [=I67*2] | V67=0 [=U67*J67]
+  A68=. | C68=0 [=VLOOKUP(A68,[1]Productos!$A$1:$C$511,2,FALSE)] | D68=0 [=M68] | E68=90 | F68=Refrescos durante el evento de noche | G68=0 [=E68*D68] | I68=0 [=C68] | J68=118 | K68=0 [=I68*J68] | L68=0 [=I68*60%] | M68=0 [=I68+L68] | T68=0 [=(M68*15%)+M68] | U68=0 [=I68*2] | V68=0 [=U68*J68]
+  A69=. | C69=0 [=VLOOKUP(A69,[1]Productos!$A$1:$C$511,2,FALSE)] | D69=0 [=M69] | E69=0 | F69=Servicio para preparación de cóctel - MOJITO TRADICIONAL - cliente trae el licor | G69=0 [=E69*D69] | I69=0 [=C69] | J69=0 [=E69] | K69=0 [=I69*J69] | L69=0 [=I69*60%] | M69=0 [=I69+L69] | T69=0 [=(M69*15%)+M69] | U69=0 [=I69*2] | V69=0 [=U69*J69]
+  A70=. | C70=0 [=VLOOKUP(A70,[1]Productos!$A$1:$C$511,2,FALSE)] | D70=0 [=M70] | E70=0 | F70=Servicio para preparación de cóctel - WHISKY AND GINGER - cliente trae el licor | G70=0 [=E70*D70] | I70=0 [=C70] | J70=0 [=E70] | K70=0 [=I70*J70] | L70=0 [=I70*60%] | M70=0 [=I70+L70] | T70=0 [=(M70*15%)+M70] | U70=0 [=I70*2] | V70=0 [=U70*J70]
+  A71=. | C71=0 [=VLOOKUP(A71,[1]Productos!$A$1:$C$511,2,FALSE)] | D71=0 [=M71] | E71=0 | F71=Servicio para preparación de cóctel - VODKA MARACUYA - cliente trae el licor | G71=0 [=E71*D71] | I71=0 [=C71] | J71=0 [=E71] | K71=0 [=I71*J71] | L71=0 [=I71*60%] | M71=0 [=I71+L71] | T71=0 [=(M71*15%)+M71] | U71=0 [=I71*2] | V71=0 [=U71*J71]
+  A72=. | C72=0 [=VLOOKUP(A72,[1]Productos!$A$1:$C$511,2,FALSE)] | D72=0 [=M72] | E72=0 | F72=Servicio para preparación de cóctel - TEQUILA SUNRISE - cliente trae el licor | G72=0 [=E72*D72] | I72=0 [=C72] | J72=0 [=E72] | K72=0 [=I72*J72] | L72=0 [=I72*60%] | M72=0 [=I72+L72] | T72=0 [=(M72*15%)+M72] | U72=0 [=I72*2] | V72=0 [=U72*J72]
+  A73=. | C73=0 [=VLOOKUP(A73,[1]Productos!$A$1:$C$511,2,FALSE)] | D73=0 [=M73] | E73=0 | F73=Servicio para preparación de cóctel - GIN TONIC - cliente trae el licor | G73=0 [=E73*D73] | I73=0 [=C73] | J73=0 [=E73] | K73=0 [=I73*J73] | L73=0 [=I73*60%] | M73=0 [=I73+L73] | T73=0 [=(M73*15%)+M73] | U73=0 [=I73*2] | V73=0 [=U73*J73]
+  A74=. | C74=0 [=VLOOKUP(A74,[1]Productos!$A$1:$C$511,2,FALSE)] | D74=0 [=M74] | E74=0 | F74=Servicio para preparación de cóctel - VODKA CRANBERRY - cliente trae el licor | G74=0 [=E74*D74] | I74=0 [=C74] | J74=0 [=E74] | K74=0 [=I74*J74] | L74=0 [=I74*60%] | M74=0 [=I74+L74] | T74=0 [=(M74*15%)+M74] | U74=0 [=I74*2] | V74=0 [=U74*J74]
+  A75=. | C75=0 [=VLOOKUP(A75,[1]Productos!$A$1:$C$511,2,FALSE)] | D75=0 [=M75] | E75=0 | F75=Servicio para preparación de cóctel - RON FIZZ TROPICAL - cliente trae el licor | G75=0 [=E75*D75] | I75=0 [=C75] | J75=0 [=E75] | K75=0 [=I75*J75] | L75=0 [=I75*60%] | M75=0 [=I75+L75] | T75=0 [=(M75*15%)+M75] | U75=0 [=I75*2] | V75=0 [=U75*J75]
+  A76=. | C76=0 [=VLOOKUP(A76,[1]Productos!$A$1:$C$511,2,FALSE)] | D76=0 [=M76] | E76=15 | F76=10 botellas de vino y 5 botellas de proseco | G76=0 [=E76*D76] | I76=0 [=C76] | J76=10 | K76=0 [=I76*J76] | L76=0 [=I76*60%] | M76=0 [=I76+L76] | T76=0 [=(M76*15%)+M76] | U76=0 [=I76*2] | V76=0 [=U76*J76]
+  A77=. | C77=0 [=VLOOKUP(A77,[1]Productos!$A$1:$C$511,2,FALSE)] | D77=0 [=M77] | E77=25 | F77=10 botellas de whisky, 05 de ron y 10 de vodka (cada uno con tres mezcladores) | G77=0 [=E77*D77] | I77=0 [=C77] | J77=6 | K77=0 [=I77*J77] | L77=0 [=I77*60%] | M77=0 [=I77+L77] | U77=0 [=I77*2] | V77=0 [=U77*J77]
+  A78=. | C78=0 [=VLOOKUP(A78,[1]Productos!$A$1:$C$511,2,FALSE)] | D78=0 [=M78] | E78=0 | G78=0 [=E78*D78] | I78=0 [=C78] | J78=0 [=E78] | K78=0 [=I78*J78] | L78=0 [=I78*60%] | M78=0 [=I78+L78]
+  A79=. | C79=0 [=VLOOKUP(A79,[1]Productos!$A$1:$C$511,2,FALSE)] | D79=0 [=M79] | E79=0 | G79=0 [=E79*D79] | I79=0 [=C79] | J79=0 [=E79] | K79=0 [=I79*J79] | L79=0 [=I79*60%] | M79=0 [=I79+L79]
+  A80=. | C80=0 [=VLOOKUP(A80,[1]Productos!$A$1:$C$511,2,FALSE)] | D80=0 [=M80] | E80=0 | G80=0 [=E80*D80] | I80=0 [=C80] | J80=0 [=E80] | K80=0 [=I80*J80] | L80=0 [=I80*60%] | M80=0 [=I80+L80]
+  A81=. | C81=0 [=VLOOKUP(A81,[1]Productos!$A$1:$C$511,2,FALSE)] | D81=0 [=M81] | E81=0 | G81=0 [=E81*D81] | I81=0 [=C81] | J81=0 [=E81] | K81=0 [=I81*J81] | L81=0 [=I81*60%] | M81=0 [=I81+L81]
+  F82=Sub Total  | G82=2223 [=SUM(G44:G81)] | I82=Sub Total | K82=1134 [=SUM(K44:K81)] | U82=Sub Total | V82=2268 [=SUM(V44:V77)]
+  F83=10% Servicio | G83=222.3 [=G82*10%] | I83=10% Servicio | K83=113.4 [=K82*10%] | Q83=Precio vino | R83=32 [=M48+R48] | U83=Servicio FULL | V83=226.8 [=V82*10%]
+  F84=Total Alimentos y Bebidas | G84=2445.3 [=SUM(G82:G83)] | I84=Total  | K84=1247.4 [=SUM(K82:K83)]
+  A86=ESPACIOS | K86=4.9
+  A87=Ítem | C87=OCULTO | D87=Precio Unit. | E87=Cantidad | F87=Comentarios | G87=Sub Total | K87=18.2
+  A88=Bar GAVIOTA | C88=1500 [=VLOOKUP(A88,[1]Productos!$A$1:$C$511,2,FALSE)] | D88=1000 | E88=1 | F88=Espacio para evento (precio especial) | G88=500 | K88=6.3
+  A89=ESTAR GENERAL | C89=3000 [=VLOOKUP(A89,[1]Productos!$A$1:$C$511,2,FALSE)] | D89=0 | E89=1 | F89=Espacio para evento - Montaje (preventivo) | G89=0 [=E89*D89]
+  A90=Restaurante Humboldt | C90=#N/A [=VLOOKUP(A90,[1]Productos!$A$1:$C$511,2,FALSE)] | D90=3000 | E90=1 | F90=Espacio durante almuerzos o cenas por definir (cortesía) | G90=0
+  A91=. | C91=0 [=VLOOKUP(A91,[1]Productos!$A$1:$C$511,2,FALSE)] | D91=0 [=C91] | E91=1 | F91=Espacio durante el evento | G91=0 [=E91*D91]
+  A92=. | C92=0 [=VLOOKUP(A92,[1]Productos!$A$1:$C$511,2,FALSE)] | D92=0 [=C92] | E92=1 | F92=Espacio durante el evento (descuento especial) | G92=0
+  F93=Sub Total | G93=500 [=SUM(G88:G92)] | K93=11.2
+  K94=40.6 [=SUM(K86:K93)]
+  F95=Total Misceláneos  | G95=790 [=G34]
+  F96=Total AyB | G96=2223 [=G82]
+  F97=Total Salones  | G97=500 [=G93]
+  F98=Sub Total USD | G98=3513 [=SUM(G95:G97)]
+  F99=Traslado (exento de IVA) | G99=0 [=G40]
+  F100=Total 10% de servicio  | G100=222.3 [=G83]
+  F101=16% IVA | G101=562.08 [=+G98*16%]
+  F102=Total USD | G102=4297.38 [=SUM(G98:G101)]
+  F103=Garantìa 10% | G103=429.73800000000006 [=G102*10%]
+  F104=TOTAL  | G104=4727.118 [=SUM(G102:G103)]
+  A106=CONDICIONES IMPORTANTES 
+  A107=El 16% de IVA será reflejado al momento de la facturación en Bolívares. 
+  A108=Todo pago realizado en moneda extranjera, general un 3% por IGTF.
+  A109=Las tarifas mencionadas en este presupuesto están sujetas a cambios sin previo aviso. Las mismas debes ser revisadas al momento de la conformación de su evento.
+  A110=En caso de confirmar su evento, debe contactar a su ejecutivo de ventas para verificar la disponibilidad del espacio.
+  A111=Al momento de la conformación de su evento solicitamos un 100% de anticipo del total del presupuesto el cual debe estar pago completamente 48 horas antes de la ejecución del evento.
+  A112=Se solicitara un 10% de garantia para cubrir lo gastos adicionales que se puedan generar en el evento.
+  A113=Agradecemos su interés en nuestras instalaciones y servicios, esperamos por su información para afinar los detalles de su evento. 
+  A114=El presente documento es solo una cotización de carácter informativo, no implica un bloqueo de los espacios.  
+  A115=Los precios contemplados en esta propuesta tendrán una vigencia de siete (7) dias a partir de la fecha de este presupuesto. Estos precios están sujetos a modificación.
+  A116=Al momento de confirmar su evento, si contamos con la disponibilidad de los espacios, le haremos llegar el contrato definitivo.
+  ... (3 filas vacías)
+  A120=K. Jaén
+
+======================================================================
+SHEET: ESPACIOS
+MERGED: I30:M30, A64:B64, A73:B73, A51:B51, A109:G109, A22:G22, B8:G8, A88:B88, A70:B70, A111:G111, A54:B54, B10:G10, A90:B90, I32:M32, N42:R42, A74:B74, A56:B56, A27:B27, A76:B76, A33:B33, A53:B53, A62:B62, A68:B68, A28:B28, B12:G12, A39:B39, A23:G23, A48:B48, A30:B30, A116:G116, A59:B59, B14:G14, A45:B45, B13:G13, A79:B79, A61:B61, A115:G115, A87:B87, A46:B46, A37:B37, A89:B89, I28:M28, A36:G36, A26:B26, A71:B71, A91:B91, A52:B52, A63:B63, A113:G113, A77:B77, B11:G11, A92:B92, A106:G106, A49:B49, A69:B69, A78:B78, A65:B65, A83:D83, U42:V43, A75:B75, A24:G24, A80:B80, B15:G15, A55:B55, A110:G110, A57:B57, A32:B32, A108:G108, B7:G7, B16:G16, A38:B38, I29:M29, A43:B43, A86:G86, B18:G18, A67:B67, I31:M31, A60:B60, B17:G17, A20:G20...
+----------------------------------------------------------------------
+  ... (5 filas vacías)
+  A6=Cliente: | B6=TS Sport
+  A7=Rif o cédula:  | B7=V15.419.123
+  A8=Dirección: | B8=Caracas
+  A9=Contacto: | B9=Antonio Linares
+  A10=Teléfono:
+  A11=Email:
+  A12=Nombre del Evento: | B12=Evento extra Sport Bitz
+  A13=Cantidad de Persona: | B13=Circulantes
+  A14=Hora de Inicio: | B14=18:00:00
+  A15=Hora de culminacion: | B15=21:00:00
+  A16=Fecha Presupuesto: | B16=miércoles, 21 de enero de 2026 | K16=Àrea | L16=Cantidad
+  A17=Fecha del Acuerdo: | K17=àrea p | L17=1
+  A18=Fecha del Evento: | B18=jueves, 07 de mayo de 2026 (fechas en revisión) | K18=ayb | L18=4
+  K19=cocina | L19=1
+  A20=Gracias por preferir al Hotel Humboldt para realizar su evento. Según su solicitud le presentamos la siguiente propuesta. | K20=bartender | L20=1
+  K21=montaje | L21=1
+  A22=COTIZACION DE EVENTO | K22=prevencion | L22=1
+  K23=coordinador | L23=1
+  A24=MISCELANEOS | K24=Total | L24=10 [=SUM(L17:L23)]
+  A25=Ítem | C25=OCULTO | D25=Precio Unit. | E25=Cantidad | F25=Comentarios
+  A26=Servicio | C26=0 [=VLOOKUP(A26,[1]Productos!$A$1:$C$511,2,FALSE)] | D26=720 | E26=1 | F26=Despliegue de redes eléctricas, 12 puntos (en espera de plano de distribución) tiempo extra de personal de pantalla | G26=720 [=E26*D26] | I26=Evenplus $360 + IVA
+  A27=Mobiliario | C27=0 [=VLOOKUP(A27,[1]Productos!$A$1:$C$511,2,FALSE)] | D27=0 | E27=1 | F27=Mobiliario mixto para 30 personas -  banquetes y áreas lounge  | G27=0 [=D27*E27]
+  A28=. | C28=0 [=VLOOKUP(A28,[1]Productos!$A$1:$C$511,2,FALSE)] | D28=0 | E28=1 | F28=Planta eléctrica con operador (precio especial) | G28=0 [=D28*E28]
+  A29=Servicio | C29=0 [=VLOOKUP(A29,[1]Productos!$A$1:$C$511,2,FALSE)] | D29=2500 | E29=0 | F29=Servicio de internet dedicado 300 MB por el día. (EN REVISIÓN) | G29=0 [=D29*E29]
+  A30=. | C30=0 [=VLOOKUP(A30,[1]Productos!$A$1:$C$511,2,FALSE)] | D30=0 | E30=1 | F30=Sonido para sala de eventos - música de ambiente sin operador. | G30=0 [=D30*E30] | I30=Sonido del Hotel - pantalla  y micrófonos con Evenplus 1000$
+  A31=. | C31=0 [=VLOOKUP(A31,[1]Productos!$A$1:$C$511,2,FALSE)] | D31=0 | E31=1 | F31=Servicio profesional de DJ durante el evento | G31=0 [=D31*E31]
+  A32=. | D32=0 | E32=1 | F32=Servicio de animación (4 horas) desde las 6:00 pm | G32=0 [=D32*E32]
+  A33=. | D33=0 | E33=1 | G33=0 [=D33*E33]
+  F34=Sub Total | G34=720 [=SUM(G26:G33)]
+  A36=TRASLADOS
+  A37=Ítem | C37=OCULTO | D37=Precio Unit. | E37=Cantidad | F37=Comentarios
+  A38=Traslado Ida-Vuelta p/persona | C38=10 [=VLOOKUP(A38,[1]Productos!$A$1:$C$511,2,FALSE)] | D38=15 | E38=0 | F38=Traslado en teleférico  - Por favor, considerar los horarios de subida y bajada.  | G38=0 [=D38*E38]
+  A39=Traslado Ida-Vuelta p/persona | C39=10 [=VLOOKUP(A39,[1]Productos!$A$1:$C$511,2,FALSE)] | D39=60 | E39=0 | F39=Precios de referencia por traslados vía terrestre - entre 9 a 10 personas por unidad. | G39=0 [=D39*E39]
+  F40=Sub Total | G40=0 [=SUM(G38:G39)]
+  A42=ALIMENTOS Y BEBIDAS | I42=Provedor: Alternativa Gastronómica | N42=Proveedo vino FIRIUS | T42=15% extra | U42=10% de servicio al precio full lista del 19/07
+  A43=Ítem | C43=OCULTO | D43=Precio Unit. | E43=Cantidad | F43=Comentarios | G43=Sub Total | I43=Monto  | J43=Cantidad  | K43=Total  | L43=0.6 | M43=PVP | N43=Monto | O43=Cantidad  | P43=Total  | Q43=0.2 | R43=PVP | S43=TOTAL FINAL
+  A44=. | C44=0 [=VLOOKUP(A44,[1]Productos!$A$1:$C$511,2,FALSE)] | D44=0 [=M44] | E44=30 | F44=Sugerencia de menú
+Entrada: chupe de pollo
+Principal: lomito en mantequilla de hierbas con cremoso de papas
+Postre: ponqué cremoso de chocolate (Waraira) | G44=0 [=E44*D44] | I44=0 [=C44] | J44=30 [=E44] | K44=0 [=I44*J44] | L44=0 [=I44*60%] | M44=0 [=I44+L44] | T44=0 [=(M44*15%)+M44] | U44=0 [=I44*2] | V44=0 [=U44*J44]
+  A45=. | C45=0 [=VLOOKUP(A45,[1]Productos!$A$1:$C$511,2,FALSE)] | D45=0 [=M45] | E45=40 | F45=Agua durante la cena, 1 por persona (aproximadamente) | G45=0 [=E45*D45] | I45=0 [=C45] | J45=40 [=E45] | K45=0 [=I45*J45] | L45=0 [=I45*60%] | M45=0 [=I45+L45] | T45=0 [=(M45*15%)+M45] | U45=0 [=I45*2] | V45=0 [=U45*J45]
+  A46=. | C46=0 [=VLOOKUP(A46,[1]Productos!$A$1:$C$511,2,FALSE)] | D46=0 [=M46] | E46=60 | F46=Copa de vino (2 por persona) | G46=0 [=E46*D46] | I46=0 [=C46] | J46=60 [=E46] | K46=0 [=I46*J46] | L46=0 [=I46*60%] | M46=0 [=I46+L46] | T46=0 [=(M46*15%)+M46] | U46=0 [=I46*2] | V46=0 [=U46*J46]
+  A47=. | C47=0 [=VLOOKUP(A47,[1]Productos!$A$1:$C$511,2,FALSE)] | D47=0 [=M47] | E47=0 | F47=Cantidades a definir con el cliente, precio de referencia. | G47=0 [=E47*D47] | I47=0 [=C47] | J47=0 [=E47] | K47=0 [=I47*J47] | L47=0 [=I47*60%] | M47=0 [=I47+L47] | T47=0 [=(M47*15%)+M47] | U47=0 [=I47*2] | V47=0 [=U47*J47]
+  A48=. | C48=0 [=VLOOKUP(A48,[1]Productos!$A$1:$C$511,2,FALSE)] | D48=0 [=M48] | E48=0 | F48=Cantidades a definir con el cliente, precio de referencia. | G48=0 [=E48*D48] | I48=0 [=C48] | J48=0 [=E48] | K48=0 [=I48*J48] | L48=0 [=I48*60%] | M48=0 [=I48+L48] | T48=0 [=(M48*15%)+M48] | U48=0 [=I48*2] | V48=0 [=U48*J48]
+  A49=. | C49=0 [=VLOOKUP(A49,[1]Productos!$A$1:$C$511,2,FALSE)] | D49=0 [=M49] | E49=140 | F49=Pasapalo | G49=0 [=E49*D49] | I49=0 [=C49] | J49=140 [=E49] | K49=0 [=I49*J49] | L49=0 [=I49*60%] | M49=0 [=I49+L49] | T49=0 [=(M49*15%)+M49] | U49=0 [=I49*2] | V49=0 [=U49*J49]
+  A50=. | C50=0 [=VLOOKUP(A50,[1]Productos!$A$1:$C$511,2,FALSE)] | D50=0 [=M50] | E50=90 | F50=Refresco para servicio | G50=0 [=E50*D50] | I50=0 [=C50] | J50=90 [=E50] | K50=0 [=I50*J50] | L50=0 [=I50*60%] | M50=0 [=I50+L50] | T50=0 [=(M50*15%)+M50] | U50=0 [=I50*2] | V50=0 [=U50*J50]
+  A51=. | C51=0 [=VLOOKUP(A51,[1]Productos!$A$1:$C$511,2,FALSE)] | D51=0 [=M51] | E51=140 | F51=Agua para servicio | G51=0 [=E51*D51] | I51=0 [=C51] | J51=140 [=E51] | K51=0 [=I51*J51] | L51=0 [=I51*60%] | M51=0 [=I51+L51] | T51=0 [=(M51*15%)+M51] | U51=0 [=I51*2] | V51=0 [=U51*J51]
+  A52=. | C52=0 [=VLOOKUP(A52,[1]Productos!$A$1:$C$511,2,FALSE)] | D52=15 | E52=0 | F52=Cantidades a definir con el cliente, precio de referencia. | G52=0 [=E52*D52] | I52=7 | J52=0 | K52=0 [=I52*J52] | L52=4.2 [=I52*60%] | M52=11.2 [=I52+L52] | T52=12.879999999999999 [=(M52*15%)+M52] | U52=14 [=I52*2] | V52=0 [=U52*J52]
+  A53=. | C53=0 [=VLOOKUP(A53,[1]Productos!$A$1:$C$511,2,FALSE)] | D53=25 | E53=0 | F53=Cantidades a definir con el cliente, precio de referencia. | G53=0 [=E53*D53] | I53=12.5 | J53=0 [=E53] | K53=0 [=I53*J53] | L53=7.5 [=I53*60%] | M53=20 [=I53+L53] | T53=23 [=(M53*15%)+M53] | U53=25 [=I53*2] | V53=0 [=U53*J53]
+  A54=. | C54=0 [=VLOOKUP(A54,[1]Productos!$A$1:$C$511,2,FALSE)] | D54=0 [=M54] | E54=96 | F54=Refrigerio AM | G54=0 [=E54*D54] | I54=0 [=C54] | J54=96 [=E54] | K54=0 [=I54*J54] | L54=0 [=I54*60%] | M54=0 [=I54+L54] | T54=0 [=(M54*15%)+M54] | U54=0 [=I54*2] | V54=0 [=U54*J54]
+  A55=. | C55=0 [=VLOOKUP(A55,[1]Productos!$A$1:$C$511,2,FALSE)] | D55=0 [=M55] | E55=60 | F55=Refrigerio AM | G55=0 [=E55*D55] | I55=0 [=C55] | J55=60 [=E55] | K55=0 [=I55*J55] | L55=0 [=I55*60%] | M55=0 [=I55+L55] | T55=0 [=(M55*15%)+M55] | U55=0 [=I55*2] | V55=0 [=U55*J55]
+  A56=. | C56=0 [=VLOOKUP(A56,[1]Productos!$A$1:$C$511,2,FALSE)] | D56=0 [=M56] | E56=96 | F56=Refrigerio AM | G56=0 [=E56*D56] | I56=0 [=C56] | J56=96 [=E56] | K56=0 [=I56*J56] | L56=0 [=I56*60%] | M56=0 [=I56+L56] | T56=0 [=(M56*15%)+M56] | U56=0 [=I56*2] | V56=0 [=U56*J56]
+  A57=. | C57=0 [=VLOOKUP(A57,[1]Productos!$A$1:$C$511,2,FALSE)] | D57=0 [=M57] | E57=48 | F57=Almuerzo ligero | G57=0 [=E57*D57] | I57=0 [=C57] | J57=48 [=E57] | K57=0 [=I57*J57] | L57=0 [=I57*60%] | M57=0 [=I57+L57] | N57=0 [=(M57*15%)+M57] | T57=0 [=(M57*15%)+M57] | U57=0 [=I57*2] | V57=0 [=U57*J57]
+  A58=. | C58=0 [=VLOOKUP(A58,[1]Productos!$A$1:$C$511,2,FALSE)] | D58=0 [=M58] | E58=48 | F58=Postre para almuerzo | G58=0 [=E58*D58] | I58=0 [=C58] | J58=48 [=E58] | K58=0 [=I58*J58] | L58=0 [=I58*60%] | M58=0 [=I58+L58] | N58=0 [=(M58*15%)+M58] | T58=0 [=(M58*15%)+M58] | U58=0 [=I58*2] | V58=0 [=U58*J58]
+  A59=. | C59=0 [=VLOOKUP(A59,[1]Productos!$A$1:$C$511,2,FALSE)] | D59=0 [=M59] | E59=60 | F59=Refrigerio PM | G59=0 [=E59*D59] | I59=0 [=C59] | J59=60 [=E59] | K59=0 [=I59*J59] | L59=0 [=I59*60%] | M59=0 [=I59+L59] | N59=0 [=(M59*15%)+M59] | T59=0 [=(M59*15%)+M59] | U59=0 [=I59*2] | V59=0 [=U59*J59]
+  A60=. | C60=0 [=VLOOKUP(A60,[1]Productos!$A$1:$C$511,2,FALSE)] | D60=0 [=M60] | E60=60 | F60=Refrigerio PM | G60=0 [=E60*D60] | I60=0 [=C60] | J60=60 [=E60] | K60=0 [=I60*J60] | L60=0 [=I60*60%] | M60=0 [=I60+L60] | N60=0 [=(M60*15%)+M60] | T60=0 [=(M60*15%)+M60] | U60=0 [=I60*2] | V60=0 [=U60*J60]
+  A61=. | C61=0 [=VLOOKUP(A61,[1]Productos!$A$1:$C$511,2,FALSE)] | D61=0 [=M61] | E61=120 | F61=Estación de café para los servicios durante el dia (40 refrigerio AM, 40 almuerzo y 40 refrigerio PM) | G61=0 [=E61*D61] | I61=0 [=C61] | J61=120 [=E61] | K61=0 [=I61*J61] | L61=0 [=I61*60%] | M61=0 [=I61+L61] | N61=0 [=(M61*15%)+M61] | T61=0 [=(M61*15%)+M61] | U61=0 [=I61*2] | V61=0 [=U61*J61]
+  A62=. | C62=0 [=VLOOKUP(A62,[1]Productos!$A$1:$C$511,2,FALSE)] | D62=0 [=M62] | E62=70 | F62=Bebida para almuerzo y refrigerio PM | G62=0 [=E62*D62] | I62=0 [=C62] | J62=70 [=E62] | K62=0 [=I62*J62] | L62=0 [=I62*60%] | M62=0 [=I62+L62] | N62=0 [=(M62*15%)+M62] | T62=0 [=(M62*15%)+M62] | U62=0 [=I62*2] | V62=0 [=U62*J62]
+  A63=. | C63=0 [=VLOOKUP(A63,[1]Productos!$A$1:$C$511,2,FALSE)] | D63=0 [=M63] | E63=144 | F63=Agua para cada servicio (AM - Almuerzo - PM) | G63=0 [=E63*D63] | I63=0 [=C63] | J63=0 | K63=0 [=I63*J63] | L63=0 [=I63*60%] | M63=0 [=I63+L63] | T63=0 [=(M63*15%)+M63] | U63=0 [=I63*2] | V63=0 [=U63*J63]
+  A64=. | C64=0 [=VLOOKUP(A64,[1]Productos!$A$1:$C$511,2,FALSE)] | D64=0 [=M64] | E64=150 | F64=Pasapalo durante el evento - 3 por persona aproximadamente. | G64=0 [=E64*D64] | I64=0 [=C64] | J64=150 [=E64] | K64=0 [=I64*J64] | L64=0 [=I64*60%] | M64=0 [=I64+L64] | T64=0 [=(M64*15%)+M64] | U64=0 [=I64*2] | V64=0 [=U64*J64]
+  A65=. | C65=0 [=VLOOKUP(A65,[1]Productos!$A$1:$C$511,2,FALSE)] | D65=0 [=M65] | E65=100 | F65=Pasapalo durante el evento - 1 por persona aproximadamente. | G65=0 [=E65*D65] | I65=0 [=C65] | J65=100 [=E65] | K65=0 [=I65*J65] | L65=0 [=I65*60%] | M65=0 [=I65+L65] | T65=0 [=(M65*15%)+M65] | U65=0 [=I65*2] | V65=0 [=U65*J65]
+  A66=. | C66=0 [=VLOOKUP(A66,[1]Productos!$A$1:$C$511,2,FALSE)] | D66=0 [=M66] | E66=100 | F66=Pasapalo durante el evento - 1 por persona aproximadamente. | G66=0 [=E66*D66] | I66=0 [=C66] | J66=100 [=E66] | K66=0 [=I66*J66] | L66=0 [=I66*60%] | M66=0 [=I66+L66] | T66=0 [=(M66*15%)+M66] | U66=0 [=I66*2] | V66=0 [=U66*J66]
+  A67=. | C67=0 [=VLOOKUP(A67,[1]Productos!$A$1:$C$511,2,FALSE)] | D67=0 [=M67] | E67=93 | F67=Agua durante el evento de noche | G67=0 [=E67*D67] | I67=0 [=C67] | J67=81 | K67=0 [=I67*J67] | L67=0 [=I67*60%] | M67=0 [=I67+L67] | T67=0 [=(M67*15%)+M67] | U67=0 [=I67*2] | V67=0 [=U67*J67]
+  A68=. | C68=0 [=VLOOKUP(A68,[1]Productos!$A$1:$C$511,2,FALSE)] | D68=0 [=M68] | E68=90 | F68=Refrescos durante el evento de noche | G68=0 [=E68*D68] | I68=0 [=C68] | J68=118 | K68=0 [=I68*J68] | L68=0 [=I68*60%] | M68=0 [=I68+L68] | T68=0 [=(M68*15%)+M68] | U68=0 [=I68*2] | V68=0 [=U68*J68]
+  A69=. | C69=0 [=VLOOKUP(A69,[1]Productos!$A$1:$C$511,2,FALSE)] | D69=0 [=M69] | E69=0 | F69=Servicio para preparación de cóctel - MOJITO TRADICIONAL - cliente trae el licor | G69=0 [=E69*D69] | I69=0 [=C69] | J69=0 [=E69] | K69=0 [=I69*J69] | L69=0 [=I69*60%] | M69=0 [=I69+L69] | T69=0 [=(M69*15%)+M69] | U69=0 [=I69*2] | V69=0 [=U69*J69]
+  A70=. | C70=0 [=VLOOKUP(A70,[1]Productos!$A$1:$C$511,2,FALSE)] | D70=0 [=M70] | E70=0 | F70=Servicio para preparación de cóctel - WHISKY AND GINGER - cliente trae el licor | G70=0 [=E70*D70] | I70=0 [=C70] | J70=0 [=E70] | K70=0 [=I70*J70] | L70=0 [=I70*60%] | M70=0 [=I70+L70] | T70=0 [=(M70*15%)+M70] | U70=0 [=I70*2] | V70=0 [=U70*J70]
+  A71=. | C71=0 [=VLOOKUP(A71,[1]Productos!$A$1:$C$511,2,FALSE)] | D71=0 [=M71] | E71=0 | F71=Servicio para preparación de cóctel - VODKA MARACUYA - cliente trae el licor | G71=0 [=E71*D71] | I71=0 [=C71] | J71=0 [=E71] | K71=0 [=I71*J71] | L71=0 [=I71*60%] | M71=0 [=I71+L71] | T71=0 [=(M71*15%)+M71] | U71=0 [=I71*2] | V71=0 [=U71*J71]
+  A72=. | C72=0 [=VLOOKUP(A72,[1]Productos!$A$1:$C$511,2,FALSE)] | D72=0 [=M72] | E72=0 | F72=Servicio para preparación de cóctel - TEQUILA SUNRISE - cliente trae el licor | G72=0 [=E72*D72] | I72=0 [=C72] | J72=0 [=E72] | K72=0 [=I72*J72] | L72=0 [=I72*60%] | M72=0 [=I72+L72] | T72=0 [=(M72*15%)+M72] | U72=0 [=I72*2] | V72=0 [=U72*J72]
+  A73=. | C73=0 [=VLOOKUP(A73,[1]Productos!$A$1:$C$511,2,FALSE)] | D73=0 [=M73] | E73=0 | F73=Servicio para preparación de cóctel - GIN TONIC - cliente trae el licor | G73=0 [=E73*D73] | I73=0 [=C73] | J73=0 [=E73] | K73=0 [=I73*J73] | L73=0 [=I73*60%] | M73=0 [=I73+L73] | T73=0 [=(M73*15%)+M73] | U73=0 [=I73*2] | V73=0 [=U73*J73]
+  A74=. | C74=0 [=VLOOKUP(A74,[1]Productos!$A$1:$C$511,2,FALSE)] | D74=0 [=M74] | E74=0 | F74=Servicio para preparación de cóctel - VODKA CRANBERRY - cliente trae el licor | G74=0 [=E74*D74] | I74=0 [=C74] | J74=0 [=E74] | K74=0 [=I74*J74] | L74=0 [=I74*60%] | M74=0 [=I74+L74] | T74=0 [=(M74*15%)+M74] | U74=0 [=I74*2] | V74=0 [=U74*J74]
+  A75=. | C75=0 [=VLOOKUP(A75,[1]Productos!$A$1:$C$511,2,FALSE)] | D75=0 [=M75] | E75=0 | F75=Servicio para preparación de cóctel - RON FIZZ TROPICAL - cliente trae el licor | G75=0 [=E75*D75] | I75=0 [=C75] | J75=0 [=E75] | K75=0 [=I75*J75] | L75=0 [=I75*60%] | M75=0 [=I75+L75] | T75=0 [=(M75*15%)+M75] | U75=0 [=I75*2] | V75=0 [=U75*J75]
+  A76=. | C76=0 [=VLOOKUP(A76,[1]Productos!$A$1:$C$511,2,FALSE)] | D76=0 [=M76] | E76=15 | F76=10 botellas de vino y 5 botellas de proseco | G76=0 [=E76*D76] | I76=0 [=C76] | J76=10 | K76=0 [=I76*J76] | L76=0 [=I76*60%] | M76=0 [=I76+L76] | T76=0 [=(M76*15%)+M76] | U76=0 [=I76*2] | V76=0 [=U76*J76]
+  A77=. | C77=0 [=VLOOKUP(A77,[1]Productos!$A$1:$C$511,2,FALSE)] | D77=0 [=M77] | E77=25 | F77=10 botellas de whisky, 05 de ron y 10 de vodka (cada uno con tres mezcladores) | G77=0 [=E77*D77] | I77=0 [=C77] | J77=6 | K77=0 [=I77*J77] | L77=0 [=I77*60%] | M77=0 [=I77+L77] | U77=0 [=I77*2] | V77=0 [=U77*J77]
+  A78=. | C78=0 [=VLOOKUP(A78,[1]Productos!$A$1:$C$511,2,FALSE)] | D78=0 [=M78] | E78=0 | G78=0 [=E78*D78] | I78=0 [=C78] | J78=0 [=E78] | K78=0 [=I78*J78] | L78=0 [=I78*60%] | M78=0 [=I78+L78]
+  A79=. | C79=0 [=VLOOKUP(A79,[1]Productos!$A$1:$C$511,2,FALSE)] | D79=0 [=M79] | E79=0 | G79=0 [=E79*D79] | I79=0 [=C79] | J79=0 [=E79] | K79=0 [=I79*J79] | L79=0 [=I79*60%] | M79=0 [=I79+L79]
+  A80=. | C80=0 [=VLOOKUP(A80,[1]Productos!$A$1:$C$511,2,FALSE)] | D80=0 [=M80] | E80=0 | G80=0 [=E80*D80] | I80=0 [=C80] | J80=0 [=E80] | K80=0 [=I80*J80] | L80=0 [=I80*60%] | M80=0 [=I80+L80]
+  A81=. | C81=0 [=VLOOKUP(A81,[1]Productos!$A$1:$C$511,2,FALSE)] | D81=0 [=M81] | E81=0 | G81=0 [=E81*D81] | I81=0 [=C81] | J81=0 [=E81] | K81=0 [=I81*J81] | L81=0 [=I81*60%] | M81=0 [=I81+L81]
+  F82=Sub Total  | G82=0 [=SUM(G44:G81)] | I82=Sub Total | K82=0 [=SUM(K44:K81)] | U82=Sub Total | V82=0 [=SUM(V44:V77)]
+  F83=10% Servicio | G83=0 [=G82*10%] | I83=10% Servicio | K83=0 [=K82*10%] | Q83=Precio vino | R83=0 [=M48+R48] | U83=Servicio FULL | V83=0 [=V82*10%]
+  F84=Total Alimentos y Bebidas | G84=0 [=SUM(G82:G83)] | I84=Total  | K84=0 [=SUM(K82:K83)]
+  A86=ESPACIOS
+  A87=Ítem | C87=OCULTO | D87=Precio Unit. | E87=Cantidad | F87=Comentarios | G87=Sub Total
+  A88=ESTAR GENERAL | C88=3000 [=VLOOKUP(A88,[1]Productos!$A$1:$C$511,2,FALSE)] | D88=3000 | E88=1 | F88=Espacio para evento  | G88=3000
+  A89=Antigua Estación | C89=0 [=VLOOKUP(A89,[1]Productos!$A$1:$C$511,2,FALSE)] | D89=1000 | E89=0 | F89=Espacio para evento | G89=0 [=E89*D89]
+  A90=Restaurante Humboldt | C90=#N/A [=VLOOKUP(A90,[1]Productos!$A$1:$C$511,2,FALSE)] | D90=3000 | E90=1 | F90=Espacio durante almuerzos o cenas por definir (cortesía) | G90=0
+  A91=. | C91=0 [=VLOOKUP(A91,[1]Productos!$A$1:$C$511,2,FALSE)] | D91=0 [=C91] | E91=1 | F91=Espacio durante el evento | G91=0 [=E91*D91]
+  A92=. | C92=0 [=VLOOKUP(A92,[1]Productos!$A$1:$C$511,2,FALSE)] | D92=0 [=C92] | E92=1 | F92=Espacio durante el evento (descuento especial) | G92=0
+  F93=Sub Total | G93=3000 [=SUM(G88:G92)]
+  F95=Total Misceláneos  | G95=720 [=G34]
+  F96=Total AyB | G96=0 [=G82]
+  F97=Total Salones  | G97=3000 [=G93]
+  F98=Sub Total USD | G98=3720 [=SUM(G95:G97)]
+  F99=Traslado (exento de IVA) | G99=0 [=G40]
+  F100=Total 10% de servicio  | G100=0 [=G83]
+  F101=16% IVA | G101=595.2 [=+G98*16%]
+  F102=Total USD | G102=4315.2 [=SUM(G98:G101)]
+  F103=Garantìa 10% | G103=431.52 [=G102*10%]
+  F104=TOTAL  | G104=4746.719999999999 [=SUM(G102:G103)]
+  A106=CONDICIONES IMPORTANTES 
+  A107=El 16% de IVA será reflejado al momento de la facturación en Bolívares. 
+  A108=Todo pago realizado en moneda extranjera, general un 3% por IGTF.
+  A109=Las tarifas mencionadas en este presupuesto están sujetas a cambios sin previo aviso. Las mismas debes ser revisadas al momento de la conformación de su evento.
+  A110=En caso de confirmar su evento, debe contactar a su ejecutivo de ventas para verificar la disponibilidad del espacio.
+  A111=Al momento de la conformación de su evento solicitamos un 100% de anticipo del total del presupuesto el cual debe estar pago completamente 48 horas antes de la ejecución del evento.
+  A112=Se solicitara un 10% de garantia para cubrir lo gastos adicionales que se puedan generar en el evento.
+  A113=Agradecemos su interés en nuestras instalaciones y servicios, esperamos por su información para afinar los detalles de su evento. 
+  A114=El presente documento es solo una cotización de carácter informativo, no implica un bloqueo de los espacios.  
+  A115=Los precios contemplados en esta propuesta tendrán una vigencia de siete (7) dias a partir de la fecha de este presupuesto. Estos precios están sujetos a modificación.
+  A116=Al momento de confirmar su evento, si contamos con la disponibilidad de los espacios, le haremos llegar el contrato definitivo.
+  ... (3 filas vacías)
+  A120=K. Jaén
+
+======================================================================
+SHEET: plan de pagos
+MERGED: F3:I3
+----------------------------------------------------------------------
+  A1=Desglose de pagos | B1=Ref. en $
+  F3=Abonos | J3=Total
+  B4=Misceláneos | D4=IVA | E4=Total | F4=1900 | G4=4995 | H4=5000 | I4=3666
+  A5=Conferencia | B5=3490 | D5=558.4 [=B5*16%] | E5=4048.4 [=SUM(B5:D5)] | G5=1095 | H5=2953.4 | J5=0 [=E5-F5-G5-H5-I5]
+  A6=Cena | B6=790 | D6=126.4 [=B6*16%] | E6=916.4 [=SUM(B6:D6)] | H6=916.4 | J6=0 [=E6-F6-G6-H6-I6]
+  A7=Espacios comerciales | B7=720 | D7=115.2 [=B7*16%] | E7=835.2 [=SUM(B7:D7)] | H7=696 | I7=139.2 | J7=0 [=E7-F7-G7-H7-I7] | N7=1622647.11
+  N8=2466882.5
+  B9=Alimentos y bebidas | C9=% de servicio | D9=IVA | N9=4089529.6100000003 [=N7+N8] | O9=496.83 | P9=8231.245315298997 [=N9/O9]
+  A10=Conferencia | B10=576 | C10=57.6 [=B10*10%] | D10=92.16 [=B10*16%] | E10=725.76 [=SUM(B10:D10)] | H10=434.2 | I10=291.56 | J10=0 [=E10-F10-G10-H10-I10] | P10=3526.74
+  A11=Cena | B11=2223 | C11=222.3 [=B11*10%] | D11=355.68 [=B11*16%] | E11=2800.98 [=SUM(B11:D11)] | I11=2800.98 | J11=0 [=E11-F11-G11-H11-I11] | P11=4704.505315298997 [=P9-P10] | Q11=4055.60803043017 [=P11/1.16]
+  A12=Espacios comerciales | B12=0 | E12=0 [=SUM(B12:D12)] | J12=0 [=E12-F12-G12-H12-I12] | P12=35.42 | Q12=30.534482758620694 [=P12/1.16]
+  B14=Espacios | D14=IVA
+  A15=Conferencia | B15=1500 | D15=240 [=B15*16%] | E15=1740 [=SUM(B15:D15)] | F15=1740 | J15=0 [=E15-F15-G15-H15-I15]
+  A16=Cena | B16=500 | D16=80 [=B16*16%] | E16=580 [=SUM(B16:D16)] | F16=160 | G16=420 | J16=0 [=E16-F16-G16-H16-I16]
+  A17=Espacios comerciales | B17=3000 | D17=480 [=B17*16%] | E17=3480 [=SUM(B17:D17)] | G17=3480 | J17=0 [=E17-F17-G17-H17-I17]
+  B19=Garantía
+  A20=Conferencia | B20=742.1360000000001 | E20=651.4160000000002 | J20=651.4160000000002 [=E20-F20-G20-H20-I20]
+  A21=Cena | B21=445.8471 | E21=445.8471 | J21=445.8471 [=E21-F21-G21-H21-I21]
+  A22=Espacios comerciales | B22=823.6 | E22=417.6 | J22=417.6 [=E22-F22-G22-H22-I22]
+  F24=1900 [=SUM(F5:F23)] | G24=4995 [=SUM(G5:G23)] | H24=5000 [=SUM(H5:H23)] | I24=3231.74 [=SUM(I5:I23)] | J24=1514.8631 [=SUM(J5:J23)]
+
+======================================================================
+SHEET: 1899,99
+MERGED: I30:M30, A64:B64, A73:B73, A51:B51, A109:G109, A22:G22, B8:G8, A88:B88, A70:B70, A111:G111, A54:B54, B10:G10, A90:B90, I32:M32, N42:R42, A74:B74, A56:B56, A27:B27, A76:B76, A33:B33, A53:B53, A62:B62, A68:B68, A28:B28, B12:G12, A39:B39, A23:G23, A48:B48, A30:B30, A116:G116, A59:B59, B14:G14, A45:B45, B13:G13, A79:B79, A61:B61, A115:G115, A87:B87, A46:B46, A37:B37, A89:B89, I28:M28, A36:G36, A26:B26, A71:B71, A91:B91, A52:B52, A63:B63, A113:G113, A77:B77, B11:G11, A92:B92, A106:G106, A49:B49, A69:B69, A78:B78, A65:B65, A83:D83, U42:V43, A75:B75, A24:G24, A80:B80, B15:G15, A55:B55, A110:G110, A57:B57, A32:B32, A108:G108, B7:G7, B16:G16, A38:B38, A43:B43, A86:G86, B18:G18, A67:B67, I31:M31, A60:B60, B17:G17, A20:G20, A112:G112...
+----------------------------------------------------------------------
+  ... (5 filas vacías)
+  A6=Cliente: | B6=TS Sport
+  A7=Rif o cédula:  | B7=V15.419.123
+  A8=Dirección: | B8=Caracas
+  A9=Contacto: | B9=Antonio Linares
+  A10=Teléfono:
+  A11=Email:
+  A12=Nombre del Evento: | B12=Conferencia deportiva
+  A13=Cantidad de Persona: | B13=80 personas, aproximadamente
+  A14=Hora de Inicio: | B14=09:00:00
+  A15=Hora de culminacion: | B15=13:00:00
+  A16=Fecha Presupuesto: | B16=miércoles, 21 de enero de 2026 | K16=Àrea | L16=Cantidad
+  A17=Fecha del Acuerdo: | K17=àrea p | L17=1
+  A18=Fecha del Evento: | B18=jueves, 07 de mayo de 2026 (fechas en revisión) | K18=ayb | L18=4
+  K19=cocina | L19=1
+  A20=Gracias por preferir al Hotel Humboldt para realizar su evento. Según su solicitud le presentamos la siguiente propuesta. | K20=bartender | L20=1
+  K21=montaje | L21=1
+  A22=COTIZACION DE EVENTO | K22=prevencion | L22=1
+  K23=coordinador | L23=1
+  A24=MISCELANEOS | K24=Total | L24=10 [=SUM(L17:L23)]
+  A25=Ítem | C25=OCULTO | D25=Precio Unit. | E25=Cantidad | F25=Comentarios
+  A26=PROTOCOLO DE MARIPEREZ (Menos de 100 pers.) | C26=90 [=VLOOKUP(A26,[1]Productos!$A$1:$C$511,2,FALSE)] | D26=90 | E26=0 | F26=Protocolo de recibimiento en mariperez - brazaletes. | G26=0 [=D26*E26]
+  A27=Mobiliario | C27=0 [=VLOOKUP(A27,[1]Productos!$A$1:$C$511,2,FALSE)] | D27=300 | E27=0 | F27=Mobiliario mixto para 90 personas -  banquetes y áreas lounge  | G27=0 [=D27*E27]
+  A28=. | C28=0 [=VLOOKUP(A28,[1]Productos!$A$1:$C$511,2,FALSE)] | D28=0 | E28=1 | F28=Planta eléctrica con operador (precio especial) | G28=0 [=D28*E28]
+  A29=Servicio | C29=0 [=VLOOKUP(A29,[1]Productos!$A$1:$C$511,2,FALSE)] | D29=600 | E29=0 | F29=Personal de servicio: prevención, áreas públicas, montaje, coordinador general.  | G29=0 [=D29*E29]
+  A30=Audiovisuales | C30=0 [=VLOOKUP(A30,[1]Productos!$A$1:$C$511,2,FALSE)] | D30=2500 | E30=0 | F30=1 pantalla 4x2 mts 
+1 rack de 4 micrófonos inalámbricos senheizer 
+2 luces móviles 
+2 truss de aluminio 
+1 consola de iluminación pequeña  | G30=0 [=D30*E30] | I30=Sonido del Hotel - pantalla  y micrófonos con Evenplus 1.740$ camión de evnplus 240
+  A31=. | C31=0 [=VLOOKUP(A31,[1]Productos!$A$1:$C$511,2,FALSE)] | D31=0 | E31=1 | F31=Servicio profesional de DJ durante el evento | G31=0 [=D31*E31]
+  A32=. | D32=0 | E32=1 | F32=Servicio de animación (4 horas) desde las 6:00 pm | G32=0 [=D32*E32]
+  A33=. | D33=0 | E33=1 | G33=0 [=D33*E33]
+  F34=Sub Total | G34=0 [=SUM(G26:G33)]
+  A36=TRASLADOS
+  A37=Ítem | C37=OCULTO | D37=Precio Unit. | E37=Cantidad | F37=Comentarios
+  A38=Traslado Ida-Vuelta p/persona | C38=10 [=VLOOKUP(A38,[1]Productos!$A$1:$C$511,2,FALSE)] | D38=0 | E38=90 | F38=Traslado en teleférico  - Por favor, considerar los horarios de subida y bajada. (coordinado con VENTEL) | G38=0 [=D38*E38]
+  A39=Traslado Ida-Vuelta p/persona | C39=10 [=VLOOKUP(A39,[1]Productos!$A$1:$C$511,2,FALSE)] | D39=60 | E39=0 | F39=Precios de referencia por traslados vía terrestre - entre 9 a 10 personas por unidad. | G39=0 [=D39*E39]
+  F40=Sub Total | G40=0 [=SUM(G38:G39)]
+  A42=ALIMENTOS Y BEBIDAS | I42=Provedor: Alternativa Gastronómica | N42=Proveedo vino FIRIUS | T42=15% extra | U42=10% de servicio al precio full lista del 19/07
+  A43=Ítem | C43=OCULTO | D43=Precio Unit. | E43=Cantidad | F43=Comentarios | G43=Sub Total | I43=Monto  | J43=Cantidad  | K43=Total  | L43=0.6 | M43=PVP | N43=Monto | O43=Cantidad  | P43=Total  | Q43=0.2 | R43=PVP | S43=TOTAL FINAL
+  A44=AGUA MINERAL (BOTELLA 330 ML) | C44=1.5 [=VLOOKUP(A44,[1]Productos!$A$1:$C$511,2,FALSE)] | D44=2.4 [=M44] | E44=0 | F44=Coffee break líquido (dos por persona) | G44=0 [=E44*D44] | I44=1.5 [=C44] | J44=0 [=E44] | K44=0 [=I44*J44] | L44=0.8999999999999999 [=I44*60%] | M44=2.4 [=I44+L44] | T44=2.76 [=(M44*15%)+M44] | U44=3 [=I44*2] | V44=0 [=U44*J44]
+  A45=ESTACION DE CAFÉ (AMERICANO O LATTE)  | C45=2 [=VLOOKUP(A45,[1]Productos!$A$1:$C$511,2,FALSE)] | D45=3.2 | E45=0 | F45=Coffee break líquido (dos por persona) | G45=0 [=E45*D45] | I45=2.8 | J45=0 [=E45] | K45=0 [=I45*J45] | L45=1.68 [=I45*60%] | M45=4.4799999999999995 [=I45+L45] | T45=5.151999999999999 [=(M45*15%)+M45] | U45=5.6 [=I45*2] | V45=0 [=U45*J45]
+  A46=. | C46=0 [=VLOOKUP(A46,[1]Productos!$A$1:$C$511,2,FALSE)] | D46=0 [=M46] | E46=120 | F46=Coffee break líquido | G46=0 [=E46*D46] | I46=0 [=C46] | J46=120 [=E46] | K46=0 [=I46*J46] | L46=0 [=I46*60%] | M46=0 [=I46+L46] | T46=0 [=(M46*15%)+M46] | U46=0 [=I46*2] | V46=0 [=U46*J46]
+  A47=REFRESCOS DE LATA  | C47=2 [=VLOOKUP(A47,[1]Productos!$A$1:$C$511,2,FALSE)] | D47=3.2 [=M47] | E47=0 | F47=Coffee break líquido (uno por persona) | G47=0 [=E47*D47] | I47=2 [=C47] | J47=0 [=E47] | K47=0 [=I47*J47] | L47=1.2 [=I47*60%] | M47=3.2 [=I47+L47] | T47=3.68 [=(M47*15%)+M47] | U47=4 [=I47*2] | V47=0 [=U47*J47]
+  A48=. | C48=0 [=VLOOKUP(A48,[1]Productos!$A$1:$C$511,2,FALSE)] | D48=0 [=M48] | E48=60 | F48=Estación de chocolate | G48=0 [=E48*D48] | I48=0 [=C48] | J48=60 [=E48] | K48=0 [=I48*J48] | L48=0 [=I48*60%] | M48=0 [=I48+L48] | T48=0 [=(M48*15%)+M48] | U48=0 [=I48*2] | V48=0 [=U48*J48]
+  A49=. | C49=0 [=VLOOKUP(A49,[1]Productos!$A$1:$C$511,2,FALSE)] | D49=0 [=M49] | E49=140 | F49=Pasapalo | G49=0 [=E49*D49] | I49=0 [=C49] | J49=140 [=E49] | K49=0 [=I49*J49] | L49=0 [=I49*60%] | M49=0 [=I49+L49] | T49=0 [=(M49*15%)+M49] | U49=0 [=I49*2] | V49=0 [=U49*J49]
+  A50=. | C50=0 [=VLOOKUP(A50,[1]Productos!$A$1:$C$511,2,FALSE)] | D50=0 [=M50] | E50=90 | F50=Refresco para servicio | G50=0 [=E50*D50] | I50=0 [=C50] | J50=90 [=E50] | K50=0 [=I50*J50] | L50=0 [=I50*60%] | M50=0 [=I50+L50] | T50=0 [=(M50*15%)+M50] | U50=0 [=I50*2] | V50=0 [=U50*J50]
+  A51=. | C51=0 [=VLOOKUP(A51,[1]Productos!$A$1:$C$511,2,FALSE)] | D51=0 [=M51] | E51=140 | F51=Agua para servicio | G51=0 [=E51*D51] | I51=0 [=C51] | J51=140 [=E51] | K51=0 [=I51*J51] | L51=0 [=I51*60%] | M51=0 [=I51+L51] | T51=0 [=(M51*15%)+M51] | U51=0 [=I51*2] | V51=0 [=U51*J51]
+  A52=DESCORCHE DE VINOS Y ESPUMANTES (por botella) | C52=15 [=VLOOKUP(A52,[1]Productos!$A$1:$C$511,2,FALSE)] | D52=15 | E52=0 | F52=Cantidades a definir con el cliente, precio de referencia. | G52=0 [=E52*D52] | I52=7 | J52=0 | K52=0 [=I52*J52] | L52=4.2 [=I52*60%] | M52=11.2 [=I52+L52] | T52=12.879999999999999 [=(M52*15%)+M52] | U52=14 [=I52*2] | V52=0 [=U52*J52]
+  A53=. | C53=0 [=VLOOKUP(A53,[1]Productos!$A$1:$C$511,2,FALSE)] | D53=25 | E53=0 | F53=Cantidades a definir con el cliente, precio de referencia. | G53=0 [=E53*D53] | I53=12.5 | J53=0 [=E53] | K53=0 [=I53*J53] | L53=7.5 [=I53*60%] | M53=20 [=I53+L53] | T53=23 [=(M53*15%)+M53] | U53=25 [=I53*2] | V53=0 [=U53*J53]
+  A54=. | C54=0 [=VLOOKUP(A54,[1]Productos!$A$1:$C$511,2,FALSE)] | D54=0 [=M54] | E54=96 | F54=Refrigerio AM | G54=0 [=E54*D54] | I54=0 [=C54] | J54=96 [=E54] | K54=0 [=I54*J54] | L54=0 [=I54*60%] | M54=0 [=I54+L54] | T54=0 [=(M54*15%)+M54] | U54=0 [=I54*2] | V54=0 [=U54*J54]
+  A55=. | C55=0 [=VLOOKUP(A55,[1]Productos!$A$1:$C$511,2,FALSE)] | D55=0 [=M55] | E55=60 | F55=Refrigerio AM | G55=0 [=E55*D55] | I55=0 [=C55] | J55=60 [=E55] | K55=0 [=I55*J55] | L55=0 [=I55*60%] | M55=0 [=I55+L55] | T55=0 [=(M55*15%)+M55] | U55=0 [=I55*2] | V55=0 [=U55*J55]
+  A56=. | C56=0 [=VLOOKUP(A56,[1]Productos!$A$1:$C$511,2,FALSE)] | D56=0 [=M56] | E56=96 | F56=Refrigerio AM | G56=0 [=E56*D56] | I56=0 [=C56] | J56=96 [=E56] | K56=0 [=I56*J56] | L56=0 [=I56*60%] | M56=0 [=I56+L56] | T56=0 [=(M56*15%)+M56] | U56=0 [=I56*2] | V56=0 [=U56*J56]
+  A57=. | C57=0 [=VLOOKUP(A57,[1]Productos!$A$1:$C$511,2,FALSE)] | D57=0 [=M57] | E57=48 | F57=Almuerzo ligero | G57=0 [=E57*D57] | I57=0 [=C57] | J57=48 [=E57] | K57=0 [=I57*J57] | L57=0 [=I57*60%] | M57=0 [=I57+L57] | N57=0 [=(M57*15%)+M57] | T57=0 [=(M57*15%)+M57] | U57=0 [=I57*2] | V57=0 [=U57*J57]
+  A58=. | C58=0 [=VLOOKUP(A58,[1]Productos!$A$1:$C$511,2,FALSE)] | D58=0 [=M58] | E58=48 | F58=Postre para almuerzo | G58=0 [=E58*D58] | I58=0 [=C58] | J58=48 [=E58] | K58=0 [=I58*J58] | L58=0 [=I58*60%] | M58=0 [=I58+L58] | N58=0 [=(M58*15%)+M58] | T58=0 [=(M58*15%)+M58] | U58=0 [=I58*2] | V58=0 [=U58*J58]
+  A59=. | C59=0 [=VLOOKUP(A59,[1]Productos!$A$1:$C$511,2,FALSE)] | D59=0 [=M59] | E59=60 | F59=Refrigerio PM | G59=0 [=E59*D59] | I59=0 [=C59] | J59=60 [=E59] | K59=0 [=I59*J59] | L59=0 [=I59*60%] | M59=0 [=I59+L59] | N59=0 [=(M59*15%)+M59] | T59=0 [=(M59*15%)+M59] | U59=0 [=I59*2] | V59=0 [=U59*J59]
+  A60=. | C60=0 [=VLOOKUP(A60,[1]Productos!$A$1:$C$511,2,FALSE)] | D60=0 [=M60] | E60=60 | F60=Refrigerio PM | G60=0 [=E60*D60] | I60=0 [=C60] | J60=60 [=E60] | K60=0 [=I60*J60] | L60=0 [=I60*60%] | M60=0 [=I60+L60] | N60=0 [=(M60*15%)+M60] | T60=0 [=(M60*15%)+M60] | U60=0 [=I60*2] | V60=0 [=U60*J60]
+  A61=. | C61=0 [=VLOOKUP(A61,[1]Productos!$A$1:$C$511,2,FALSE)] | D61=0 [=M61] | E61=120 | F61=Estación de café para los servicios durante el dia (40 refrigerio AM, 40 almuerzo y 40 refrigerio PM) | G61=0 [=E61*D61] | I61=0 [=C61] | J61=120 [=E61] | K61=0 [=I61*J61] | L61=0 [=I61*60%] | M61=0 [=I61+L61] | N61=0 [=(M61*15%)+M61] | T61=0 [=(M61*15%)+M61] | U61=0 [=I61*2] | V61=0 [=U61*J61]
+  A62=. | C62=0 [=VLOOKUP(A62,[1]Productos!$A$1:$C$511,2,FALSE)] | D62=0 [=M62] | E62=70 | F62=Bebida para almuerzo y refrigerio PM | G62=0 [=E62*D62] | I62=0 [=C62] | J62=70 [=E62] | K62=0 [=I62*J62] | L62=0 [=I62*60%] | M62=0 [=I62+L62] | N62=0 [=(M62*15%)+M62] | T62=0 [=(M62*15%)+M62] | U62=0 [=I62*2] | V62=0 [=U62*J62]
+  A63=. | C63=0 [=VLOOKUP(A63,[1]Productos!$A$1:$C$511,2,FALSE)] | D63=0 [=M63] | E63=144 | F63=Agua para cada servicio (AM - Almuerzo - PM) | G63=0 [=E63*D63] | I63=0 [=C63] | J63=0 | K63=0 [=I63*J63] | L63=0 [=I63*60%] | M63=0 [=I63+L63] | T63=0 [=(M63*15%)+M63] | U63=0 [=I63*2] | V63=0 [=U63*J63]
+  A64=. | C64=0 [=VLOOKUP(A64,[1]Productos!$A$1:$C$511,2,FALSE)] | D64=0 [=M64] | E64=150 | F64=Pasapalo durante el evento - 3 por persona aproximadamente. | G64=0 [=E64*D64] | I64=0 [=C64] | J64=150 [=E64] | K64=0 [=I64*J64] | L64=0 [=I64*60%] | M64=0 [=I64+L64] | T64=0 [=(M64*15%)+M64] | U64=0 [=I64*2] | V64=0 [=U64*J64]
+  A65=. | C65=0 [=VLOOKUP(A65,[1]Productos!$A$1:$C$511,2,FALSE)] | D65=0 [=M65] | E65=100 | F65=Pasapalo durante el evento - 1 por persona aproximadamente. | G65=0 [=E65*D65] | I65=0 [=C65] | J65=100 [=E65] | K65=0 [=I65*J65] | L65=0 [=I65*60%] | M65=0 [=I65+L65] | T65=0 [=(M65*15%)+M65] | U65=0 [=I65*2] | V65=0 [=U65*J65]
+  A66=. | C66=0 [=VLOOKUP(A66,[1]Productos!$A$1:$C$511,2,FALSE)] | D66=0 [=M66] | E66=100 | F66=Pasapalo durante el evento - 1 por persona aproximadamente. | G66=0 [=E66*D66] | I66=0 [=C66] | J66=100 [=E66] | K66=0 [=I66*J66] | L66=0 [=I66*60%] | M66=0 [=I66+L66] | T66=0 [=(M66*15%)+M66] | U66=0 [=I66*2] | V66=0 [=U66*J66]
+  A67=. | C67=0 [=VLOOKUP(A67,[1]Productos!$A$1:$C$511,2,FALSE)] | D67=0 [=M67] | E67=93 | F67=Agua durante el evento de noche | G67=0 [=E67*D67] | I67=0 [=C67] | J67=81 | K67=0 [=I67*J67] | L67=0 [=I67*60%] | M67=0 [=I67+L67] | T67=0 [=(M67*15%)+M67] | U67=0 [=I67*2] | V67=0 [=U67*J67]
+  A68=. | C68=0 [=VLOOKUP(A68,[1]Productos!$A$1:$C$511,2,FALSE)] | D68=0 [=M68] | E68=90 | F68=Refrescos durante el evento de noche | G68=0 [=E68*D68] | I68=0 [=C68] | J68=118 | K68=0 [=I68*J68] | L68=0 [=I68*60%] | M68=0 [=I68+L68] | T68=0 [=(M68*15%)+M68] | U68=0 [=I68*2] | V68=0 [=U68*J68]
+  A69=. | C69=0 [=VLOOKUP(A69,[1]Productos!$A$1:$C$511,2,FALSE)] | D69=0 [=M69] | E69=0 | F69=Servicio para preparación de cóctel - MOJITO TRADICIONAL - cliente trae el licor | G69=0 [=E69*D69] | I69=0 [=C69] | J69=0 [=E69] | K69=0 [=I69*J69] | L69=0 [=I69*60%] | M69=0 [=I69+L69] | T69=0 [=(M69*15%)+M69] | U69=0 [=I69*2] | V69=0 [=U69*J69]
+  A70=. | C70=0 [=VLOOKUP(A70,[1]Productos!$A$1:$C$511,2,FALSE)] | D70=0 [=M70] | E70=0 | F70=Servicio para preparación de cóctel - WHISKY AND GINGER - cliente trae el licor | G70=0 [=E70*D70] | I70=0 [=C70] | J70=0 [=E70] | K70=0 [=I70*J70] | L70=0 [=I70*60%] | M70=0 [=I70+L70] | T70=0 [=(M70*15%)+M70] | U70=0 [=I70*2] | V70=0 [=U70*J70]
+  A71=. | C71=0 [=VLOOKUP(A71,[1]Productos!$A$1:$C$511,2,FALSE)] | D71=0 [=M71] | E71=0 | F71=Servicio para preparación de cóctel - VODKA MARACUYA - cliente trae el licor | G71=0 [=E71*D71] | I71=0 [=C71] | J71=0 [=E71] | K71=0 [=I71*J71] | L71=0 [=I71*60%] | M71=0 [=I71+L71] | T71=0 [=(M71*15%)+M71] | U71=0 [=I71*2] | V71=0 [=U71*J71]
+  A72=. | C72=0 [=VLOOKUP(A72,[1]Productos!$A$1:$C$511,2,FALSE)] | D72=0 [=M72] | E72=0 | F72=Servicio para preparación de cóctel - TEQUILA SUNRISE - cliente trae el licor | G72=0 [=E72*D72] | I72=0 [=C72] | J72=0 [=E72] | K72=0 [=I72*J72] | L72=0 [=I72*60%] | M72=0 [=I72+L72] | T72=0 [=(M72*15%)+M72] | U72=0 [=I72*2] | V72=0 [=U72*J72]
+  A73=. | C73=0 [=VLOOKUP(A73,[1]Productos!$A$1:$C$511,2,FALSE)] | D73=0 [=M73] | E73=0 | F73=Servicio para preparación de cóctel - GIN TONIC - cliente trae el licor | G73=0 [=E73*D73] | I73=0 [=C73] | J73=0 [=E73] | K73=0 [=I73*J73] | L73=0 [=I73*60%] | M73=0 [=I73+L73] | T73=0 [=(M73*15%)+M73] | U73=0 [=I73*2] | V73=0 [=U73*J73]
+  A74=. | C74=0 [=VLOOKUP(A74,[1]Productos!$A$1:$C$511,2,FALSE)] | D74=0 [=M74] | E74=0 | F74=Servicio para preparación de cóctel - VODKA CRANBERRY - cliente trae el licor | G74=0 [=E74*D74] | I74=0 [=C74] | J74=0 [=E74] | K74=0 [=I74*J74] | L74=0 [=I74*60%] | M74=0 [=I74+L74] | T74=0 [=(M74*15%)+M74] | U74=0 [=I74*2] | V74=0 [=U74*J74]
+  A75=. | C75=0 [=VLOOKUP(A75,[1]Productos!$A$1:$C$511,2,FALSE)] | D75=0 [=M75] | E75=0 | F75=Servicio para preparación de cóctel - RON FIZZ TROPICAL - cliente trae el licor | G75=0 [=E75*D75] | I75=0 [=C75] | J75=0 [=E75] | K75=0 [=I75*J75] | L75=0 [=I75*60%] | M75=0 [=I75+L75] | T75=0 [=(M75*15%)+M75] | U75=0 [=I75*2] | V75=0 [=U75*J75]
+  A76=. | C76=0 [=VLOOKUP(A76,[1]Productos!$A$1:$C$511,2,FALSE)] | D76=0 [=M76] | E76=15 | F76=10 botellas de vino y 5 botellas de proseco | G76=0 [=E76*D76] | I76=0 [=C76] | J76=10 | K76=0 [=I76*J76] | L76=0 [=I76*60%] | M76=0 [=I76+L76] | T76=0 [=(M76*15%)+M76] | U76=0 [=I76*2] | V76=0 [=U76*J76]
+  A77=. | C77=0 [=VLOOKUP(A77,[1]Productos!$A$1:$C$511,2,FALSE)] | D77=0 [=M77] | E77=25 | F77=10 botellas de whisky, 05 de ron y 10 de vodka (cada uno con tres mezcladores) | G77=0 [=E77*D77] | I77=0 [=C77] | J77=6 | K77=0 [=I77*J77] | L77=0 [=I77*60%] | M77=0 [=I77+L77] | U77=0 [=I77*2] | V77=0 [=U77*J77]
+  A78=. | C78=0 [=VLOOKUP(A78,[1]Productos!$A$1:$C$511,2,FALSE)] | D78=0 [=M78] | E78=0 | G78=0 [=E78*D78] | I78=0 [=C78] | J78=0 [=E78] | K78=0 [=I78*J78] | L78=0 [=I78*60%] | M78=0 [=I78+L78]
+  A79=. | C79=0 [=VLOOKUP(A79,[1]Productos!$A$1:$C$511,2,FALSE)] | D79=0 [=M79] | E79=0 | G79=0 [=E79*D79] | I79=0 [=C79] | J79=0 [=E79] | K79=0 [=I79*J79] | L79=0 [=I79*60%] | M79=0 [=I79+L79]
+  A80=. | C80=0 [=VLOOKUP(A80,[1]Productos!$A$1:$C$511,2,FALSE)] | D80=0 [=M80] | E80=0 | G80=0 [=E80*D80] | I80=0 [=C80] | J80=0 [=E80] | K80=0 [=I80*J80] | L80=0 [=I80*60%] | M80=0 [=I80+L80]
+  A81=. | C81=0 [=VLOOKUP(A81,[1]Productos!$A$1:$C$511,2,FALSE)] | D81=0 [=M81] | E81=0 | G81=0 [=E81*D81] | I81=0 [=C81] | J81=0 [=E81] | K81=0 [=I81*J81] | L81=0 [=I81*60%] | M81=0 [=I81+L81]
+  F82=Sub Total  | G82=0 [=SUM(G44:G81)] | I82=Sub Total | K82=0 [=SUM(K44:K81)] | U82=Sub Total | V82=0 [=SUM(V44:V77)]
+  F83=10% Servicio | G83=0 [=G82*10%] | I83=10% Servicio | K83=0 [=K82*10%] | Q83=Precio vino | R83=0 [=M48+R48] | U83=Servicio FULL | V83=0 [=V82*10%]
+  F84=Total Alimentos y Bebidas | G84=0 [=SUM(G82:G83)] | I84=Total  | K84=0 [=SUM(K82:K83)]
+  A86=ESPACIOS
+  A87=Ítem | C87=OCULTO | D87=Precio Unit. | E87=Cantidad | F87=Comentarios | G87=Sub Total
+  A88=discoteca La Boite (uso DIARIO) | C88=1000 [=VLOOKUP(A88,[1]Productos!$A$1:$C$511,2,FALSE)] | D88=2000 | E88=1 | F88=Espacio para evento.(descuento especial) | G88=1637.92
+  A89=ESTAR GENERAL | C89=3000 [=VLOOKUP(A89,[1]Productos!$A$1:$C$511,2,FALSE)] | D89=0 | E89=1 | F89=Espacio para evento - Montaje (preventivo) | G89=0 [=E89*D89]
+  A90=Restaurante Humboldt | C90=#N/A [=VLOOKUP(A90,[1]Productos!$A$1:$C$511,2,FALSE)] | D90=3000 | E90=1 | F90=Espacio durante almuerzos o cenas por definir (cortesía) | G90=0
+  A91=. | C91=0 [=VLOOKUP(A91,[1]Productos!$A$1:$C$511,2,FALSE)] | D91=0 [=C91] | E91=1 | F91=Espacio durante el evento | G91=0 [=E91*D91]
+  A92=. | C92=0 [=VLOOKUP(A92,[1]Productos!$A$1:$C$511,2,FALSE)] | D92=0 [=C92] | E92=1 | F92=Espacio durante el evento (descuento especial) | G92=0
+  F93=Sub Total | G93=1637.92 [=SUM(G88:G92)]
+  F95=Total Misceláneos  | G95=0 [=G34]
+  F96=Total AyB | G96=0 [=G82]
+  F97=Total Salones  | G97=1637.92 [=G93]
+  F98=Sub Total USD | G98=1637.92 [=SUM(G95:G97)]
+  F99=Traslado (exento de IVA) | G99=0 [=G40]
+  F100=Total 10% de servicio  | G100=0 [=G83]
+  F101=16% IVA | G101=262.0672 [=+G98*16%]
+  F102=Total USD | G102=1899.9872 [=SUM(G98:G101)]
+  F103=Garantìa 10% | G103=0
+  F104=TOTAL  | G104=1899.9872 [=SUM(G102:G103)]
+  A106=CONDICIONES IMPORTANTES 
+  A107=El 16% de IVA será reflejado al momento de la facturación en Bolívares. 
+  A108=Todo pago realizado en moneda extranjera, general un 3% por IGTF.
+  A109=Las tarifas mencionadas en este presupuesto están sujetas a cambios sin previo aviso. Las mismas debes ser revisadas al momento de la conformación de su evento.
+  A110=En caso de confirmar su evento, debe contactar a su ejecutivo de ventas para verificar la disponibilidad del espacio.
+  A111=Al momento de la conformación de su evento solicitamos un 100% de anticipo del total del presupuesto el cual debe estar pago completamente 48 horas antes de la ejecución del evento.
+  A112=Se solicitara un 10% de garantia para cubrir lo gastos adicionales que se puedan generar en el evento.
+  A113=Agradecemos su interés en nuestras instalaciones y servicios, esperamos por su información para afinar los detalles de su evento. 
+  A114=El presente documento es solo una cotización de carácter informativo, no implica un bloqueo de los espacios.  
+  A115=Los precios contemplados en esta propuesta tendrán una vigencia de siete (7) dias a partir de la fecha de este presupuesto. Estos precios están sujetos a modificación.
+  A116=Al momento de confirmar su evento, si contamos con la disponibilidad de los espacios, le haremos llegar el contrato definitivo.
+  ... (3 filas vacías)
+  A120=K. Jaén
+
+======================================================================
+SHEET: 4994,95
+MERGED: I30:M30, A64:B64, A73:B73, A51:B51, A109:G109, A35:G35, A22:G22, N41:R41, B8:G8, A88:B88, A70:B70, A111:G111, A54:B54, B10:G10, A90:B90, I41:M41, A74:B74, A56:B56, A27:B27, A76:B76, A42:B42, A53:B53, A62:B62, A68:B68, A105:G105, A28:B28, B12:G12, A23:G23, A48:B48, A30:B30, A59:B59, B14:G14, A45:B45, B13:G13, A79:B79, A61:B61, A87:B87, A46:B46, A37:B37, A89:B89, I28:M28, A26:B26, A71:B71, A52:B52, A63:B63, A104:G104, A113:G113, A77:B77, B11:G11, A106:G106, A49:B49, A36:B36, A69:B69, A78:B78, A65:B65, A75:B75, A24:G24, A80:B80, B15:G15, A55:B55, A110:G110, A57:B57, A32:B32, A108:G108, B7:G7, B16:G16, A38:B38, I29:M29, A43:B43, B18:G18, A67:B67, I31:M31, A60:B60, U41:V42, B17:G17, A20:G20, A112:G112, I26:M26, A25:B25, A114:G114...
+----------------------------------------------------------------------
+  ... (5 filas vacías)
+  A6=Cliente: | B6=TS Sport
+  A7=Rif o cédula:  | B7=V15.419.123
+  A8=Dirección: | B8=Caracas
+  A9=Contacto: | B9=Antonio Linares
+  A10=Teléfono:
+  A11=Email:
+  A12=Nombre del Evento: | B12=Evento extra Sport Bitz
+  A13=Cantidad de Persona: | B13=Circulantes
+  A14=Hora de Inicio: | B14=18:00:00
+  A15=Hora de culminacion: | B15=21:00:00
+  A16=Fecha Presupuesto: | B16=miércoles, 21 de enero de 2026 | K16=Àrea | L16=Cantidad
+  A17=Fecha del Acuerdo: | K17=àrea p | L17=1
+  A18=Fecha del Evento: | B18=jueves, 07 de mayo de 2026 (fechas en revisión) | K18=ayb | L18=4
+  K19=cocina | L19=1
+  A20=Gracias por preferir al Hotel Humboldt para realizar su evento. Según su solicitud le presentamos la siguiente propuesta. | K20=bartender | L20=1
+  K21=montaje | L21=1
+  A22=COTIZACION DE EVENTO | K22=prevencion | L22=1
+  K23=coordinador | L23=1
+  A24=MISCELANEOS | K24=Total | L24=10 [=SUM(L17:L23)]
+  A25=Ítem | C25=OCULTO | D25=Precio Unit. | E25=Cantidad | F25=Comentarios
+  A26=Servicio | C26=0 [=VLOOKUP(A26,[1]Productos!$A$1:$C$511,2,FALSE)] | D26=720 | E26=0 | F26=Despliegue de redes eléctricas, 12 puntos (en espera de plano de distribución) tiempo extra de personal de pantalla | G26=0 [=E26*D26] | I26=Evenplus $360 + IVA
+  A27=Mobiliario | C27=0 [=VLOOKUP(A27,[1]Productos!$A$1:$C$511,2,FALSE)] | D27=0 | E27=1 | F27=Mobiliario mixto para 30 personas -  banquetes y áreas lounge  | G27=0 [=D27*E27]
+  A28=. | C28=0 [=VLOOKUP(A28,[1]Productos!$A$1:$C$511,2,FALSE)] | D28=0 | E28=1 | F28=Planta eléctrica con operador (precio especial) | G28=0 [=D28*E28]
+  A29=. | C29=0 [=VLOOKUP(A29,[1]Productos!$A$1:$C$511,2,FALSE)] | D29=0 | E29=1 | F29=Sonido para sala de eventos - música de ambiente sin operador. | G29=0 [=D29*E29] | I29=Sonido del Hotel - pantalla  y micrófonos con Evenplus 1000$
+  A30=. | C30=0 [=VLOOKUP(A30,[1]Productos!$A$1:$C$511,2,FALSE)] | D30=0 | E30=1 | F30=Servicio profesional de DJ durante el evento | G30=0 [=D30*E30]
+  A31=. | D31=0 | E31=1 | F31=Servicio de animación (4 horas) desde las 6:00 pm | G31=0 [=D31*E31]
+  A32=. | D32=0 | E32=1 | G32=0 [=D32*E32]
+  F33=Sub Total | G33=0 [=SUM(G26:G32)]
+  A35=TRASLADOS
+  A36=Ítem | C36=OCULTO | D36=Precio Unit. | E36=Cantidad | F36=Comentarios
+  A37=Traslado Ida-Vuelta p/persona | C37=10 [=VLOOKUP(A37,[1]Productos!$A$1:$C$511,2,FALSE)] | D37=15 | E37=0 | F37=Traslado en teleférico  - Por favor, considerar los horarios de subida y bajada.  | G37=0 [=D37*E37]
+  A38=Traslado Ida-Vuelta p/persona | C38=10 [=VLOOKUP(A38,[1]Productos!$A$1:$C$511,2,FALSE)] | D38=60 | E38=0 | F38=Precios de referencia por traslados vía terrestre - entre 9 a 10 personas por unidad. | G38=0 [=D38*E38]
+  F39=Sub Total | G39=0 [=SUM(G37:G38)]
+  A41=ALIMENTOS Y BEBIDAS | I41=Provedor: Alternativa Gastronómica | N41=Proveedo vino FIRIUS | T41=15% extra | U41=10% de servicio al precio full lista del 19/07
+  A42=Ítem | C42=OCULTO | D42=Precio Unit. | E42=Cantidad | F42=Comentarios | G42=Sub Total | I42=Monto  | J42=Cantidad  | K42=Total  | L42=0.6 | M42=PVP | N42=Monto | O42=Cantidad  | P42=Total  | Q42=0.2 | R42=PVP | S42=TOTAL FINAL
+  A43=. | C43=0 [=VLOOKUP(A43,[1]Productos!$A$1:$C$511,2,FALSE)] | D43=0 [=M43] | E43=30 | F43=Sugerencia de menú
+Entrada: chupe de pollo
+Principal: lomito en mantequilla de hierbas con cremoso de papas
+Postre: ponqué cremoso de chocolate (Waraira) | G43=0 [=E43*D43] | I43=0 [=C43] | J43=30 [=E43] | K43=0 [=I43*J43] | L43=0 [=I43*60%] | M43=0 [=I43+L43] | T43=0 [=(M43*15%)+M43] | U43=0 [=I43*2] | V43=0 [=U43*J43]
+  A44=. | C44=0 [=VLOOKUP(A44,[1]Productos!$A$1:$C$511,2,FALSE)] | D44=0 [=M44] | E44=40 | F44=Agua durante la cena, 1 por persona (aproximadamente) | G44=0 [=E44*D44] | I44=0 [=C44] | J44=40 [=E44] | K44=0 [=I44*J44] | L44=0 [=I44*60%] | M44=0 [=I44+L44] | T44=0 [=(M44*15%)+M44] | U44=0 [=I44*2] | V44=0 [=U44*J44]
+  A45=. | C45=0 [=VLOOKUP(A45,[1]Productos!$A$1:$C$511,2,FALSE)] | D45=0 [=M45] | E45=60 | F45=Copa de vino (2 por persona) | G45=0 [=E45*D45] | I45=0 [=C45] | J45=60 [=E45] | K45=0 [=I45*J45] | L45=0 [=I45*60%] | M45=0 [=I45+L45] | T45=0 [=(M45*15%)+M45] | U45=0 [=I45*2] | V45=0 [=U45*J45]
+  A46=. | C46=0 [=VLOOKUP(A46,[1]Productos!$A$1:$C$511,2,FALSE)] | D46=0 [=M46] | E46=0 | F46=Cantidades a definir con el cliente, precio de referencia. | G46=0 [=E46*D46] | I46=0 [=C46] | J46=0 [=E46] | K46=0 [=I46*J46] | L46=0 [=I46*60%] | M46=0 [=I46+L46] | T46=0 [=(M46*15%)+M46] | U46=0 [=I46*2] | V46=0 [=U46*J46]
+  A47=. | C47=0 [=VLOOKUP(A47,[1]Productos!$A$1:$C$511,2,FALSE)] | D47=0 [=M47] | E47=0 | F47=Cantidades a definir con el cliente, precio de referencia. | G47=0 [=E47*D47] | I47=0 [=C47] | J47=0 [=E47] | K47=0 [=I47*J47] | L47=0 [=I47*60%] | M47=0 [=I47+L47] | T47=0 [=(M47*15%)+M47] | U47=0 [=I47*2] | V47=0 [=U47*J47]
+  A48=. | C48=0 [=VLOOKUP(A48,[1]Productos!$A$1:$C$511,2,FALSE)] | D48=0 [=M48] | E48=140 | F48=Pasapalo | G48=0 [=E48*D48] | I48=0 [=C48] | J48=140 [=E48] | K48=0 [=I48*J48] | L48=0 [=I48*60%] | M48=0 [=I48+L48] | T48=0 [=(M48*15%)+M48] | U48=0 [=I48*2] | V48=0 [=U48*J48]
+  A49=. | C49=0 [=VLOOKUP(A49,[1]Productos!$A$1:$C$511,2,FALSE)] | D49=0 [=M49] | E49=90 | F49=Refresco para servicio | G49=0 [=E49*D49] | I49=0 [=C49] | J49=90 [=E49] | K49=0 [=I49*J49] | L49=0 [=I49*60%] | M49=0 [=I49+L49] | T49=0 [=(M49*15%)+M49] | U49=0 [=I49*2] | V49=0 [=U49*J49]
+  A50=. | C50=0 [=VLOOKUP(A50,[1]Productos!$A$1:$C$511,2,FALSE)] | D50=0 [=M50] | E50=140 | F50=Agua para servicio | G50=0 [=E50*D50] | I50=0 [=C50] | J50=140 [=E50] | K50=0 [=I50*J50] | L50=0 [=I50*60%] | M50=0 [=I50+L50] | T50=0 [=(M50*15%)+M50] | U50=0 [=I50*2] | V50=0 [=U50*J50]
+  A51=. | C51=0 [=VLOOKUP(A51,[1]Productos!$A$1:$C$511,2,FALSE)] | D51=15 | E51=0 | F51=Cantidades a definir con el cliente, precio de referencia. | G51=0 [=E51*D51] | I51=7 | J51=0 | K51=0 [=I51*J51] | L51=4.2 [=I51*60%] | M51=11.2 [=I51+L51] | T51=12.879999999999999 [=(M51*15%)+M51] | U51=14 [=I51*2] | V51=0 [=U51*J51]
+  A52=. | C52=0 [=VLOOKUP(A52,[1]Productos!$A$1:$C$511,2,FALSE)] | D52=25 | E52=0 | F52=Cantidades a definir con el cliente, precio de referencia. | G52=0 [=E52*D52] | I52=12.5 | J52=0 [=E52] | K52=0 [=I52*J52] | L52=7.5 [=I52*60%] | M52=20 [=I52+L52] | T52=23 [=(M52*15%)+M52] | U52=25 [=I52*2] | V52=0 [=U52*J52]
+  A53=. | C53=0 [=VLOOKUP(A53,[1]Productos!$A$1:$C$511,2,FALSE)] | D53=0 [=M53] | E53=96 | F53=Refrigerio AM | G53=0 [=E53*D53] | I53=0 [=C53] | J53=96 [=E53] | K53=0 [=I53*J53] | L53=0 [=I53*60%] | M53=0 [=I53+L53] | T53=0 [=(M53*15%)+M53] | U53=0 [=I53*2] | V53=0 [=U53*J53]
+  A54=. | C54=0 [=VLOOKUP(A54,[1]Productos!$A$1:$C$511,2,FALSE)] | D54=0 [=M54] | E54=60 | F54=Refrigerio AM | G54=0 [=E54*D54] | I54=0 [=C54] | J54=60 [=E54] | K54=0 [=I54*J54] | L54=0 [=I54*60%] | M54=0 [=I54+L54] | T54=0 [=(M54*15%)+M54] | U54=0 [=I54*2] | V54=0 [=U54*J54]
+  A55=. | C55=0 [=VLOOKUP(A55,[1]Productos!$A$1:$C$511,2,FALSE)] | D55=0 [=M55] | E55=96 | F55=Refrigerio AM | G55=0 [=E55*D55] | I55=0 [=C55] | J55=96 [=E55] | K55=0 [=I55*J55] | L55=0 [=I55*60%] | M55=0 [=I55+L55] | T55=0 [=(M55*15%)+M55] | U55=0 [=I55*2] | V55=0 [=U55*J55]
+  A56=. | C56=0 [=VLOOKUP(A56,[1]Productos!$A$1:$C$511,2,FALSE)] | D56=0 [=M56] | E56=48 | F56=Almuerzo ligero | G56=0 [=E56*D56] | I56=0 [=C56] | J56=48 [=E56] | K56=0 [=I56*J56] | L56=0 [=I56*60%] | M56=0 [=I56+L56] | N56=0 [=(M56*15%)+M56] | T56=0 [=(M56*15%)+M56] | U56=0 [=I56*2] | V56=0 [=U56*J56]
+  A57=. | C57=0 [=VLOOKUP(A57,[1]Productos!$A$1:$C$511,2,FALSE)] | D57=0 [=M57] | E57=48 | F57=Postre para almuerzo | G57=0 [=E57*D57] | I57=0 [=C57] | J57=48 [=E57] | K57=0 [=I57*J57] | L57=0 [=I57*60%] | M57=0 [=I57+L57] | N57=0 [=(M57*15%)+M57] | T57=0 [=(M57*15%)+M57] | U57=0 [=I57*2] | V57=0 [=U57*J57]
+  A58=. | C58=0 [=VLOOKUP(A58,[1]Productos!$A$1:$C$511,2,FALSE)] | D58=0 [=M58] | E58=60 | F58=Refrigerio PM | G58=0 [=E58*D58] | I58=0 [=C58] | J58=60 [=E58] | K58=0 [=I58*J58] | L58=0 [=I58*60%] | M58=0 [=I58+L58] | N58=0 [=(M58*15%)+M58] | T58=0 [=(M58*15%)+M58] | U58=0 [=I58*2] | V58=0 [=U58*J58]
+  A59=. | C59=0 [=VLOOKUP(A59,[1]Productos!$A$1:$C$511,2,FALSE)] | D59=0 [=M59] | E59=60 | F59=Refrigerio PM | G59=0 [=E59*D59] | I59=0 [=C59] | J59=60 [=E59] | K59=0 [=I59*J59] | L59=0 [=I59*60%] | M59=0 [=I59+L59] | N59=0 [=(M59*15%)+M59] | T59=0 [=(M59*15%)+M59] | U59=0 [=I59*2] | V59=0 [=U59*J59]
+  A60=. | C60=0 [=VLOOKUP(A60,[1]Productos!$A$1:$C$511,2,FALSE)] | D60=0 [=M60] | E60=120 | F60=Estación de café para los servicios durante el dia (40 refrigerio AM, 40 almuerzo y 40 refrigerio PM) | G60=0 [=E60*D60] | I60=0 [=C60] | J60=120 [=E60] | K60=0 [=I60*J60] | L60=0 [=I60*60%] | M60=0 [=I60+L60] | N60=0 [=(M60*15%)+M60] | T60=0 [=(M60*15%)+M60] | U60=0 [=I60*2] | V60=0 [=U60*J60]
+  A61=. | C61=0 [=VLOOKUP(A61,[1]Productos!$A$1:$C$511,2,FALSE)] | D61=0 [=M61] | E61=70 | F61=Bebida para almuerzo y refrigerio PM | G61=0 [=E61*D61] | I61=0 [=C61] | J61=70 [=E61] | K61=0 [=I61*J61] | L61=0 [=I61*60%] | M61=0 [=I61+L61] | N61=0 [=(M61*15%)+M61] | T61=0 [=(M61*15%)+M61] | U61=0 [=I61*2] | V61=0 [=U61*J61]
+  A62=. | C62=0 [=VLOOKUP(A62,[1]Productos!$A$1:$C$511,2,FALSE)] | D62=0 [=M62] | E62=144 | F62=Agua para cada servicio (AM - Almuerzo - PM) | G62=0 [=E62*D62] | I62=0 [=C62] | J62=0 | K62=0 [=I62*J62] | L62=0 [=I62*60%] | M62=0 [=I62+L62] | T62=0 [=(M62*15%)+M62] | U62=0 [=I62*2] | V62=0 [=U62*J62]
+  A63=. | C63=0 [=VLOOKUP(A63,[1]Productos!$A$1:$C$511,2,FALSE)] | D63=0 [=M63] | E63=150 | F63=Pasapalo durante el evento - 3 por persona aproximadamente. | G63=0 [=E63*D63] | I63=0 [=C63] | J63=150 [=E63] | K63=0 [=I63*J63] | L63=0 [=I63*60%] | M63=0 [=I63+L63] | T63=0 [=(M63*15%)+M63] | U63=0 [=I63*2] | V63=0 [=U63*J63]
+  A64=. | C64=0 [=VLOOKUP(A64,[1]Productos!$A$1:$C$511,2,FALSE)] | D64=0 [=M64] | E64=100 | F64=Pasapalo durante el evento - 1 por persona aproximadamente. | G64=0 [=E64*D64] | I64=0 [=C64] | J64=100 [=E64] | K64=0 [=I64*J64] | L64=0 [=I64*60%] | M64=0 [=I64+L64] | T64=0 [=(M64*15%)+M64] | U64=0 [=I64*2] | V64=0 [=U64*J64]
+  A65=. | C65=0 [=VLOOKUP(A65,[1]Productos!$A$1:$C$511,2,FALSE)] | D65=0 [=M65] | E65=100 | F65=Pasapalo durante el evento - 1 por persona aproximadamente. | G65=0 [=E65*D65] | I65=0 [=C65] | J65=100 [=E65] | K65=0 [=I65*J65] | L65=0 [=I65*60%] | M65=0 [=I65+L65] | T65=0 [=(M65*15%)+M65] | U65=0 [=I65*2] | V65=0 [=U65*J65]
+  A66=. | C66=0 [=VLOOKUP(A66,[1]Productos!$A$1:$C$511,2,FALSE)] | D66=0 [=M66] | E66=93 | F66=Agua durante el evento de noche | G66=0 [=E66*D66] | I66=0 [=C66] | J66=81 | K66=0 [=I66*J66] | L66=0 [=I66*60%] | M66=0 [=I66+L66] | T66=0 [=(M66*15%)+M66] | U66=0 [=I66*2] | V66=0 [=U66*J66]
+  A67=. | C67=0 [=VLOOKUP(A67,[1]Productos!$A$1:$C$511,2,FALSE)] | D67=0 [=M67] | E67=90 | F67=Refrescos durante el evento de noche | G67=0 [=E67*D67] | I67=0 [=C67] | J67=118 | K67=0 [=I67*J67] | L67=0 [=I67*60%] | M67=0 [=I67+L67] | T67=0 [=(M67*15%)+M67] | U67=0 [=I67*2] | V67=0 [=U67*J67]
+  A68=. | C68=0 [=VLOOKUP(A68,[1]Productos!$A$1:$C$511,2,FALSE)] | D68=0 [=M68] | E68=0 | F68=Servicio para preparación de cóctel - MOJITO TRADICIONAL - cliente trae el licor | G68=0 [=E68*D68] | I68=0 [=C68] | J68=0 [=E68] | K68=0 [=I68*J68] | L68=0 [=I68*60%] | M68=0 [=I68+L68] | T68=0 [=(M68*15%)+M68] | U68=0 [=I68*2] | V68=0 [=U68*J68]
+  A69=. | C69=0 [=VLOOKUP(A69,[1]Productos!$A$1:$C$511,2,FALSE)] | D69=0 [=M69] | E69=0 | F69=Servicio para preparación de cóctel - WHISKY AND GINGER - cliente trae el licor | G69=0 [=E69*D69] | I69=0 [=C69] | J69=0 [=E69] | K69=0 [=I69*J69] | L69=0 [=I69*60%] | M69=0 [=I69+L69] | T69=0 [=(M69*15%)+M69] | U69=0 [=I69*2] | V69=0 [=U69*J69]
+  A70=. | C70=0 [=VLOOKUP(A70,[1]Productos!$A$1:$C$511,2,FALSE)] | D70=0 [=M70] | E70=0 | F70=Servicio para preparación de cóctel - VODKA MARACUYA - cliente trae el licor | G70=0 [=E70*D70] | I70=0 [=C70] | J70=0 [=E70] | K70=0 [=I70*J70] | L70=0 [=I70*60%] | M70=0 [=I70+L70] | T70=0 [=(M70*15%)+M70] | U70=0 [=I70*2] | V70=0 [=U70*J70]
+  A71=. | C71=0 [=VLOOKUP(A71,[1]Productos!$A$1:$C$511,2,FALSE)] | D71=0 [=M71] | E71=0 | F71=Servicio para preparación de cóctel - TEQUILA SUNRISE - cliente trae el licor | G71=0 [=E71*D71] | I71=0 [=C71] | J71=0 [=E71] | K71=0 [=I71*J71] | L71=0 [=I71*60%] | M71=0 [=I71+L71] | T71=0 [=(M71*15%)+M71] | U71=0 [=I71*2] | V71=0 [=U71*J71]
+  A72=. | C72=0 [=VLOOKUP(A72,[1]Productos!$A$1:$C$511,2,FALSE)] | D72=0 [=M72] | E72=0 | F72=Servicio para preparación de cóctel - GIN TONIC - cliente trae el licor | G72=0 [=E72*D72] | I72=0 [=C72] | J72=0 [=E72] | K72=0 [=I72*J72] | L72=0 [=I72*60%] | M72=0 [=I72+L72] | T72=0 [=(M72*15%)+M72] | U72=0 [=I72*2] | V72=0 [=U72*J72]
+  A73=. | C73=0 [=VLOOKUP(A73,[1]Productos!$A$1:$C$511,2,FALSE)] | D73=0 [=M73] | E73=0 | F73=Servicio para preparación de cóctel - VODKA CRANBERRY - cliente trae el licor | G73=0 [=E73*D73] | I73=0 [=C73] | J73=0 [=E73] | K73=0 [=I73*J73] | L73=0 [=I73*60%] | M73=0 [=I73+L73] | T73=0 [=(M73*15%)+M73] | U73=0 [=I73*2] | V73=0 [=U73*J73]
+  A74=. | C74=0 [=VLOOKUP(A74,[1]Productos!$A$1:$C$511,2,FALSE)] | D74=0 [=M74] | E74=0 | F74=Servicio para preparación de cóctel - RON FIZZ TROPICAL - cliente trae el licor | G74=0 [=E74*D74] | I74=0 [=C74] | J74=0 [=E74] | K74=0 [=I74*J74] | L74=0 [=I74*60%] | M74=0 [=I74+L74] | T74=0 [=(M74*15%)+M74] | U74=0 [=I74*2] | V74=0 [=U74*J74]
+  A75=. | C75=0 [=VLOOKUP(A75,[1]Productos!$A$1:$C$511,2,FALSE)] | D75=0 [=M75] | E75=15 | F75=10 botellas de vino y 5 botellas de proseco | G75=0 [=E75*D75] | I75=0 [=C75] | J75=10 | K75=0 [=I75*J75] | L75=0 [=I75*60%] | M75=0 [=I75+L75] | T75=0 [=(M75*15%)+M75] | U75=0 [=I75*2] | V75=0 [=U75*J75]
+  A76=. | C76=0 [=VLOOKUP(A76,[1]Productos!$A$1:$C$511,2,FALSE)] | D76=0 [=M76] | E76=25 | F76=10 botellas de whisky, 05 de ron y 10 de vodka (cada uno con tres mezcladores) | G76=0 [=E76*D76] | I76=0 [=C76] | J76=6 | K76=0 [=I76*J76] | L76=0 [=I76*60%] | M76=0 [=I76+L76] | U76=0 [=I76*2] | V76=0 [=U76*J76]
+  A77=. | C77=0 [=VLOOKUP(A77,[1]Productos!$A$1:$C$511,2,FALSE)] | D77=0 [=M77] | E77=0 | G77=0 [=E77*D77] | I77=0 [=C77] | J77=0 [=E77] | K77=0 [=I77*J77] | L77=0 [=I77*60%] | M77=0 [=I77+L77]
+  A78=. | C78=0 [=VLOOKUP(A78,[1]Productos!$A$1:$C$511,2,FALSE)] | D78=0 [=M78] | E78=0 | G78=0 [=E78*D78] | I78=0 [=C78] | J78=0 [=E78] | K78=0 [=I78*J78] | L78=0 [=I78*60%] | M78=0 [=I78+L78]
+  A79=. | C79=0 [=VLOOKUP(A79,[1]Productos!$A$1:$C$511,2,FALSE)] | D79=0 [=M79] | E79=0 | G79=0 [=E79*D79] | I79=0 [=C79] | J79=0 [=E79] | K79=0 [=I79*J79] | L79=0 [=I79*60%] | M79=0 [=I79+L79]
+  A80=. | C80=0 [=VLOOKUP(A80,[1]Productos!$A$1:$C$511,2,FALSE)] | D80=0 [=M80] | E80=0 | G80=0 [=E80*D80] | I80=0 [=C80] | J80=0 [=E80] | K80=0 [=I80*J80] | L80=0 [=I80*60%] | M80=0 [=I80+L80]
+  F81=Sub Total  | G81=0 [=SUM(G43:G80)] | I81=Sub Total | K81=0 [=SUM(K43:K80)] | U81=Sub Total | V81=0 [=SUM(V43:V76)]
+  F82=10% Servicio | G82=0 [=G81*10%] | I82=10% Servicio | K82=0 [=K81*10%] | Q82=Precio vino | R82=0 [=M47+R47] | U82=Servicio FULL | V82=0 [=V81*10%]
+  F83=Total Alimentos y Bebidas | G83=0 [=SUM(G81:G82)] | I83=Total  | K83=0 [=SUM(K81:K82)]
+  A85=ESPACIOS
+  A86=Ítem | C86=OCULTO | D86=Precio Unit. | E86=Cantidad | F86=Comentarios | G86=Sub Total
+  A87=ESTAR GENERAL | C87=3000 [=VLOOKUP(A87,[1]Productos!$A$1:$C$511,2,FALSE)] | D87=4500 | E87=1 | F87=Espacio para evento - descuento especial | G87=4305.99
+  A88=Restaurante Humboldt | C88=#N/A [=VLOOKUP(A88,[1]Productos!$A$1:$C$511,2,FALSE)] | D88=3000 | E88=1 | F88=Espacio durante almuerzos o cenas por definir (cortesía) | G88=0
+  A89=. | C89=0 [=VLOOKUP(A89,[1]Productos!$A$1:$C$511,2,FALSE)] | D89=0 [=C89] | E89=1 | F89=Espacio durante el evento | G89=0 [=E89*D89]
+  A90=. | C90=0 [=VLOOKUP(A90,[1]Productos!$A$1:$C$511,2,FALSE)] | D90=0 [=C90] | E90=1 | F90=Espacio durante el evento (descuento especial) | G90=0
+  F91=Sub Total | G91=4305.99 [=SUM(G87:G90)]
+  F93=Total Misceláneos  | G93=0 [=G33]
+  F94=Total AyB | G94=0 [=G81]
+  F95=Total Salones  | G95=4305.99 [=G91]
+  F96=Sub Total USD | G96=4305.99 [=SUM(G93:G95)]
+  F97=Traslado (exento de IVA) | G97=0 [=G39]
+  F98=Total 10% de servicio  | G98=0 [=G82]
+  F99=16% IVA | G99=688.9584 [=+G96*16%]
+  F100=Total USD | G100=4994.948399999999 [=SUM(G96:G99)]
+  F101=Garantìa 10% | G101=0
+  F102=TOTAL  | G102=4994.948399999999 [=SUM(G100:G101)]
+  A104=CONDICIONES IMPORTANTES 
+  A105=El 16% de IVA será reflejado al momento de la facturación en Bolívares. 
+  A106=Todo pago realizado en moneda extranjera, general un 3% por IGTF.
+  A107=Las tarifas mencionadas en este presupuesto están sujetas a cambios sin previo aviso. Las mismas debes ser revisadas al momento de la conformación de su evento.
+  A108=En caso de confirmar su evento, debe contactar a su ejecutivo de ventas para verificar la disponibilidad del espacio.
+  A109=Al momento de la conformación de su evento solicitamos un 100% de anticipo del total del presupuesto el cual debe estar pago completamente 48 horas antes de la ejecución del evento.
+  A110=Se solicitara un 10% de garantia para cubrir lo gastos adicionales que se puedan generar en el evento.
+  A111=Agradecemos su interés en nuestras instalaciones y servicios, esperamos por su información para afinar los detalles de su evento. 
+  A112=El presente documento es solo una cotización de carácter informativo, no implica un bloqueo de los espacios.  
+  A113=Los precios contemplados en esta propuesta tendrán una vigencia de siete (7) dias a partir de la fecha de este presupuesto. Estos precios están sujetos a modificación.
+  A114=Al momento de confirmar su evento, si contamos con la disponibilidad de los espacios, le haremos llegar el contrato definitivo.
+  ... (3 filas vacías)
+  A118=K. Jaén
+
+======================================================================
+SHEET: 8265,96
+MERGED: I30:M30, A64:B64, A73:B73, A51:B51, A109:G109, A22:G22, B8:G8, A88:B88, A70:B70, A111:G111, A54:B54, B10:G10, A90:B90, I32:M32, N42:R42, A74:B74, A56:B56, A27:B27, A76:B76, A33:B33, A53:B53, A62:B62, A68:B68, A28:B28, B12:G12, A39:B39, A23:G23, A48:B48, A30:B30, A116:G116, A59:B59, B14:G14, A45:B45, B13:G13, A79:B79, A61:B61, A115:G115, A87:B87, A46:B46, A37:B37, A89:B89, I28:M28, A36:G36, A26:B26, A71:B71, A91:B91, A52:B52, A63:B63, A113:G113, A77:B77, B11:G11, A92:B92, A106:G106, A49:B49, A69:B69, A78:B78, A65:B65, A83:D83, U42:V43, A75:B75, A24:G24, A80:B80, B15:G15, A55:B55, A110:G110, A57:B57, A32:B32, A108:G108, B7:G7, B16:G16, A38:B38, A43:B43, A86:G86, B18:G18, A67:B67, I31:M31, A60:B60, B17:G17, A20:G20, A112:G112...
+----------------------------------------------------------------------
+  ... (5 filas vacías)
+  A6=Cliente: | B6=TS Sport
+  A7=Rif o cédula:  | B7=V15.419.123
+  A8=Dirección: | B8=Caracas
+  A9=Contacto: | B9=Antonio Linares
+  A10=Teléfono:
+  A11=Email:
+  A12=Nombre del Evento: | B12=Cena especial
+  A13=Cantidad de Persona: | B13=30 personas, aproximadamente
+  A14=Hora de Inicio: | B14=18:00:00
+  A15=Hora de culminacion: | B15=21:00:00
+  A16=Fecha Presupuesto: | B16=miércoles, 21 de enero de 2026 | K16=Àrea | L16=Cantidad
+  A17=Fecha del Acuerdo: | K17=àrea p | L17=1
+  A18=Fecha del Evento: | B18=jueves, 07 de mayo de 2026 (fechas en revisión) | K18=ayb | L18=4
+  K19=cocina | L19=0
+  A20=Gracias por preferir al Hotel Humboldt para realizar su evento. Según su solicitud le presentamos la siguiente propuesta. | K20=bartender | L20=1
+  K21=montaje | L21=1
+  A22=COTIZACION DE EVENTO | K22=prevencion | L22=1
+  K23=coordinador | L23=1
+  A24=MISCELANEOS | K24=Total | L24=9 [=SUM(L17:L23)]
+  A25=Ítem | C25=OCULTO | D25=Precio Unit. | E25=Cantidad | F25=Comentarios
+  A26=PROTOCOLO DE MARIPEREZ (Menos de 100 pers.) | C26=90 [=VLOOKUP(A26,[1]Productos!$A$1:$C$511,2,FALSE)] | D26=90 | E26=1 | F26=Protocolo de recibimiento en mariperez - brazaletes. | G26=90 [=D26*E26] | I26=4055 [=SUM(G26:G30)]
+  A27=Mobiliario | C27=0 [=VLOOKUP(A27,[1]Productos!$A$1:$C$511,2,FALSE)] | D27=300 | E27=1 | F27=Mobiliario mixto para 90 personas -  banquetes y áreas lounge  | G27=300
+  A28=Servicio | C28=0 [=VLOOKUP(A28,[1]Productos!$A$1:$C$511,2,FALSE)] | D28=800 | E28=1 | F28=Planta eléctrica con operador (precio especial) | G28=800 [=D28*E28]
+  A29=Servicio | C29=0 [=VLOOKUP(A29,[1]Productos!$A$1:$C$511,2,FALSE)] | D29=600 | E29=1 | F29=Personal de servicio: prevención, áreas públicas, montaje, coordinador general.  | G29=365
+  A30=Audiovisuales | C30=0 [=VLOOKUP(A30,[1]Productos!$A$1:$C$511,2,FALSE)] | D30=2500 | E30=1 | F30=1 pantalla 4x2 mts 
+1 rack de 4 micrófonos inalámbricos senheizer 
+2 luces móviles 
+2 truss de aluminio 
+1 consola de iluminación pequeña  | G30=2500 [=D30*E30]
+  A31=Servicio | C31=0 [=VLOOKUP(A31,[1]Productos!$A$1:$C$511,2,FALSE)] | D31=0 | E31=1 | F31=Diferencial cambiario | G31=30.53
+  A32=. | D32=0 | E32=1 | F32=Servicio de animación (4 horas) desde las 6:00 pm | G32=0 [=D32*E32]
+  A33=. | D33=0 | E33=1 | G33=0 [=D33*E33]
+  F34=Sub Total | G34=4085.53 [=SUM(G26:G33)]
+  A36=TRASLADOS
+  A37=Ítem | C37=OCULTO | D37=Precio Unit. | E37=Cantidad | F37=Comentarios
+  A38=Traslado Ida-Vuelta p/persona | C38=10 [=VLOOKUP(A38,[1]Productos!$A$1:$C$511,2,FALSE)] | D38=15 | E38=0 | F38=Traslado en teleférico  - Por favor, considerar los horarios de subida y bajada.  | G38=0 [=D38*E38]
+  A39=Traslado Ida-Vuelta p/persona | C39=10 [=VLOOKUP(A39,[1]Productos!$A$1:$C$511,2,FALSE)] | D39=60 | E39=0 | F39=Precios de referencia por traslados vía terrestre - entre 9 a 10 personas por unidad. | G39=0 [=D39*E39]
+  F40=Sub Total | G40=0 [=SUM(G38:G39)]
+  A42=ALIMENTOS Y BEBIDAS | I42=Provedor: Alternativa Gastronómica | N42=Proveedo vino FIRIUS | T42=15% extra | U42=10% de servicio al precio full lista del 19/07
+  A43=Ítem | C43=OCULTO | D43=Precio Unit. | E43=Cantidad | F43=Comentarios | G43=Sub Total | I43=Monto  | J43=Cantidad  | K43=Total  | L43=0.6 | M43=PVP | N43=Monto | O43=Cantidad  | P43=Total  | Q43=0.2 | R43=PVP | S43=TOTAL FINAL
+  A44=MENÚ 3 TIEMPOS  | C44=25.5 [=VLOOKUP(A44,[1]Productos!$A$1:$C$511,2,FALSE)] | D44=61.3 | E44=30 | F44=Sugerencia de menú
+Entrada: chupe de pollo
+Principal: lomito en mantequilla de hierbas con cremoso de papas
+Postre: ponqué cremoso de chocolate (Waraira) | G44=1839 [=E44*D44] | I44=35.7 | J44=30 [=E44] | K44=1071 [=I44*J44] | L44=10.71 [=I44*30%] | M44=46.410000000000004 [=I44+L44] | T44=53.371500000000005 [=(M44*15%)+M44] | U44=71.4 [=I44*2] | V44=2142 [=U44*J44]
+  A45=ESTACION DE CAFÉ (AMERICANO O LATTE)  | C45=2 [=VLOOKUP(A45,[1]Productos!$A$1:$C$511,2,FALSE)] | D45=3.2 | E45=180 | F45=Coffee break líquido (dos por persona) | G45=576 [=E45*D45] | I45=2 | J45=180 [=E45] | K45=360 [=I45*J45] | L45=1.2 [=I45*60%] | M45=3.2 [=I45+L45] | T45=3.68 [=(M45*15%)+M45] | U45=4 [=I45*2] | V45=720 [=U45*J45]
+  A46=Bebida por seleccionar (vino) | C46=0 [=VLOOKUP(A46,[1]Productos!$A$1:$C$511,2,FALSE)] | D46=6.4 | E46=60 | F46=Copa de vino (2 por persona) | G46=384 [=E46*D46] | I46=10.5 | J46=6 | K46=63 [=I46*J46] | L46=6.3 [=I46*60%] | M46=16.8 [=I46+L46] | T46=19.32 [=(M46*15%)+M46] | U46=21 [=I46*2] | V46=126 [=U46*J46]
+  A47=DESCORCHE DE VINOS Y ESPUMANTES (por botella) | C47=15 [=VLOOKUP(A47,[1]Productos!$A$1:$C$511,2,FALSE)] | D47=15 | E47=0 | F47=Cantidades a definir con el cliente, precio de referencia. | G47=0 [=E47*D47] | I47=15 [=C47] | J47=0 [=E47] | K47=0 [=I47*J47] | L47=9 [=I47*60%] | M47=24 [=I47+L47] | T47=27.6 [=(M47*15%)+M47] | U47=30 [=I47*2] | V47=0 [=U47*J47]
+  A48=DESCORCHE DE OTROS LICORES (por botella) | C48=20 [=VLOOKUP(A48,[1]Productos!$A$1:$C$511,2,FALSE)] | D48=25 | E48=0 | F48=Cantidades a definir con el cliente, precio de referencia. | G48=0 [=E48*D48] | I48=20 [=C48] | J48=0 [=E48] | K48=0 [=I48*J48] | L48=12 [=I48*60%] | M48=32 [=I48+L48] | T48=36.8 [=(M48*15%)+M48] | U48=40 [=I48*2] | V48=0 [=U48*J48]
+  A49=. | C49=0 [=VLOOKUP(A49,[1]Productos!$A$1:$C$511,2,FALSE)] | D49=0 [=M49] | E49=140 | F49=Pasapalo | G49=0 [=E49*D49] | I49=0 [=C49] | J49=140 [=E49] | K49=0 [=I49*J49] | L49=0 [=I49*60%] | M49=0 [=I49+L49] | T49=0 [=(M49*15%)+M49] | U49=0 [=I49*2] | V49=0 [=U49*J49]
+  A50=. | C50=0 [=VLOOKUP(A50,[1]Productos!$A$1:$C$511,2,FALSE)] | D50=0 [=M50] | E50=90 | F50=Refresco para servicio | G50=0 [=E50*D50] | I50=0 [=C50] | J50=90 [=E50] | K50=0 [=I50*J50] | L50=0 [=I50*60%] | M50=0 [=I50+L50] | T50=0 [=(M50*15%)+M50] | U50=0 [=I50*2] | V50=0 [=U50*J50]
+  A51=. | C51=0 [=VLOOKUP(A51,[1]Productos!$A$1:$C$511,2,FALSE)] | D51=0 [=M51] | E51=140 | F51=Agua para servicio | G51=0 [=E51*D51] | I51=0 [=C51] | J51=140 [=E51] | K51=0 [=I51*J51] | L51=0 [=I51*60%] | M51=0 [=I51+L51] | T51=0 [=(M51*15%)+M51] | U51=0 [=I51*2] | V51=0 [=U51*J51]
+  A52=. | C52=0 [=VLOOKUP(A52,[1]Productos!$A$1:$C$511,2,FALSE)] | D52=15 | E52=0 | F52=Cantidades a definir con el cliente, precio de referencia. | G52=0 [=E52*D52] | I52=7 | J52=0 | K52=0 [=I52*J52] | L52=4.2 [=I52*60%] | M52=11.2 [=I52+L52] | T52=12.879999999999999 [=(M52*15%)+M52] | U52=14 [=I52*2] | V52=0 [=U52*J52]
+  A53=. | C53=0 [=VLOOKUP(A53,[1]Productos!$A$1:$C$511,2,FALSE)] | D53=25 | E53=0 | F53=Cantidades a definir con el cliente, precio de referencia. | G53=0 [=E53*D53] | I53=12.5 | J53=0 [=E53] | K53=0 [=I53*J53] | L53=7.5 [=I53*60%] | M53=20 [=I53+L53] | T53=23 [=(M53*15%)+M53] | U53=25 [=I53*2] | V53=0 [=U53*J53]
+  A54=. | C54=0 [=VLOOKUP(A54,[1]Productos!$A$1:$C$511,2,FALSE)] | D54=0 [=M54] | E54=96 | F54=Refrigerio AM | G54=0 [=E54*D54] | I54=0 [=C54] | J54=96 [=E54] | K54=0 [=I54*J54] | L54=0 [=I54*60%] | M54=0 [=I54+L54] | T54=0 [=(M54*15%)+M54] | U54=0 [=I54*2] | V54=0 [=U54*J54]
+  A55=. | C55=0 [=VLOOKUP(A55,[1]Productos!$A$1:$C$511,2,FALSE)] | D55=0 [=M55] | E55=60 | F55=Refrigerio AM | G55=0 [=E55*D55] | I55=0 [=C55] | J55=60 [=E55] | K55=0 [=I55*J55] | L55=0 [=I55*60%] | M55=0 [=I55+L55] | T55=0 [=(M55*15%)+M55] | U55=0 [=I55*2] | V55=0 [=U55*J55]
+  A56=. | C56=0 [=VLOOKUP(A56,[1]Productos!$A$1:$C$511,2,FALSE)] | D56=0 [=M56] | E56=96 | F56=Refrigerio AM | G56=0 [=E56*D56] | I56=0 [=C56] | J56=96 [=E56] | K56=0 [=I56*J56] | L56=0 [=I56*60%] | M56=0 [=I56+L56] | T56=0 [=(M56*15%)+M56] | U56=0 [=I56*2] | V56=0 [=U56*J56]
+  A57=. | C57=0 [=VLOOKUP(A57,[1]Productos!$A$1:$C$511,2,FALSE)] | D57=0 [=M57] | E57=48 | F57=Almuerzo ligero | G57=0 [=E57*D57] | I57=0 [=C57] | J57=48 [=E57] | K57=0 [=I57*J57] | L57=0 [=I57*60%] | M57=0 [=I57+L57] | N57=0 [=(M57*15%)+M57] | T57=0 [=(M57*15%)+M57] | U57=0 [=I57*2] | V57=0 [=U57*J57]
+  A58=. | C58=0 [=VLOOKUP(A58,[1]Productos!$A$1:$C$511,2,FALSE)] | D58=0 [=M58] | E58=48 | F58=Postre para almuerzo | G58=0 [=E58*D58] | I58=0 [=C58] | J58=48 [=E58] | K58=0 [=I58*J58] | L58=0 [=I58*60%] | M58=0 [=I58+L58] | N58=0 [=(M58*15%)+M58] | T58=0 [=(M58*15%)+M58] | U58=0 [=I58*2] | V58=0 [=U58*J58]
+  A59=. | C59=0 [=VLOOKUP(A59,[1]Productos!$A$1:$C$511,2,FALSE)] | D59=0 [=M59] | E59=60 | F59=Refrigerio PM | G59=0 [=E59*D59] | I59=0 [=C59] | J59=60 [=E59] | K59=0 [=I59*J59] | L59=0 [=I59*60%] | M59=0 [=I59+L59] | N59=0 [=(M59*15%)+M59] | T59=0 [=(M59*15%)+M59] | U59=0 [=I59*2] | V59=0 [=U59*J59]
+  A60=. | C60=0 [=VLOOKUP(A60,[1]Productos!$A$1:$C$511,2,FALSE)] | D60=0 [=M60] | E60=60 | F60=Refrigerio PM | G60=0 [=E60*D60] | I60=0 [=C60] | J60=60 [=E60] | K60=0 [=I60*J60] | L60=0 [=I60*60%] | M60=0 [=I60+L60] | N60=0 [=(M60*15%)+M60] | T60=0 [=(M60*15%)+M60] | U60=0 [=I60*2] | V60=0 [=U60*J60]
+  A61=. | C61=0 [=VLOOKUP(A61,[1]Productos!$A$1:$C$511,2,FALSE)] | D61=0 [=M61] | E61=120 | F61=Estación de café para los servicios durante el dia (40 refrigerio AM, 40 almuerzo y 40 refrigerio PM) | G61=0 [=E61*D61] | I61=0 [=C61] | J61=120 [=E61] | K61=0 [=I61*J61] | L61=0 [=I61*60%] | M61=0 [=I61+L61] | N61=0 [=(M61*15%)+M61] | T61=0 [=(M61*15%)+M61] | U61=0 [=I61*2] | V61=0 [=U61*J61]
+  A62=. | C62=0 [=VLOOKUP(A62,[1]Productos!$A$1:$C$511,2,FALSE)] | D62=0 [=M62] | E62=70 | F62=Bebida para almuerzo y refrigerio PM | G62=0 [=E62*D62] | I62=0 [=C62] | J62=70 [=E62] | K62=0 [=I62*J62] | L62=0 [=I62*60%] | M62=0 [=I62+L62] | N62=0 [=(M62*15%)+M62] | T62=0 [=(M62*15%)+M62] | U62=0 [=I62*2] | V62=0 [=U62*J62]
+  A63=. | C63=0 [=VLOOKUP(A63,[1]Productos!$A$1:$C$511,2,FALSE)] | D63=0 [=M63] | E63=144 | F63=Agua para cada servicio (AM - Almuerzo - PM) | G63=0 [=E63*D63] | I63=0 [=C63] | J63=0 | K63=0 [=I63*J63] | L63=0 [=I63*60%] | M63=0 [=I63+L63] | T63=0 [=(M63*15%)+M63] | U63=0 [=I63*2] | V63=0 [=U63*J63]
+  A64=. | C64=0 [=VLOOKUP(A64,[1]Productos!$A$1:$C$511,2,FALSE)] | D64=0 [=M64] | E64=150 | F64=Pasapalo durante el evento - 3 por persona aproximadamente. | G64=0 [=E64*D64] | I64=0 [=C64] | J64=150 [=E64] | K64=0 [=I64*J64] | L64=0 [=I64*60%] | M64=0 [=I64+L64] | T64=0 [=(M64*15%)+M64] | U64=0 [=I64*2] | V64=0 [=U64*J64]
+  A65=. | C65=0 [=VLOOKUP(A65,[1]Productos!$A$1:$C$511,2,FALSE)] | D65=0 [=M65] | E65=100 | F65=Pasapalo durante el evento - 1 por persona aproximadamente. | G65=0 [=E65*D65] | I65=0 [=C65] | J65=100 [=E65] | K65=0 [=I65*J65] | L65=0 [=I65*60%] | M65=0 [=I65+L65] | T65=0 [=(M65*15%)+M65] | U65=0 [=I65*2] | V65=0 [=U65*J65]
+  A66=. | C66=0 [=VLOOKUP(A66,[1]Productos!$A$1:$C$511,2,FALSE)] | D66=0 [=M66] | E66=100 | F66=Pasapalo durante el evento - 1 por persona aproximadamente. | G66=0 [=E66*D66] | I66=0 [=C66] | J66=100 [=E66] | K66=0 [=I66*J66] | L66=0 [=I66*60%] | M66=0 [=I66+L66] | T66=0 [=(M66*15%)+M66] | U66=0 [=I66*2] | V66=0 [=U66*J66]
+  A67=. | C67=0 [=VLOOKUP(A67,[1]Productos!$A$1:$C$511,2,FALSE)] | D67=0 [=M67] | E67=93 | F67=Agua durante el evento de noche | G67=0 [=E67*D67] | I67=0 [=C67] | J67=81 | K67=0 [=I67*J67] | L67=0 [=I67*60%] | M67=0 [=I67+L67] | T67=0 [=(M67*15%)+M67] | U67=0 [=I67*2] | V67=0 [=U67*J67]
+  A68=. | C68=0 [=VLOOKUP(A68,[1]Productos!$A$1:$C$511,2,FALSE)] | D68=0 [=M68] | E68=90 | F68=Refrescos durante el evento de noche | G68=0 [=E68*D68] | I68=0 [=C68] | J68=118 | K68=0 [=I68*J68] | L68=0 [=I68*60%] | M68=0 [=I68+L68] | T68=0 [=(M68*15%)+M68] | U68=0 [=I68*2] | V68=0 [=U68*J68]
+  A69=. | C69=0 [=VLOOKUP(A69,[1]Productos!$A$1:$C$511,2,FALSE)] | D69=0 [=M69] | E69=0 | F69=Servicio para preparación de cóctel - MOJITO TRADICIONAL - cliente trae el licor | G69=0 [=E69*D69] | I69=0 [=C69] | J69=0 [=E69] | K69=0 [=I69*J69] | L69=0 [=I69*60%] | M69=0 [=I69+L69] | T69=0 [=(M69*15%)+M69] | U69=0 [=I69*2] | V69=0 [=U69*J69]
+  A70=. | C70=0 [=VLOOKUP(A70,[1]Productos!$A$1:$C$511,2,FALSE)] | D70=0 [=M70] | E70=0 | F70=Servicio para preparación de cóctel - WHISKY AND GINGER - cliente trae el licor | G70=0 [=E70*D70] | I70=0 [=C70] | J70=0 [=E70] | K70=0 [=I70*J70] | L70=0 [=I70*60%] | M70=0 [=I70+L70] | T70=0 [=(M70*15%)+M70] | U70=0 [=I70*2] | V70=0 [=U70*J70]
+  A71=. | C71=0 [=VLOOKUP(A71,[1]Productos!$A$1:$C$511,2,FALSE)] | D71=0 [=M71] | E71=0 | F71=Servicio para preparación de cóctel - VODKA MARACUYA - cliente trae el licor | G71=0 [=E71*D71] | I71=0 [=C71] | J71=0 [=E71] | K71=0 [=I71*J71] | L71=0 [=I71*60%] | M71=0 [=I71+L71] | T71=0 [=(M71*15%)+M71] | U71=0 [=I71*2] | V71=0 [=U71*J71]
+  A72=. | C72=0 [=VLOOKUP(A72,[1]Productos!$A$1:$C$511,2,FALSE)] | D72=0 [=M72] | E72=0 | F72=Servicio para preparación de cóctel - TEQUILA SUNRISE - cliente trae el licor | G72=0 [=E72*D72] | I72=0 [=C72] | J72=0 [=E72] | K72=0 [=I72*J72] | L72=0 [=I72*60%] | M72=0 [=I72+L72] | T72=0 [=(M72*15%)+M72] | U72=0 [=I72*2] | V72=0 [=U72*J72]
+  A73=. | C73=0 [=VLOOKUP(A73,[1]Productos!$A$1:$C$511,2,FALSE)] | D73=0 [=M73] | E73=0 | F73=Servicio para preparación de cóctel - GIN TONIC - cliente trae el licor | G73=0 [=E73*D73] | I73=0 [=C73] | J73=0 [=E73] | K73=0 [=I73*J73] | L73=0 [=I73*60%] | M73=0 [=I73+L73] | T73=0 [=(M73*15%)+M73] | U73=0 [=I73*2] | V73=0 [=U73*J73]
+  A74=. | C74=0 [=VLOOKUP(A74,[1]Productos!$A$1:$C$511,2,FALSE)] | D74=0 [=M74] | E74=0 | F74=Servicio para preparación de cóctel - VODKA CRANBERRY - cliente trae el licor | G74=0 [=E74*D74] | I74=0 [=C74] | J74=0 [=E74] | K74=0 [=I74*J74] | L74=0 [=I74*60%] | M74=0 [=I74+L74] | T74=0 [=(M74*15%)+M74] | U74=0 [=I74*2] | V74=0 [=U74*J74]
+  A75=. | C75=0 [=VLOOKUP(A75,[1]Productos!$A$1:$C$511,2,FALSE)] | D75=0 [=M75] | E75=0 | F75=Servicio para preparación de cóctel - RON FIZZ TROPICAL - cliente trae el licor | G75=0 [=E75*D75] | I75=0 [=C75] | J75=0 [=E75] | K75=0 [=I75*J75] | L75=0 [=I75*60%] | M75=0 [=I75+L75] | T75=0 [=(M75*15%)+M75] | U75=0 [=I75*2] | V75=0 [=U75*J75]
+  A76=. | C76=0 [=VLOOKUP(A76,[1]Productos!$A$1:$C$511,2,FALSE)] | D76=0 [=M76] | E76=15 | F76=10 botellas de vino y 5 botellas de proseco | G76=0 [=E76*D76] | I76=0 [=C76] | J76=10 | K76=0 [=I76*J76] | L76=0 [=I76*60%] | M76=0 [=I76+L76] | T76=0 [=(M76*15%)+M76] | U76=0 [=I76*2] | V76=0 [=U76*J76]
+  A77=. | C77=0 [=VLOOKUP(A77,[1]Productos!$A$1:$C$511,2,FALSE)] | D77=0 [=M77] | E77=25 | F77=10 botellas de whisky, 05 de ron y 10 de vodka (cada uno con tres mezcladores) | G77=0 [=E77*D77] | I77=0 [=C77] | J77=6 | K77=0 [=I77*J77] | L77=0 [=I77*60%] | M77=0 [=I77+L77] | U77=0 [=I77*2] | V77=0 [=U77*J77]
+  A78=. | C78=0 [=VLOOKUP(A78,[1]Productos!$A$1:$C$511,2,FALSE)] | D78=0 [=M78] | E78=0 | G78=0 [=E78*D78] | I78=0 [=C78] | J78=0 [=E78] | K78=0 [=I78*J78] | L78=0 [=I78*60%] | M78=0 [=I78+L78]
+  A79=. | C79=0 [=VLOOKUP(A79,[1]Productos!$A$1:$C$511,2,FALSE)] | D79=0 [=M79] | E79=0 | G79=0 [=E79*D79] | I79=0 [=C79] | J79=0 [=E79] | K79=0 [=I79*J79] | L79=0 [=I79*60%] | M79=0 [=I79+L79]
+  A80=. | C80=0 [=VLOOKUP(A80,[1]Productos!$A$1:$C$511,2,FALSE)] | D80=0 [=M80] | E80=0 | G80=0 [=E80*D80] | I80=0 [=C80] | J80=0 [=E80] | K80=0 [=I80*J80] | L80=0 [=I80*60%] | M80=0 [=I80+L80]
+  A81=. | C81=0 [=VLOOKUP(A81,[1]Productos!$A$1:$C$511,2,FALSE)] | D81=0 [=M81] | E81=0 | G81=0 [=E81*D81] | I81=0 [=C81] | J81=0 [=E81] | K81=0 [=I81*J81] | L81=0 [=I81*60%] | M81=0 [=I81+L81]
+  F82=Sub Total  | G82=2799 [=SUM(G44:G81)] | I82=Sub Total | K82=1494 [=SUM(K44:K81)] | U82=Sub Total | V82=2988 [=SUM(V44:V77)]
+  F83=10% Servicio | G83=279.90000000000003 [=G82*10%] | I83=10% Servicio | K83=149.4 [=K82*10%] | Q83=Precio vino | R83=32 [=M48+R48] | U83=Servicio FULL | V83=298.8 [=V82*10%]
+  F84=Total Alimentos y Bebidas | G84=3078.9 [=SUM(G82:G83)] | I84=Total  | K84=1643.4 [=SUM(K82:K83)]
+  A86=ESPACIOS | K86=4.9
+  A87=Ítem | C87=OCULTO | D87=Precio Unit. | E87=Cantidad | F87=Comentarios | G87=Sub Total | K87=18.2
+  A88=Bar GAVIOTA | C88=1500 [=VLOOKUP(A88,[1]Productos!$A$1:$C$511,2,FALSE)] | D88=1000 | E88=1 | F88=Espacio para evento (precio especial) | K88=6.3
+  A89=ESTAR GENERAL | C89=3000 [=VLOOKUP(A89,[1]Productos!$A$1:$C$511,2,FALSE)] | D89=0 | E89=1 | F89=Espacio para evento - Montaje (preventivo) | G89=0 [=E89*D89]
+  A90=Restaurante Humboldt | C90=#N/A [=VLOOKUP(A90,[1]Productos!$A$1:$C$511,2,FALSE)] | D90=3000 | E90=1 | F90=Espacio durante almuerzos o cenas por definir (cortesía) | G90=0
+  A91=. | C91=0 [=VLOOKUP(A91,[1]Productos!$A$1:$C$511,2,FALSE)] | D91=0 [=C91] | E91=1 | F91=Espacio durante el evento | G91=0 [=E91*D91]
+  A92=. | C92=0 [=VLOOKUP(A92,[1]Productos!$A$1:$C$511,2,FALSE)] | D92=0 [=C92] | E92=1 | F92=Espacio durante el evento (descuento especial) | G92=0
+  F93=Sub Total | G93=0 [=SUM(G88:G92)] | K93=11.2
+  K94=40.6 [=SUM(K86:K93)]
+  F95=Total Misceláneos  | G95=4085.53 [=G34]
+  F96=Total AyB | G96=2799 [=G82]
+  F97=Total Salones  | G97=0 [=G93]
+  F98=Sub Total USD | G98=6884.530000000001 [=SUM(G95:G97)]
+  F99=Traslado (exento de IVA) | G99=0 [=G40]
+  F100=Total 10% de servicio  | G100=279.90000000000003 [=G83]
+  F101=16% IVA | G101=1101.5248000000001 [=+G98*16%]
+  F102=Total USD | G102=8265.9548 [=SUM(G98:G101)]
+  F103=Garantìa 10% | G103=0
+  F104=TOTAL  | G104=8265.9548 [=SUM(G102:G103)]
+  A106=CONDICIONES IMPORTANTES 
+  A107=El 16% de IVA será reflejado al momento de la facturación en Bolívares. 
+  A108=Todo pago realizado en moneda extranjera, general un 3% por IGTF.
+  A109=Las tarifas mencionadas en este presupuesto están sujetas a cambios sin previo aviso. Las mismas debes ser revisadas al momento de la conformación de su evento.
+  A110=En caso de confirmar su evento, debe contactar a su ejecutivo de ventas para verificar la disponibilidad del espacio.
+  A111=Al momento de la conformación de su evento solicitamos un 100% de anticipo del total del presupuesto el cual debe estar pago completamente 48 horas antes de la ejecución del evento.
+  A112=Se solicitara un 10% de garantia para cubrir lo gastos adicionales que se puedan generar en el evento.
+  A113=Agradecemos su interés en nuestras instalaciones y servicios, esperamos por su información para afinar los detalles de su evento. 
+  A114=El presente documento es solo una cotización de carácter informativo, no implica un bloqueo de los espacios.  
+  A115=Los precios contemplados en esta propuesta tendrán una vigencia de siete (7) dias a partir de la fecha de este presupuesto. Estos precios están sujetos a modificación.
+  A116=Al momento de confirmar su evento, si contamos con la disponibilidad de los espacios, le haremos llegar el contrato definitivo.
+  ... (3 filas vacías)
+  A120=K. Jaén

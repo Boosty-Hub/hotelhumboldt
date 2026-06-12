@@ -1,0 +1,71 @@
+{
+  "channels": [
+    "CRM",
+    "Casa Matriz",
+    "Gerente",
+    "Director",
+    "Contacto directo con el ejecutivo",
+    "Caminante",
+    "Referido",
+    "Correo"
+  ],
+  "eventTypes": [
+    "Almuerzo",
+    "Aniversario",
+    "Boda",
+    "Cena",
+    "Coctel",
+    "Congreso",
+    "Convención",
+    "Cumpleaños",
+    "Desayuno",
+    "Evento VG",
+    "Fiesta de Navidad",
+    "Fiesta electronica",
+    "Grabaciones TV",
+    "Graduación",
+    "HOSPEDAJE",
+    "Institucional",
+    "Lanzamiento de producto",
+    "Networking",
+    "Pijamada",
+    "Propuesta de Matrimonio",
+    "Reunión ejecutiva",
+    "Rueda de prensa",
+    "Sesion de Fotos"
+  ],
+  "statuses": [
+    "Presupuesto solicitado",
+    "Presupuesto enviado",
+    "Enviado",
+    "Seguimiento",
+    "Negociación",
+    "Suspendido",
+    "Aprobado",
+    "Confirmado / Aprobado",
+    "Aprobado y por ejecutar",
+    "Aprobado y realizado",
+    "Evento realizado",
+    "Institucional, en espera de pago",
+    "institucional pagado",
+    "Cortesia CM ejecutada",
+    "Rechazado",
+    "Perdido / Rechazado"
+  ],
+  "paymentMethods": [
+    "Zelle",
+    "OBSEQUIO",
+    "T/D",
+    "T/C",
+    "Divisas Efectivo",
+    "Bolivares"
+  ],
+  "rejectReasons": [
+    "Teleferico",
+    "Capacidad de hospedaje",
+    "Variedad de Menu",
+    "Capacidad de espacios",
+    "Precio",
+    "Logistica"
+  ]
+}

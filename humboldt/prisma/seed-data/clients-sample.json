@@ -1,0 +1,78 @@
+[
+  {
+    "name": "IANCARINA C.A. (Alimentos Mary)",
+    "rif": "J-085033289",
+    "address": "Parque Industrial los Llanos, km. 185 carretera nacional via Guanare, Araure, Edo. Portuguesa",
+    "contactName": "Sra. Diana Sánchez",
+    "phone": "0412 - 031 4334",
+    "email": "dsanchez@alimentosmary.com",
+    "sourceWorkbook": "Alimentos Mary - Diana Sánchez.xlsx",
+    "event": {
+      "name": "Evento de Navidad",
+      "pax": "200 personas, aproximadamente.",
+      "startTime": "15:00",
+      "endTime": "02:00 am (HORARIOS EN REVISIÓN)",
+      "quoteDate": "2026-05-07",
+      "eventDate": "viernes 04 o sábado 05 de diciembre de 2026",
+      "quotedTotalUsd": 32568.35
+    },
+    "notes": "RIF en el libro: 'J- 085033289' (normalizado). Ejecutiva firmante: K. Jaén."
+  },
+  {
+    "name": "JAC Motors Venezuela",
+    "rif": "J309046578",
+    "address": "Caracas",
+    "contactName": "Sr. Luis Torres",
+    "phone": "0414-3501196",
+    "email": "luis.torres@bel.com.ve",
+    "sourceWorkbook": "JAC Motors Venezuela - Luis Torres.xlsx",
+    "event": {
+      "name": "Por definir",
+      "pax": "50 huéspedes",
+      "startTime": "08:00",
+      "endTime": "18:00",
+      "quoteDate": "2026-05-04",
+      "eventDate": "viernes 17 y sábado 18 de julio (salida el 19) de 2026",
+      "quotedTotalUsd": null
+    },
+    "notes": "Incentivo corporativo de 2 noches con hospedaje 'Escape en las alturas' (50 hab/noche), actividades (senderismo Picacho de Galipán, yoga, tour Galipán) y espacios por definir. En pipeline 2026 aparece rechazado (Lanzamiento de producto, 1100 USD, 18/02/2026)."
+  },
+  {
+    "name": "TS Sport (Sportbitz)",
+    "rif": "V15.419.123",
+    "address": "Caracas",
+    "contactName": "Antonio Linares",
+    "phone": null,
+    "email": null,
+    "sourceWorkbook": "Sportbitz - Cotización.xlsx",
+    "event": {
+      "name": "Conferencia deportiva / Cena especial / Evento extra Sport Bitz",
+      "pax": "80 personas (conferencia), 30 personas (cena), circulantes (espacios comerciales)",
+      "startTime": "09:00",
+      "endTime": "21:00",
+      "quoteDate": "2026-01-21",
+      "eventDate": "jueves, 07 de mayo de 2026 (fechas en revisión)",
+      "quotedTotalUsd": 16639.41
+    },
+    "notes": "Razón social del encabezado: 'TS Sport' (cédula V15.419.123). En el pipeline figura como 'TS Sports - Antonio Linares' (Congreso, aprobado y por ejecutar, 10424 USD). El libro contiene 3 cotizaciones (conferencia, cena, espacios), plan de pagos y 3 hojas de facturación inversa (1899,99 / 4994,95 / 8265,96)."
+  },
+  {
+    "name": "Latin aesthetic institute",
+    "rif": "14851588",
+    "address": "Caracas",
+    "contactName": "Sra. Raquel Díaz Casado",
+    "phone": "04125900056",
+    "email": "raqueldiazcasado@gmail.com",
+    "sourceWorkbook": "Latin aesthetic institute - Cotización.xlsx",
+    "event": {
+      "name": "3 er encuentro nacional e internacional de la estética",
+      "pax": "200 personas",
+      "startTime": "09:00",
+      "endTime": "16:00",
+      "quoteDate": "2026-05-05",
+      "eventDate": "14 y 15 de noviembre (sábado y domingo, respectivamente)",
+      "quotedTotalUsd": 30754.24
+    },
+    "notes": "Evento de 2 días en ESTAR GENERAL (4500/día). Ejecutiva firmante: K. Jaén."
+  }
+]

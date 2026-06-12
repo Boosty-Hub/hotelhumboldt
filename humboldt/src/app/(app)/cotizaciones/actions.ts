@@ -1,0 +1,742 @@
+"use server";
+
+// Server actions del módulo Cotizador.
+// Toda mutación valida con zod, recalcula totales EN EL SERVIDOR con
+// calcQuoteTotals y registra Activity. Nunca se confía en el cliente.
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+import { nanoid } from "nanoid";
+import { addDays, differenceInCalendarDays } from "date-fns";
+import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+import { auth, canViewCosts } from "@/lib/auth";
+import { getCommercialParams, getSetting } from "@/lib/settings";
+import { calcQuoteTotals, isPriceOverride, lineCost, lineSubtotal } from "@/lib/quote-calc";
+import { round2 } from "@/lib/money";
+import { dateKeyToUtcDate } from "@/lib/dates";
+import {
+  SECTIONS,
+  DISCOUNT_TYPES,
+  QUOTE_STATUSES,
+  STAGE_DEFAULT_PROBABILITY,
+  SETTING_KEYS,
+  type QuoteStatus,
+} from "@/lib/constants";
+import { quoteBaseNumber, type SaveLineInput } from "@/components/quote/quote-utils";
+
+// ─────────────────────────── Helpers ───────────────────────────
+
+async function requireSession() {
+  const session = await auth();
+  if (!session?.user) throw new Error("No autenticado");
+  return session;
+}
+
+/** Próximo número COT-AAAA-NNNN del año en curso. */
+async function nextQuoteNumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const prefix = `COT-${year}-`;
+  const last = await prisma.quote.findFirst({
+    where: { number: { startsWith: prefix } },
+    orderBy: { number: "desc" },
+    select: { number: true },
+  });
+  let n = 1;
+  if (last) {
+    const m = last.number.slice(prefix.length).match(/^(\d{4})/);
+    if (m) n = parseInt(m[1], 10) + 1;
+  }
+  return `${prefix}${String(n).padStart(4, "0")}`;
+}
+
+/** Próximo código OP-AAAA-NNNN para oportunidades creadas desde el cotizador. */
+async function nextOpportunityCode(): Promise<string> {
+  const year = new Date().getFullYear();
+  const prefix = `OP-${year}-`;
+  const last = await prisma.opportunity.findFirst({
+    where: { code: { startsWith: prefix } },
+    orderBy: { code: "desc" },
+    select: { code: true },
+  });
+  let n = 1;
+  if (last) {
+    const m = last.code.slice(prefix.length).match(/^(\d{4})/);
+    if (m) n = parseInt(m[1], 10) + 1;
+  }
+  return `${prefix}${String(n).padStart(4, "0")}`;
+}
+
+function revalidateQuotePaths(id: string) {
+  revalidatePath("/cotizaciones");
+  revalidatePath(`/cotizaciones/${id}`);
+  revalidatePath(`/cotizaciones/${id}/editar`);
+  // El total de la cotización sincroniza el valor de la oportunidad → pipeline,
+  // dashboard y ficha de cliente muestran ese valor.
+  revalidatePath("/pipeline");
+  revalidatePath("/clientes");
+  revalidatePath("/");
+}
+
+export type ActionResult = { ok: true } | { ok: false; error: string };
+
+// ─────────────────────────── Crear cotización ───────────────────────────
+
+const createQuoteSchema = z
+  .object({
+    opportunityId: z.string().trim().optional().or(z.literal("")),
+    clientId: z.string().trim().optional().or(z.literal("")),
+    eventName: z.string().trim().min(3, "El nombre del evento debe tener al menos 3 caracteres"),
+    startDate: z.string().trim().optional().or(z.literal("")), // yyyy-MM-dd
+    datesTentative: z.boolean().default(false),
+    startTime: z.string().trim().optional().or(z.literal("")),
+    endTime: z.string().trim().optional().or(z.literal("")),
+    pax: z.coerce.number().int().min(0).optional(),
+    paxApproximate: z.boolean().default(false),
+    daysCount: z.coerce.number().int().min(1, "Mínimo 1 día").max(30, "Máximo 30 días").default(1),
+  })
+  .refine((d) => d.opportunityId || d.clientId, {
+    message: "Selecciona una oportunidad existente o un cliente",
+  });
+
+export type CreateQuoteInput = z.input<typeof createQuoteSchema>;
+
+export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false; error: string }> {
+  const session = await requireSession();
+
+  const parsed = createQuoteSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  }
+  const data = parsed.data;
+
+  let quoteId: string;
+  try {
+    // 1) Oportunidad: existente o nueva desde cero
+    let opportunityId = data.opportunityId || null;
+    if (!opportunityId) {
+      const client = await prisma.client.findUnique({ where: { id: data.clientId! } });
+      if (!client) return { ok: false, error: "El cliente seleccionado no existe" };
+      const code = await nextOpportunityCode();
+      const opp = await prisma.opportunity.create({
+        data: {
+          code,
+          clientId: client.id,
+          ownerId: session.user.id,
+          title: data.eventName,
+          stage: "PROPUESTA",
+          probability: STAGE_DEFAULT_PROBABILITY.PROPUESTA,
+          pax: data.pax ?? null,
+          expectedEventDate: data.startDate ? dateKeyToUtcDate(data.startDate) : null,
+        },
+      });
+      opportunityId = opp.id;
+      await prisma.activity.create({
+        data: {
+          userId: session.user.id,
+          opportunityId,
+          type: "SISTEMA",
+          body: `Oportunidad ${code} creada desde el cotizador`,
+        },
+      });
+    } else {
+      const exists = await prisma.opportunity.findUnique({ where: { id: opportunityId } });
+      if (!exists) return { ok: false, error: "La oportunidad seleccionada no existe" };
+    }
+
+    // 2) Evento: reutiliza el de la oportunidad si existe; si no, lo crea.
+    // Fechas a medianoche UTC (canónico) para que coincidan con el calendario.
+    const startDate = data.startDate ? dateKeyToUtcDate(data.startDate) : null;
+    const endDate = startDate ? addDays(startDate, data.daysCount - 1) : null;
+    const eventData = {
+      name: data.eventName,
+      startDate,
+      endDate,
+      datesTentative: data.datesTentative,
+      startTime: data.startTime || null,
+      endTime: data.endTime || null,
+      pax: data.pax ?? null,
+      paxApproximate: data.paxApproximate,
+    };
+    // Solo reutilizar un evento "virgen" (sin cotizaciones ni reservas colgando):
+    // pisar el nombre/fechas de un evento ya cotizado o con reservas confirmadas
+    // corrompería esos registros. Si no hay uno limpio, se crea uno nuevo.
+    const reusableEvent = await prisma.event.findFirst({
+      where: { opportunityId, quotes: { none: {} }, reservations: { none: {} } },
+      orderBy: { createdAt: "desc" },
+    });
+    const event = reusableEvent
+      ? await prisma.event.update({ where: { id: reusableEvent.id }, data: eventData })
+      : await prisma.event.create({ data: { opportunityId, ...eventData } });
+
+    // 3) Snapshot de parámetros comerciales + textos de Configuración
+    const params = await getCommercialParams();
+    const [legalConditions, clientMessage] = await Promise.all([
+      getSetting(SETTING_KEYS.QUOTE_LEGAL_CONDITIONS),
+      getSetting(SETTING_KEYS.QUOTE_GREETING),
+    ]);
+
+    // Número + cotización + actividad en una transacción, con reintento ante
+    // colisión del secuencial (creaciones concurrentes).
+    let createdId: string | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const number = await nextQuoteNumber();
+      try {
+        createdId = await prisma.$transaction(async (tx) => {
+          const quote = await tx.quote.create({
+            data: {
+              number,
+              version: 1,
+              opportunityId,
+              eventId: event.id,
+              signerId: session.user.id,
+              status: "BORRADOR",
+              publicToken: nanoid(12),
+              validUntil: addDays(new Date(), params.quoteValidityDays),
+              clientMessage,
+              legalConditions,
+              taxPct: params.taxPct,
+              taxEnabled: params.taxEnabled,
+              servicePct: params.servicePct,
+              serviceEnabled: params.serviceEnabled,
+              depositPct: params.depositPct,
+              depositEnabled: params.depositEnabled,
+              igtfPct: params.igtfPct,
+              igtfEnabled: params.igtfEnabled,
+            },
+          });
+          await tx.activity.create({
+            data: {
+              userId: session.user.id,
+              opportunityId,
+              quoteId: quote.id,
+              type: "SISTEMA",
+              body: `Cotización ${number} creada (borrador)`,
+            },
+          });
+          return quote.id;
+        });
+        break;
+      } catch (err) {
+        const isUniqueViolation =
+          typeof err === "object" && err !== null && (err as { code?: string }).code === "P2002";
+        if (isUniqueViolation && attempt < 2) continue;
+        throw err;
+      }
+    }
+    if (!createdId) return { ok: false, error: "No se pudo generar el número de la cotización." };
+    quoteId = createdId;
+  } catch (e) {
+    console.error("createQuote", e);
+    return { ok: false, error: "No se pudo crear la cotización. Intenta de nuevo." };
+  }
+
+  revalidatePath("/cotizaciones");
+  revalidatePath("/pipeline");
+  redirect(`/cotizaciones/${quoteId}/editar`);
+}
+
+// ─────────────────────────── Guardar líneas ───────────────────────────
+
+const lineSchema = z.object({
+  id: z.string().optional(),
+  section: z.enum(SECTIONS),
+  dayNumber: z.number().int().min(1).max(30).nullable(),
+  productId: z.string().nullable(),
+  description: z.string().trim().min(1, "Toda línea necesita descripción"),
+  comment: z.string().trim().max(2000).nullable(),
+  listPrice: z.number().min(0).nullable(),
+  unitPrice: z.number().min(0, "El precio no puede ser negativo"),
+  quantity: z.number().min(0, "La cantidad no puede ser negativa"),
+  unit: z.string().trim().min(1).max(20),
+  isOptional: z.boolean(),
+  taxExempt: z.boolean(),
+  sortOrder: z.number().int(),
+  discountType: z.enum(DISCOUNT_TYPES).nullable(),
+  discountReason: z.string().trim().max(500).nullable(),
+  unitCost: z.number().min(0).nullable().optional(),
+  costQuantity: z.number().min(0).nullable().optional(),
+  supplierId: z.string().nullable().optional(),
+});
+
+const saveLinesSchema = z.array(lineSchema).max(300, "Demasiadas líneas");
+
+const EDITABLE_STATUSES: QuoteStatus[] = ["BORRADOR", "ENVIADA"];
+
+export async function saveQuoteLines(
+  quoteId: string,
+  rawLines: SaveLineInput[]
+): Promise<ActionResult> {
+  const session = await requireSession();
+  const showCosts = canViewCosts(session.user.role);
+
+  const parsed = saveLinesSchema.safeParse(rawLines);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Líneas inválidas" };
+  }
+  const lines = parsed.data;
+
+  const quote = await prisma.quote.findUnique({
+    where: { id: quoteId },
+    include: { lines: true },
+  });
+  if (!quote) return { ok: false, error: "Cotización no encontrada" };
+  if (!EDITABLE_STATUSES.includes(quote.status as QuoteStatus)) {
+    return {
+      ok: false,
+      error: "Esta cotización ya no es editable. Crea una nueva versión para modificarla.",
+    };
+  }
+
+  // Productos referenciados — para validar precio de lista y resolver costos
+  const productIds = [...new Set(lines.map((l) => l.productId).filter((p): p is string => !!p))];
+  const products = await prisma.product.findMany({ where: { id: { in: productIds } } });
+  const productMap = new Map(products.map((p) => [p.id, p]));
+  const prevById = new Map(quote.lines.map((l) => [l.id, l]));
+
+  try {
+    const rows = lines.map((l, idx) => {
+      const product = l.productId ? productMap.get(l.productId) : undefined;
+      if (l.productId && !product) throw new Error(`Producto no encontrado en la línea "${l.description}"`);
+
+      // Precio de lista siempre desde el servidor (snapshot del producto)
+      const listPrice = product ? product.listPrice : l.listPrice;
+
+      // REGLA DE ORO: precio distinto a lista exige tipo + motivo (trazado con autor)
+      let discountType: string | null = null;
+      let discountReason: string | null = null;
+      let discountAuthorId: string | null = null;
+      if (isPriceOverride(l.unitPrice, listPrice)) {
+        if (!l.discountType || !l.discountReason || l.discountReason.trim().length < 3) {
+          throw new Error(
+            `La línea "${l.description}" tiene precio distinto al de lista: indica tipo y motivo del precio especial.`
+          );
+        }
+        discountType = l.discountType;
+        discountReason = l.discountReason.trim();
+        // Preserva el autor original si el override ya existía sin cambios de precio
+        const prev = l.id ? prevById.get(l.id) : undefined;
+        discountAuthorId =
+          prev &&
+          round2(prev.unitPrice) === round2(l.unitPrice) &&
+          prev.discountAuthorId
+            ? prev.discountAuthorId
+            : session.user.id;
+      }
+
+      // Costeo interno: los roles sin permiso no envían costos — se preservan
+      // los existentes (por id) o se toman del producto.
+      const prev = l.id ? prevById.get(l.id) : undefined;
+      let unitCost: number | null;
+      let costQuantity: number | null;
+      let supplierId: string | null;
+      if (showCosts) {
+        unitCost = l.unitCost ?? null;
+        costQuantity = l.costQuantity ?? null;
+        supplierId = l.supplierId ?? product?.supplierId ?? null;
+      } else if (prev) {
+        unitCost = prev.unitCost;
+        costQuantity = prev.costQuantity;
+        supplierId = prev.supplierId;
+      } else {
+        unitCost = product?.cost ?? null;
+        costQuantity = null;
+        supplierId = product?.supplierId ?? null;
+      }
+
+      const calcLine = {
+        section: l.section,
+        unitPrice: l.unitPrice,
+        quantity: l.quantity,
+        isOptional: l.isOptional,
+        taxExempt: l.taxExempt,
+        unitCost,
+        costQuantity,
+      };
+
+      return {
+        // Conserva el id de las líneas existentes (estabilidad entre guardados
+        // y preservación de costos/autor de descuento por id)
+        ...(l.id && prevById.has(l.id) ? { id: l.id } : {}),
+        quoteId,
+        section: l.section,
+        dayNumber: l.dayNumber,
+        productId: l.productId,
+        description: l.description.trim(),
+        comment: l.comment?.trim() || null,
+        listPrice,
+        unitPrice: round2(l.unitPrice),
+        quantity: l.quantity,
+        unit: l.unit,
+        subtotal: lineSubtotal(calcLine),
+        isOptional: l.isOptional,
+        // Traslados siempre exentos de IVA (regla de negocio)
+        taxExempt: l.section === "TRASLADOS" ? true : l.taxExempt,
+        sortOrder: idx,
+        discountType,
+        discountReason,
+        discountAuthorId,
+        supplierId,
+        unitCost,
+        costQuantity,
+        totalCost: unitCost != null ? lineCost(calcLine) : null,
+      };
+    });
+
+    // Totales SIEMPRE en el servidor con el snapshot de parámetros de la cotización
+    const totals = calcQuoteTotals(rows, {
+      taxPct: quote.taxPct,
+      taxEnabled: quote.taxEnabled,
+      servicePct: quote.servicePct,
+      serviceEnabled: quote.serviceEnabled,
+      depositPct: quote.depositPct,
+      depositEnabled: quote.depositEnabled,
+      igtfPct: quote.igtfPct,
+      igtfEnabled: quote.igtfEnabled,
+    });
+
+    // ¿Es esta la versión vigente del presupuesto? Solo la vigente sincroniza
+    // el valor estimado de la oportunidad (no una versión anterior superada).
+    const base = quoteBaseNumber(quote.number);
+    const newer = await prisma.quote.findFirst({
+      where: {
+        OR: [{ number: base }, { number: { startsWith: `${base}-V` } }],
+        version: { gt: quote.version },
+      },
+      select: { id: true },
+    });
+    const isLatest = !newer;
+
+    const ops: Prisma.PrismaPromise<unknown>[] = [
+      prisma.quoteLine.deleteMany({ where: { quoteId } }),
+      prisma.quoteLine.createMany({ data: rows }),
+      prisma.quote.update({
+        where: { id: quoteId },
+        data: {
+          subtotalMisc: totals.subtotalMisc,
+          subtotalTransfers: totals.subtotalTransfers,
+          subtotalFood: totals.subtotalFood,
+          subtotalSpaces: totals.subtotalSpaces,
+          serviceAmount: totals.serviceAmount,
+          taxAmount: totals.taxAmount,
+          totalUsd: totals.totalUsd,
+          depositAmount: totals.depositAmount,
+        },
+      }),
+    ];
+    if (isLatest) {
+      // El valor estimado de la oportunidad sigue al total de la cotización vigente
+      ops.push(
+        prisma.opportunity.update({
+          where: { id: quote.opportunityId },
+          data: { estimatedValue: totals.totalUsd },
+        })
+      );
+    }
+    await prisma.$transaction(ops);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "No se pudieron guardar las líneas";
+    return { ok: false, error: msg };
+  }
+
+  revalidateQuotePaths(quoteId);
+  return { ok: true };
+}
+
+// ─────────────────────────── Cambios de estado ───────────────────────────
+
+const ALLOWED_TRANSITIONS: Record<string, QuoteStatus[]> = {
+  ENVIADA: ["BORRADOR", "VENCIDA", "ENVIADA"],
+  APROBADA: ["ENVIADA", "VENCIDA"],
+  RECHAZADA: ["ENVIADA", "VENCIDA", "APROBADA"],
+  CONTRATADA: ["ENVIADA", "APROBADA"],
+  VENCIDA: ["ENVIADA"],
+  BORRADOR: [],
+};
+
+const STATUS_ACTIVITY: Record<string, string> = {
+  ENVIADA: "marcada como enviada al cliente",
+  APROBADA: "aprobada por el cliente",
+  RECHAZADA: "rechazada por el cliente",
+  CONTRATADA: "contratada — evento confirmado",
+  VENCIDA: "marcada como vencida",
+};
+
+export async function changeQuoteStatus(
+  quoteId: string,
+  newStatus: string,
+  note?: string
+): Promise<ActionResult> {
+  const session = await requireSession();
+
+  if (!QUOTE_STATUSES.includes(newStatus as QuoteStatus)) {
+    return { ok: false, error: "Estado inválido" };
+  }
+  const quote = await prisma.quote.findUnique({
+    where: { id: quoteId },
+    include: { opportunity: true, event: true },
+  });
+  if (!quote) return { ok: false, error: "Cotización no encontrada" };
+
+  const allowedFrom = ALLOWED_TRANSITIONS[newStatus] ?? [];
+  if (!allowedFrom.includes(quote.status as QuoteStatus)) {
+    return {
+      ok: false,
+      error: `No se puede pasar de "${quote.status}" a "${newStatus}"`,
+    };
+  }
+
+  try {
+    const data: Prisma.QuoteUpdateInput = { status: newStatus };
+
+    if (newStatus === "ENVIADA") {
+      // Regenera vigencia al enviar
+      const params = await getCommercialParams();
+      data.validUntil = addDays(new Date(), params.quoteValidityDays);
+    }
+    if (newStatus === "APROBADA") {
+      data.approvedAt = new Date();
+      if (note?.trim()) data.approvedByName = note.trim();
+    }
+    if (newStatus === "RECHAZADA" && note?.trim()) {
+      data.rejectionNote = note.trim();
+    }
+    if (newStatus === "CONTRATADA") {
+      data.agreementDate = new Date();
+    }
+
+    // Cambio de estado + actividades + ascenso de la oportunidad: atómico.
+    const ops: Prisma.PrismaPromise<unknown>[] = [
+      prisma.quote.update({ where: { id: quoteId }, data }),
+      prisma.activity.create({
+        data: {
+          userId: session.user.id,
+          opportunityId: quote.opportunityId,
+          quoteId,
+          type: "SISTEMA",
+          body: `Cotización ${quoteBaseNumber(quote.number)} v${quote.version} ${
+            STATUS_ACTIVITY[newStatus] ?? `cambiada a ${newStatus}`
+          }${note?.trim() ? ` — ${note.trim()}` : ""}`,
+        },
+      }),
+    ];
+    if (newStatus === "CONTRATADA" && quote.opportunity.stage !== "GANADO") {
+      ops.push(
+        prisma.opportunity.update({
+          where: { id: quote.opportunityId },
+          data: { stage: "GANADO", probability: STAGE_DEFAULT_PROBABILITY.GANADO },
+        }),
+        prisma.activity.create({
+          data: {
+            userId: session.user.id,
+            opportunityId: quote.opportunityId,
+            type: "CAMBIO_ETAPA",
+            body: `Oportunidad movida a Ganado al contratar la cotización ${quoteBaseNumber(quote.number)}`,
+          },
+        })
+      );
+    }
+    await prisma.$transaction(ops);
+
+    if (newStatus === "CONTRATADA") {
+      // Reservas tentativas de salones (efecto posterior, recreable si algo falla):
+      // líneas de ESPACIOS con producto tipo ESPACIO.
+      await createTentativeReservations(quoteId, session.user.id);
+    }
+  } catch (e) {
+    console.error("changeQuoteStatus", e);
+    return { ok: false, error: "No se pudo cambiar el estado" };
+  }
+
+  revalidateQuotePaths(quoteId);
+  revalidatePath("/pipeline");
+  revalidatePath("/calendario");
+  return { ok: true };
+}
+
+/**
+ * Al contratar: crea SpaceReservation TENTATIVA por cada día del evento para
+ * cada línea de sección ESPACIOS cuyo producto sea tipo ESPACIO. El salón se
+ * resuelve por coincidencia de nombre entre Product y Space.
+ */
+async function createTentativeReservations(quoteId: string, userId: string) {
+  const quote = await prisma.quote.findUnique({
+    where: { id: quoteId },
+    include: {
+      event: true,
+      lines: { include: { product: true } },
+    },
+  });
+  if (!quote?.event?.startDate) return; // sin fechas no hay reserva
+
+  const event = quote.event;
+  const start = event.startDate!;
+  const end = event.endDate ?? start;
+  const days = Math.max(differenceInCalendarDays(end, start) + 1, 1);
+
+  const spaceLines = quote.lines.filter(
+    (l) => l.section === "ESPACIOS" && l.product?.type === "ESPACIO" && !l.isOptional
+  );
+  if (spaceLines.length === 0) return;
+
+  const spaces = await prisma.space.findMany({ where: { active: true } });
+  const norm = (s: string) => s.trim().toLowerCase();
+
+  const created: string[] = [];
+  for (const line of spaceLines) {
+    const pname = norm(line.product!.name);
+    const space = spaces.find(
+      (s) => norm(s.name) === pname || pname.includes(norm(s.name)) || norm(s.name).includes(pname)
+    );
+    if (!space) continue;
+
+    for (let d = 0; d < days; d++) {
+      const date = addDays(start, d);
+      const dup = await prisma.spaceReservation.findFirst({
+        where: { spaceId: space.id, eventId: event.id, date },
+      });
+      if (dup) continue;
+      await prisma.spaceReservation.create({
+        data: {
+          spaceId: space.id,
+          eventId: event.id,
+          date,
+          startTime: event.startTime,
+          endTime: event.endTime,
+          status: "TENTATIVA",
+          notes: `Generada al contratar la cotización ${quoteBaseNumber(quote.number)}`,
+        },
+      });
+      if (!created.includes(space.name)) created.push(space.name);
+    }
+  }
+
+  if (created.length > 0) {
+    await prisma.activity.create({
+      data: {
+        userId,
+        opportunityId: quote.opportunityId,
+        quoteId,
+        type: "SISTEMA",
+        body: `Reservas tentativas creadas: ${created.join(", ")}`,
+      },
+    });
+  }
+}
+
+// ─────────────────────────── Nueva versión ───────────────────────────
+
+export async function createNewVersion(quoteId: string): Promise<{ ok: false; error: string }> {
+  const session = await requireSession();
+
+  const quote = await prisma.quote.findUnique({
+    where: { id: quoteId },
+    include: { lines: { orderBy: { sortOrder: "asc" } } },
+  });
+  if (!quote) return { ok: false, error: "Cotización no encontrada" };
+
+  const base = quoteBaseNumber(quote.number);
+  // La versión más alta existente de este número
+  const siblings = await prisma.quote.findMany({
+    where: { OR: [{ number: base }, { number: { startsWith: `${base}-V` } }] },
+    select: { version: true },
+  });
+  const nextVersion = Math.max(...siblings.map((s) => s.version), quote.version) + 1;
+
+  let newId: string;
+  try {
+    const params = await getCommercialParams();
+    newId = await prisma.$transaction(async (tx) => {
+      const clone = await tx.quote.create({
+      data: {
+        number: `${base}-V${nextVersion}`,
+        version: nextVersion,
+        opportunityId: quote.opportunityId,
+        eventId: quote.eventId,
+        signerId: session.user.id,
+        status: "BORRADOR",
+        publicToken: nanoid(12),
+        issueDate: new Date(),
+        validUntil: addDays(new Date(), params.quoteValidityDays),
+        clientMessage: quote.clientMessage,
+        legalConditions: quote.legalConditions,
+        taxPct: quote.taxPct,
+        taxEnabled: quote.taxEnabled,
+        servicePct: quote.servicePct,
+        serviceEnabled: quote.serviceEnabled,
+        depositPct: quote.depositPct,
+        depositEnabled: quote.depositEnabled,
+        igtfPct: quote.igtfPct,
+        igtfEnabled: quote.igtfEnabled,
+        subtotalMisc: quote.subtotalMisc,
+        subtotalTransfers: quote.subtotalTransfers,
+        subtotalFood: quote.subtotalFood,
+        subtotalSpaces: quote.subtotalSpaces,
+        serviceAmount: quote.serviceAmount,
+        taxAmount: quote.taxAmount,
+        totalUsd: quote.totalUsd,
+        depositAmount: quote.depositAmount,
+        lines: {
+          create: quote.lines.map((l) => ({
+            section: l.section,
+            dayNumber: l.dayNumber,
+            productId: l.productId,
+            description: l.description,
+            comment: l.comment,
+            listPrice: l.listPrice,
+            unitPrice: l.unitPrice,
+            quantity: l.quantity,
+            unit: l.unit,
+            subtotal: l.subtotal,
+            isOptional: l.isOptional,
+            taxExempt: l.taxExempt,
+            sortOrder: l.sortOrder,
+            discountType: l.discountType,
+            discountReason: l.discountReason,
+            discountAuthorId: l.discountAuthorId,
+            supplierId: l.supplierId,
+            unitCost: l.unitCost,
+            costQuantity: l.costQuantity,
+            totalCost: l.totalCost,
+          })),
+        },
+      },
+    });
+
+      // Invalidar las versiones anteriores "vivas" (no contratadas ni rechazadas):
+      // pasan a VENCIDA → dejan de ser editables, su link público deja de aceptar
+      // aprobaciones y salen de los agregados financieros (CxC/reportes filtran por estado).
+      const superseded = await tx.quote.updateMany({
+        where: {
+          OR: [{ number: base }, { number: { startsWith: `${base}-V` } }],
+          id: { not: clone.id },
+          status: { in: ["BORRADOR", "ENVIADA", "APROBADA"] },
+        },
+        data: { status: "VENCIDA" },
+      });
+
+      await tx.activity.create({
+        data: {
+          userId: session.user.id,
+          opportunityId: quote.opportunityId,
+          quoteId: clone.id,
+          type: "SISTEMA",
+          body:
+            `Nueva versión v${nextVersion} de la cotización ${base} (a partir de v${quote.version}).` +
+            (superseded.count > 0
+              ? ` ${superseded.count} versión(es) anterior(es) marcada(s) como vencida(s).`
+              : ""),
+        },
+      });
+
+      return clone.id;
+    });
+  } catch (e) {
+    console.error("createNewVersion", e);
+    return { ok: false, error: "No se pudo crear la nueva versión" };
+  }
+
+  revalidateQuotePaths(quoteId);
+  redirect(`/cotizaciones/${newId}/editar`);
+}

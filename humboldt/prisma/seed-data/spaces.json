@@ -1,0 +1,62 @@
+[
+  {
+    "name": "BAR MIRADOR (PH)",
+    "dailyRate": 3000,
+    "capacity": null,
+    "notes": "Tarifa de catálogo 3000; en JAC Motors se cotizó a 1500 con descuento especial (cobrado 1000)."
+  },
+  {
+    "name": "ESTAR GENERAL",
+    "dailyRate": 3000,
+    "capacity": null,
+    "notes": "Tarifa de catálogo 3000; facturado a 4500/día en cotizaciones Alimentos Mary y Latin Aesthetic."
+  },
+  {
+    "name": "Bar GAVIOTA",
+    "dailyRate": 1500,
+    "capacity": null,
+    "notes": "Cotizado a 1000 con 'precio especial' (cobrado 500) en la cena Sportbitz."
+  },
+  {
+    "name": "SALÓN REDONDO",
+    "dailyRate": 500,
+    "capacity": null,
+    "notes": "Usado también como camerino de talento / producción (Alimentos Mary)."
+  },
+  {
+    "name": "TERRAZA NORTE Y SUR",
+    "dailyRate": 1000,
+    "capacity": null,
+    "notes": null
+  },
+  {
+    "name": "discoteca La Boite",
+    "dailyRate": 1000,
+    "capacity": null,
+    "notes": "Catálogo: 1000 'uso DIARIO'; en Sportbitz cotizada a 2000 con descuento especial (cobrado 1500 / 1637.92)."
+  },
+  {
+    "name": "Antigua Estación",
+    "dailyRate": 1000,
+    "capacity": null,
+    "notes": "Sin precio en el catálogo Productos; tarifa 1000 observada en cotización Sportbitz."
+  },
+  {
+    "name": "Restaurante Bonpland",
+    "dailyRate": null,
+    "capacity": null,
+    "notes": "Listado en el catálogo sin tarifa."
+  },
+  {
+    "name": "Restaurante Humboldt",
+    "dailyRate": null,
+    "capacity": null,
+    "notes": "No está en el catálogo (#N/A en VLOOKUP); referenciado a 3000 pero otorgado como cortesía en Sportbitz."
+  },
+  {
+    "name": "Piscina",
+    "dailyRate": null,
+    "capacity": null,
+    "notes": "Listado en el catálogo sin tarifa."
+  }
+]

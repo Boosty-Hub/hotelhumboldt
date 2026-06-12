@@ -1,0 +1,369 @@
+WORKBOOK: Control de Gestion de Ventas (nuevo) (1).xlsx
+
+======================================================================
+SHEET: Datos 
+----------------------------------------------------------------------
+  A1=Fecha  | B1=Ejecutivo | C1=Cliente | D1=Tipo Cliente | E1=Canal Ingreso | F1=Tipo Evento | G1=Estado | H1=Monto Inicial  USD | I1=Monto Final USD | J1=Fecha Pago | K1=Fecha Cierre | L1=Motivo Cierre | M1=Forma de Pago | N1=Observaciones | O1=Seguimiento Futuro | P1=Motivo de rechazo 
+  B2=Frenecis | D2=Corporativo | E2=CRM | F2=Almuerzo  | G2=Presupuesto solicitado | L2=Reintegro | M2=Zelle | P2=Teleferico
+  B3=Malvis | D3=Asociacion  | E3=Casa Matriz | F3=Aniversario | G3=Enviado | L3=Comp. Retenciones | M3=OBSEQUIO | P3=Capacidad de hospedaje 
+  B4=José | D4=Academico  | E4=Gerente | F4=Boda | G4=Suspendido | L4=Diferencia cambiaria | M4=T/D | P4=Variedad de Menu
+  B5=Otro | D5=Institucional  | E5=Director | F5=Cena | G5=Institucional, en espera de pago | M5=T/C  | P5=Capacidad de espacios
+  B6=Kristian | D6=Social | E6=Contacto directo con el ejecutivo | F6=Coctel | G6=institucional pagado | M6=Divisas Efectivo | P6=Precio
+  E7=Caminante | F7=Congreso | G7=Aprobado y realizado | M7=Bolivares | P7=Logistica
+  E8=Referido | F8=Convención | G8=Aprobado y por ejecutar
+  E9=Correo | F9=Cumpleaños | G9=Seguimiento
+  F10=Desayuno  | G10=Cortesia CM ejecutada
+  F11=Evento VG | G11=Rechazado
+  F12=Fiesta de Navidad | G12=Aprobado 
+  F13=Fiesta electronica | G13=Presupuesto enviado
+  F14=Grabaciones TV | G14=Seguimiento
+  F15=HOSPEDAJE | G15=Negociación
+  F16=Institucional | G16=Confirmado / Aprobado
+  F17=Lanzamiento de producto | G17=Perdido / Rechazado
+  F18=Propuesta de Matrimonio | G18=Evento realizado
+  F19=Reunión ejecutiva
+  F20=Rueda de prensa
+  F21=Sesion de Fotos
+  F22=Networking
+  F23=Pijamada
+
+======================================================================
+SHEET: 2025
+MERGED: A1:V1
+----------------------------------------------------------------------
+  A1=Hotel Humboldt – Control Gestión Ventas
+  A2=Fecha  | B2=Ejecutivo | C2=Nombre Cliente | D2=Tipo Cliente | E2=Canal Ingreso | F2=Tipo Evento | G2=Estado | H2=N° de Hab | I2=N° de VG | J2=Monto Inicial USD | K2=Monto Final USD | L2=Proveedores | M2=AyB | N2=10% servcio | O2=TOTAL | P2=Fecha Pago | Q2=Fecha Cierre | R2=Motivo Cierre | S2=Forma de Pago | T2=Observaciones | U2=Seguimiento Futuro | V2=Motivo de rechazo 
+  A3=2025-07-11 00:00:00 | B3=Kristian | C3=Aerolínea GOL | D3=Social | E3=CRM | F3=Lanzamiento de producto | G3=Aprobado y realizado | H3=0.0 | I3=0.0 | J3=19687.73 | K3=21006.56 [=J3+1318.83] | L3=6350.0 | M3=2477.5 | N3=495.5 [=M3*10%*2] | O3=2973 [=M3+N3] | P3=2025-08-03 00:00:00 | Q3=2025-08-06 00:00:00 | S3=Bolivares | T3=Cerrado el 06/08, TUVO ADICIONALES POR 1.318,83 (alimentos y bebidas, traslados y material extra POP)
+  A4=2025-08-01 00:00:00 | B4=Kristian | C4=1WIN - Tamiana la Rosa | D4=Social | E4=Director | F4=Lanzamiento de producto | G4=Aprobado y realizado | H4=0.0 | I4=0.0 | J4=29800.21 | L4=4564.0 | M4=8124.35 | N4=1624.87 [=M4*10%*2] | O4=9749.22 [=M4+N4] | P4=2025-08-14 00:00:00 | S4=Bolivares | T4=Cerrado el 14/08 | U4=Cambio de presupuesto el 12-08
+  A5=2025-08-08 00:00:00 | B5=Kristian | C5=Boda Lorena y Juan Carlos | D5=Social | E5=Caminante | F5=Boda | G5=Aprobado y por ejecutar | H5=0.0 | I5=0.0 | J5=6805.25 | L5=250.0 | M5=1890.25 | N5=378.05 [=M5*10%*2] | O5=2268.3 [=M5+N5] | T5=Enviado el 08/08
+  A6=2025-08-10 00:00:00 | B6=Frenecis | C6=Nadia Santana | D6=Corporativo | E6=CRM | F6=Aniversario | G6=Rechazado | J6=39982.0 | L6=4670.0 | M6=19310.0 | N6=3862 [=M6*10%*2] | O6=23172 [=M6+N6]
+  A7=2025-08-12 00:00:00 | B7=Frenecis | C7=Josel Pierina Azus | D7=Social | E7=CRM | F7=Sesión de fotos | G7=Aprobado y realizado | J7=215.52 | K7=215.52 | N7=0 [=M7*10%*2] | P7=2025-08-11 00:00:00 | Q7=2025-08-12 00:00:00 | S7=Bolivares
+  A8=2025-08-12 00:00:00 | B8=Frenecis | C8=Federico Figueredo | D8=Corporativo | E8=CRM | F8=Cena | G8=Rechazado | J8=3915.0 | M8=825.0 | N8=165 [=M8*10%*2] | O8=990 [=M8+N8]
+  A9=2025-08-12 00:00:00 | B9=Frenecis | C9=Brandon Piñate | D9=Social | E9=CRM | F9=Propuesta de Matrimonio | G9=Seguimiento | J9=330.0 | N9=0 [=M9*10%*2]
+  A10=2025-08-13 00:00:00 | B10=Frenecis | C10=Maria Milagros Arvelo (Mintur) | D10=Institucional  | E10=Director | F10=Cena | G10=Aprobado y realizado | J10=12285.0 | M10=5640.0 | N10=1128 [=M10*10%*2] | O10=6768 [=M10+N10] | T10=Evento Institucional  realizado / no facturado
+  A11=2025-08-13 00:00:00 | B11=Frenecis | C11=Dpto Hoteleria Bonpland Corp | D11=Corporativo | E11=Director | F11=Cena | G11=Seguimiento | J11=8862.0 | M11=5101.0 | N11=1020.2 [=M11*10%*2] | O11=6121.2 [=M11+N11] | T11=Cliente no responde
+  A12=2025-08-13 00:00:00 | B12=Kristian | C12=Silicon Valley Latam Zenith Hub. - Dra. María Milagros Arvelo | D12=Corporativo | E12=Director | F12=Reunión ejecutiva | G12=Enviado | H12=0.0 | I12=0.0 | J12=6367.75 | L12=1800.0 | M12=623.0 | N12=124.6 [=M12*10%*2] | O12=747.6 [=M12+N12]
+  A13=2025-08-14 00:00:00 | B13=Frenecis | C13=Marllery Gonzalez | D13=Corporativo | E13=CRM | F13=Fiesta de Navidad | G13=Seguimiento | J13=8401.0 | L13=1100.0 | M13=2815.0 | N13=563 [=M13*10%*2] | O13=3378 [=M13+N13]
+  A14=2025-08-14 00:00:00 | B14=Kristian | C14=Scato agencia | D14=Corporativo | E14=CRM | F14=Coctel | G14=Seguimiento | J14=20020.38 | L14=4250.0 | M14=7430.3 | N14=1486.06 [=M14*10%*2] | O14=8916.36 [=M14+N14] | T14=Enviado el 14 de agosto, evento solicitado por agencia desde Colombia
+  A15=2025-08-15 00:00:00 | B15=Frenecis | C15=Marilyn Crespo | D15=Corporativo | E15=CRM | F15=Convención | G15=Seguimiento | J15=72198.8 | L15=840.0 | M15=10977.0 | N15=2195.4 [=M15*10%*2] | O15=13172.4 [=M15+N15] | P15=15367.8 [=N15+O15]
+  A16=2025-08-18 00:00:00 | B16=Frenecis | C16=Marilyn Crespo | D16=Corporativo | E16=CRM | F16=Almuerzo  | G16=Enviado | J16=10747.5 | L16=1500.0 | M16=450.0 | N16=90 [=M16*10%*2] | O16=540 [=M16+N16]
+  A17=2025-08-18 00:00:00 | B17=Frenecis | C17=Hensen Pereira | D17=Social | E17=CRM | F17=Grabaciones TV | G17=Enviado | J17=860.0 | L17=90.0 | M17=134.0 | N17=26.8 [=M17*10%*2] | O17=160.8 [=M17+N17]
+  A18=2025-08-19 00:00:00 | B18=Frenecis | C18=Baker McKenzie (Yorkys Salazar) | D18=Corporativo | E18=Director | F18=Reunión ejecutiva | G18=Aprobado y realizado | H18=20.0 | J18=5072.0 | L18=330.0 | M18=1586.0 | N18=317.2 [=M18*10%*2] | O18=1903.2 [=M18+N18]
+  A19=2025-08-19 00:00:00 | B19=Kristian | C19=Alma House Services | D19=Social | E19=Correo | F19=Aniversario | G19=Enviado | J19=8043.22 | L19=1500.0 | M19=1649.35 | N19=329.87 [=M19*10%*2] | O19=1979.22 [=M19+N19]
+  A20=2025-08-20 00:00:00 | B20=Kristian | C20=Laboratorios CALOX | D20=Corporativo | E20=Correo | F20=Reunión ejecutiva | G20=Enviado | H20=0.0 | I20=40.0 | J20=5056.85 | L20=900.0 | M20=1237.25 | N20=247.45 [=M20*10%*2] | O20=1484.7 [=M20+N20] | T20=Tiene dos escenarios, cena y desyuno (total del desayuno 4.671,43 + servicio + traslados + IVA)
+  A21=2025-08-20 00:00:00 | B21=Frenecis | C21=Jesus Chacón | D21=Social | E21=Referido | F21=Aniversario | G21=Rechazado | J21=4409.0 | L21=800.0 | M21=1638.0 | N21=327.6 [=M21*10%*2] | O21=1965.6 [=M21+N21] | T21=El cliente no respondió 
+  A22=2025-08-21 00:00:00 | B22=Frenecis | C22=Grupo Protecnia (Olga Guevara) | D22=Corporativo | E22=Director | F22=Congreso | G22=Enviado | J22=11672.0 | L22=1590.0 | M22=4882.0 | N22=976.4 [=M22*10%*2] | O22=5858.4 [=M22+N22]
+  A23=2025-08-27 00:00:00 | B23=Kristian | C23=GAMMA QUIMICA DE VENEZUELA | D23=Corporativo | E23=CRM | F23=Reunión ejecutiva | G23=Enviado | H23=16.0 | I23=0.0 | J23=5548.15 | L23=670.0 | M23=1257.6 | N23=251.52 [=M23*10%*2] | O23=1509.12 [=M23+N23] | T23=Enviado al cliente
+  A24=2025-08-27 00:00:00 | B24=Kristian | C24=Grupo Lorini | D24=Corporativo | E24=Gerente | F24=Sesión de fotos | G24=Aprobado y por ejecutar | H24=0.0 | I24=0.0 | J24=12061.13 | L24=3600.0 | M24=2101.15 | N24=420.23 [=M24*10%*2] | O24=2521.38 [=M24+N24]
+  A25=2025-09-01 00:00:00 | B25=Kristian | C25=Quo Vadis (sisgenis tovar) | D25=Corporativo | E25=Correo | F25=Reunión ejecutiva | J25=4174.24 | L25=600.0 | M25=856.4 | N25=171.28 [=M25*10%*2] | O25=1027.68 [=M25+N25] | T25=Enviado al cliente
+  A26=2025-09-02 00:00:00 | B26=Kristian | C26=Sr. Hjalmar Gibelli | D26=Social | E26=Director | F26=HOSPEDAJE | G26=Aprobado y realizado | J26=5000.0 | N26=0 [=M26*10%*2] | O26=0 [=M26+N26] | T26=Sólo hospedaje
+  A27=2025-09-02 00:00:00 | B27=Kristian | C27=Tanzaca Industrial C.A | D27=Corporativo | E27=CRM | F27=Reunión ejecutiva | G27=Enviado | J27=5059.4 | L27=600.0 | M27=1420.5 | N27=284.1 [=M27*10%*2] | O27=1704.6 [=M27+N27] | T27=Enviado al cliente
+  A28=2025-09-04 00:00:00 | B28=Frenecis | C28=Yennifer Troconis (Sesión de Fotos) | D28=Social | E28=Referido | F28=Sesion de Fotos | G28=Aprobado y realizado | J28=600.01 | N28=0 [=M28*10%*2] | O28=0 [=M28+N28] | T28=Sesión de Fotos realizado el jueves 11 de noviembre de 2025
+  A29=2025-09-04 00:00:00 | B29=Kristian | C29=Ola Ola Travel - Olimar Lameda | D29=Corporativo | E29=Contacto directo con el ejecutivo | F29=Almuerzo  | G29=Rechazado | J29=2468.45 | M29=641.0 | N29=128.2 [=M29*10%*2] | O29=769.2 [=M29+N29] | T29=Cliente (tercero) no aprobó cotización
+  A30=2025-09-05 00:00:00 | B30=Kristian | C30=Agencia Bolivariana para Actividades Espaciales | D30=Social | E30=CRM | F30=Cena | G30=Enviado | J30=10236.0 | M30=2437.5 | N30=487.5 [=M30*10%*2] | O30=2925 [=M30+N30] | T30=Cena de invitados internacionales
+  A31=2025-09-06 00:00:00 | B31=Kristian | C31=Agencia Bolivariana para Actividades Espaciales | D31=Academico  | E31=CRM | F31=Convención | G31=Enviado | J31=48735.44 | L31=7080.0 | M31=4490.0 | N31=898 [=M31*10%*2] | O31=5388 [=M31+N31] | T31=Evento tipo congreso día 1
+  A32=2025-09-10 00:00:00 | B32=Frenecis | C32=Grecia de Ponte (Boda) | D32=Social | E32=CRM | F32=Boda | G32=Seguimiento | J32=33992.5 | L32=5100.0 | M32=14125.0 | N32=2825 [=M32*10%*2] | O32=16950 [=M32+N32]
+  A33=2025-09-10 00:00:00 | B33=Kristian | C33=Mara de Oro - Olga Lira | D33=Social | E33=CRM | F33=Aniversario | G33=Enviado | J33=6280.0 | N33=0 [=M33*10%*2] | O33=0 [=M33+N33] | T33=Se conversa con el cliente para realizarlo en temporada baja, febrero de 2026
+  A34=2025-09-11 00:00:00 | B34=Frenecis | C34=Javier Ruge (Boda) | D34=Social | E34=CRM | F34=Boda | G34=Seguimiento | J34=8889.0 | L34=1850.0 | M34=2086.0 | N34=417.2 [=M34*10%*2] | O34=2503.2 [=M34+N34]
+  A35=2025-09-11 00:00:00 | B35=Frenecis | C35=Magglio Gonzalez | D35=Social | E35=CRM | F35=Sesión de fotos | G35=Seguimiento | J35=750.0 | L35=90.0 | N35=0 [=M35*10%*2] | O35=0 [=M35+N35]
+  A36=2025-09-11 00:00:00 | B36=Frenecis | C36=Keila Vargas (Servicios Latin Pagos 2021 c.a.) | D36=Corporativo | E36=CRM | F36=Fiesta de Navidad | G36=Seguimiento | J36=12386.2 | L36=1730.0 | M36=5425.0 | N36=1085 [=M36*10%*2] | O36=6510 [=M36+N36]
+  A37=2025-09-11 00:00:00 | B37=Kristian | C37=Avemarep | D37=Social | E37=Referido | F37=Cena | G37=Enviado | J37=4328.5 | M37=1739.0 | N37=347.8 [=M37*10%*2] | O37=2086.8 [=M37+N37] | T37=Se han hecho 4 modificaciones y descuentos, pendiente por aprobación, seguimiento con la Sera Gladys
+  A38=2025-09-12 00:00:00 | B38=Kristian | C38=Comité Internacional de la Cruz Roja                                
+ | D38=Social | E38=CRM | F38=Fiesta de Navidad | G38=Enviado | J38=11420.36 | L38=250.0 | M38=3930.5 | N38=786.1 [=M38*10%*2] | O38=4716.6 [=M38+N38] | T38=Enviado al cliente, no da respuesta de feedback :(
+  A39=2025-09-16 00:00:00 | B39=Frenecis | C39=Manne Productions | D39=Corporativo | E39=Referido | F39=Convención | G39=Enviado | H39=30.0 | J39=15033.75 | L39=1890.0 | M39=7605.0 | N39=1521 [=M39*10%*2] | O39=9126 [=M39+N39]
+  A40=2025-09-17 00:00:00 | B40=Kristian | C40=Tiendas Daka | D40=Corporativo | E40=Referido | F40=Lanzamiento de producto | G40=Rechazado | J40=32660.0 | L40=20000.0 | N40=0 [=M40*10%*2] | O40=0 [=M40+N40] | T40=En negociación con tiendas DAKA, para el 23 de octubre
+  A41=2025-09-17 00:00:00 | B41=Kristian | C41=Bancaribe | D41=Social | E41=Referido | F41=Cena | G41=Rechazado | J41=9550.8 | L41=250.0 | M41=2642.95 | N41=528.59 [=M41*10%*2] | O41=3171.54 [=M41+N41]
+  A42=2025-09-17 00:00:00 | B42=Kristian | C42=Coca Cola | D42=Corporativo | E42=Correo | F42=Reunión ejecutiva | G42=Enviado | H42=15.0 | J42=16013.0 | L42=600.0 | M42=2408.48 | N42=481.696 [=M42*10%*2] | O42=2890.176 [=M42+N42]
+  A43=2025-09-17 00:00:00 | B43=Kristian | C43=Pepsico - Solange Briceño | D43=Social | E43=Referido | F43=Fiesta de Navidad | G43=Rechazado | J43=24737.0 | L43=250.0 | M43=4243.45 | N43=848.69 [=M43*10%*2] | O43=5092.14 [=M43+N43]
+  A44=2025-09-18 00:00:00 | B44=Frenecis | C44=Ana Ferrin | D44=Corporativo | E44=CRM | F44=Fiesta de Navidad | G44=Seguimiento | J44=4468.05 | L44=500.0 | M44=1080.75 | N44=216.15 [=M44*10%*2] | O44=1296.9 [=M44+N44]
+  A45=2025-09-18 00:00:00 | B45=Frenecis | C45=Roderis Muriele | D45=Social | E45=Referido | F45=Sesion de Fotos | G45=Seguimiento | J45=450.0 | L45=130.0 | N45=0 [=M45*10%*2] | O45=0 [=M45+N45]
+  A46=2025-09-19 00:00:00 | B46=Kristian | C46=Hospedaje Eduardo LOPEZ | D46=Social | E46=Referido | F46=HOSPEDAJE | G46=Aprobado y por ejecutar | H46=20.0 | J46=5420.0 | N46=0 [=M46*10%*2] | O46=0 [=M46+N46] | T46=Cada cliente hace pago directo de su hospedaje
+  A47=2025-09-20 00:00:00 | B47=Kristian | C47=Turismo Maso - Keiwer Hernandez | D47=Social | E47=Correo | F47=Fiesta de Navidad | G47=Enviado | J47=23620.24 | L47=250.0 | M47=9038.0 | N47=1807.6 [=M47*10%*2] | O47=10845.6 [=M47+N47] | T47=Cliente: LA SANTE ---OLA OLA TRAVEL tiene la misma cotización, posbiblemente para noviembre 20
+  A48=2025-09-22 00:00:00 | B48=Kristian | C48=Ola Ola Travel - Olimar Lameda | D48=Social | E48=Contacto directo con el ejecutivo | F48=Fiesta de Navidad | G48=Enviado | J48=15140.33 | L48=740.0 | M48=5273.7 | N48=1054.74 [=M48*10%*2] | O48=6328.44 [=M48+N48] | T48=Cliente: LA SANTE --- TURISMO MASO tiene la misma cotización, posbiblemente para noviembre 20
+  A49=2025-09-23 00:00:00 | B49=Frenecis | C49=Mediatropolis (Gigly Manrique) | D49=Corporativo | E49=CRM | F49=Fiesta de Navidad | G49=Seguimiento | J49=5576.5 | L49=940.0 | M49=597.0 | N49=119.4 [=M49*10%*2] | O49=716.4 [=M49+N49]
+  A50=2025-09-23 00:00:00 | B50=Frenecis | C50=Yilber Castellano | D50=Social | E50=CRM | F50=Boda | G50=Seguimiento | J50=13810.0 | L50=2850.0 | M50=5148.0 | N50=1029.6 [=M50*10%*2] | O50=6177.6 [=M50+N50]
+  A51=2025-09-23 00:00:00 | B51=Frenecis | C51=Ashley - Cashea | D51=Corporativo | E51=CRM | F51=Aniversario | G51=Rechazado | J51=35252.0 | L51=7005.0 | M51=17817.5 | N51=3563.5 [=M51*10%*2] | O51=21381 [=M51+N51]
+  A52=2025-09-24 00:00:00 | B52=Frenecis | C52=José Miguel Freites | D52=Social | E52=Director | F52=Sesion de Fotos | G52=Rechazado | J52=387.94 | N52=0 [=M52*10%*2] | O52=0 [=M52+N52] | T52=Ciente no aprobó la locación, el presupuesto estaba genial, pero no era el espacio que buscaba
+  A53=2025-09-24 00:00:00 | B53=Frenecis | C53=Carmen da Silva (Digitel) Hospedaje | D53=Corporativo | E53=Referido | G53=Seguimiento | H53=13.0 | J53=3250.0 | N53=0 [=M53*10%*2] | O53=0 [=M53+N53]
+  A54=2025-09-24 00:00:00 | B54=Frenecis | C54=Valentina Santos | D54=Corporativo | E54=CRM | F54=Grabaciones TV | G54=Aprobado y realizado | J54=1337.3 | K54=2114.2 | L54=380.0 | M54=186.0 | N54=37.2 [=M54*10%*2] | O54=223.2 [=M54+N54]
+  A55=2025-09-24 00:00:00 | B55=Kristian | C55=MOVIMIENTO DE MUJERES MANUELITA SÁENZ                                
+ | D55=Social | E55=Referido | F55=Coctel | G55=Aprobado y por ejecutar | J55=2530.0 | M55=620.0 | N55=124 [=M55*10%*2] | O55=744 [=M55+N55] | T55=Aprobación verbal de la cotización, se están haciendo ajustes en A&B - Se relaizará el 16 de octubre
+  A56=2025-09-25 00:00:00 | B56=Kristian | C56=Almuerzo de Accion de Gracias - Joselyn Baladi | D56=Social | E56=Contacto directo con el ejecutivo | F56=Almuerzo  | G56=Enviado | J56=9026.1 | M56=1724.0 | N56=344.8 [=M56*10%*2] | O56=2068.8 [=M56+N56] | T56=En negociación, cliente pide muchos descuentos
+  A57=2025-09-28 00:00:00 | B57=Kristian | C57=Productos Vi-ON CA - María del Pilar  | D57=Corporativo | E57=CRM | F57=Lanzamiento de producto | G57=Aprobado y realizado | J57=3965.0 | L57=740.0 | M57=1520.5 | N57=304.1 [=M57*10%*2] | O57=1824.6 [=M57+N57] | T57=Aprobado para el 28 de noviembre, en espera de pago del salón
+  A58=2025-09-29 00:00:00 | B58=Frenecis | C58=Corpovex (Frangeli) | D58=Corporativo | E58=CRM | F58=Fiesta de Navidad | G58=Seguimiento | J58=23902.5 | L58=4265.0 | M58=13350.0 | N58=2670 [=M58*10%*2] | O58=16020 [=M58+N58]
+  A59=2025-09-29 00:00:00 | B59=Frenecis | C59=Laboratorio Citosalud | D59=Corporativo | E59=Referido | F59=Rueda de prensa | G59=Rechazado | J59=4428.0 | M59=587.5 | N59=117.5 [=M59*10%*2] | O59=705 [=M59+N59]
+  A60=2025-09-30 00:00:00 | B60=Frenecis | C60=Alexander Suarez (Hospedaje) | D60=Social | E60=Referido | G60=Aprobado y realizado | H60=6.0 | N60=0 [=M60*10%*2] | O60=0 [=M60+N60]
+  A61=2025-09-30 00:00:00 | B61=Frenecis | C61=Maribel Piña (Operaciones SSA) | D61=Corporativo | E61=CRM | F61=Fiesta de Navidad | G61=Seguimiento | J61=5107.0 | L61=600.0 | M61=1859.5 | N61=371.9 [=M61*10%*2] | O61=2231.4 [=M61+N61]
+  A62=2025-09-30 00:00:00 | B62=José | C62=Willy Villareal | D62=Social | E62=Contacto directo con el ejecutivo | F62=Boda | G62=Enviado | H62=1.0 | J62=5505.0 | M62=3575.0 | N62=715 [=M62*10%*2] | O62=4290 [=M62+N62] | T62=Habitacion nupcial cortesia
+  A63=2025-09-30 00:00:00 | B63=Kristian | C63=Agua Grande | D63=Social | E63=Referido | F63=Fiesta de Navidad | G63=Aprobado y realizado | J63=27899.5 | M63=13325.0 | N63=2665 [=M63*10%*2] | O63=15990 [=M63+N63]
+  A64=2025-10-01 00:00:00 | B64=Frenecis | C64=Maria Gabriela Rodriguez (Hospedaje) | D64=Social | E64=Director | G64=Aprobado y realizado | H64=1.0 | J64=290.0 | N64=0 [=M64*10%*2] | O64=0 [=M64+N64]
+  A65=2025-10-01 00:00:00 | B65=Frenecis | C65=Graciela Tovar (Boda 2026) | D65=Social | E65=CRM | F65=Boda | G65=Enviado | H65=25.0 | J65=17233.5 | L65=3970.0 | M65=8250.0 | N65=1650 [=M65*10%*2] | O65=9900 [=M65+N65]
+  A66=2025-10-01 00:00:00 | B66=José | C66=Rolando Diaz | D66=Social | E66=Contacto directo con el ejecutivo | F66=Propuesta de Matrimonio | G66=Rechazado | J66=92.8 | L66=60.0 | M66=0.0 | N66=0 [=M66*10%*2] | O66=0 [=M66+N66]
+  A67=2025-10-01 00:00:00 | B67=José | C67=Rossana Rodriguez | D67=Social | E67=Referido | F67=Fiesta electronica | G67=Enviado | H67=45.0 | I67=0.0 | J67=23300.0 | M67=2000.0 | N67=400 [=M67*10%*2] | O67=2400 [=M67+N67] | T67=Fiesta cotizada para personalidades, posiblemente tenga descuentos por Casa Matriz
+  A68=2025-10-01 00:00:00 | B68=Kristian | C68=Grupo Mediterráneo VIP , C.A | D68=Social | E68=Referido | F68=Lanzamiento de producto | G68=Enviado | J68=6037.9 | L68=935.0 | M68=857.5 | N68=171.5 [=M68*10%*2] | O68=1029 [=M68+N68]
+  A69=2025-10-01 00:00:00 | B69=Kristian | C69=INQUIVOSA S.A | D69=Social | E69=CRM | F69=Fiesta de Navidad | G69=Enviado | J69=7307.85 | L69=250.0 | M69=2960.25 | N69=592.05 [=M69*10%*2] | O69=3552.3 [=M69+N69]
+  A70=2025-10-01 00:00:00 | B70=Kristian | C70=Posada Turística Ara Merú Lodge, C.A | D70=Social | E70=CRM | F70=Reunión ejecutiva | G70=Enviado | J70=3797.4 | L70=720.0 | M70=325.25 | N70=65.05 [=M70*10%*2] | O70=390.3 [=M70+N70]
+  A71=2025-10-03 00:00:00 | B71=Frenecis | C71=Andrea Flores | D71=Social | E71=CRM | F71=Cumpleaños | G71=Rechazado | J71=2224.45 | L71=350.0 | M71=306.75 | N71=61.35 [=M71*10%*2] | O71=368.1 [=M71+N71]
+  A72=2025-10-03 00:00:00 | B72=Frenecis | C72=Diego Perez (APUV) | D72=Corporativo | E72=CRM | F72=Reunión ejecutiva | G72=Enviado | J72=8822.0 | L72=1840.0 | M72=4153.5 | N72=830.7 [=M72*10%*2] | O72=4984.2 [=M72+N72]
+  A73=2025-10-03 00:00:00 | B73=Frenecis | C73=Maria Herrera (Banco Plaza) | D73=Corporativo | E73=Director | F73=Coctel | G73=Aprobado y realizado | J73=10349.0 | K73=11941.09 | L73=1590.0 | M73=3279.5 | N73=655.9 [=M73*10%*2] | O73=3935.4 [=M73+N73]
+  A74=2025-10-03 00:00:00 | B74=Frenecis | C74=Daniel Rondon | D74=Institucional  | E74=CRM | F74=Evento VG | G74=Rechazado | J74=2842.0 | M74=1065.0 | N74=213 [=M74*10%*2] | O74=1278 [=M74+N74]
+  A75=2025-10-03 00:00:00 | B75=Frenecis | C75=Simón Elias | D75=Social | E75=Referido | F75=Propuesta de Matrimonio | G75=Aprobado y realizado | J75=215.52 | N75=0 [=M75*10%*2] | O75=0 [=M75+N75]
+  A76=2025-10-03 00:00:00 | B76=Frenecis | C76=Wendy Licerio | D76=Corporativo | E76=CRM | F76=Fiesta de Navidad | G76=Enviado | J76=7093.0 | L76=1140.0 | M76=2767.5 | N76=553.5 [=M76*10%*2] | O76=3321 [=M76+N76]
+  A77=2025-10-07 00:00:00 | B77=Frenecis | C77=Inexco Group (Maureen Capriles) | D77=Corporativo | E77=Director | F77=Fiesta de Navidad | G77=Rechazado | J77=6426.5 | L77=1140.0 | M77=1913.25 | N77=382.65 [=M77*10%*2] | O77=2295.9 [=M77+N77]
+  A78=2025-10-07 00:00:00 | B78=Frenecis | C78=Felgismar Arnos | D78=Social | E78=CRM | F78=Boda | G78=Seguimiento | J78=4639.0 | L78=720.0 | M78=1385.0 | N78=277 [=M78*10%*2] | O78=1662 [=M78+N78]
+  A79=2025-10-07 00:00:00 | B79=Frenecis | C79=Circuito X | D79=Corporativo | E79=Director | F79=Coctel | G79=Aprobado y realizado | J79=2132.0 | K79=2422.61 | L79=600.0 | M79=579.0 | N79=115.8 [=M79*10%*2] | O79=694.8 [=M79+N79]
+  A80=2025-10-08 00:00:00 | B80=Frenecis | C80=Rafael Sosa | D80=Social | E80=CRM | F80=Propuesta de Matrimonio | G80=Rechazado | J80=653.69 | L80=115.0 | M80=7.0 | N80=1.4 [=M80*10%*2] | O80=8.4 [=M80+N80]
+  A81=2025-10-08 00:00:00 | B81=Frenecis | C81=Ministerio Alimentación | D81=Institucional  | E81=Director | F81=Almuerzo  | G81=Aprobado y realizado | J81=16008.6 | L81=1025.0 | M81=8138.0 | N81=1627.6 [=M81*10%*2] | O81=9765.6 [=M81+N81]
+  A82=2025-10-08 00:00:00 | B82=Kristian | C82=Boda - Alexandra García | D82=Social | E82=CRM | F82=Boda | G82=Aprobado y por ejecutar | J82=28843.6 | M82=11096.0 | N82=2219.2 [=M82*10%*2] | O82=13315.2 [=M82+N82] | T82=Evento para el 12/12/26, confirmacion verbal de aprobación
+  A83=2025-10-08 00:00:00 | B83=Kristian | C83=Caracas Catering | D83=Social | E83=Contacto directo con el ejecutivo | F83=Coctel | G83=Aprobado y realizado | J83=3350.0 | N83=0 [=M83*10%*2] | O83=0 [=M83+N83] | T83=Sin servicio de A/B  nuestra parte, sólo el espacio del PH. Cliente interesado, en espera de confirmación para  visita en la propiedad
+  A84=2025-10-09 00:00:00 | B84=Kristian | C84=NATIVA - Caterin Duque | D84=Social | E84=CRM | F84=Fiesta de Navidad | G84=Aprobado y por ejecutar | J84=19124.33 | L84=540.0 | M84=7917.0 | N84=1583.4 [=M84*10%*2] | O84=9500.4 [=M84+N84] | T84=Se enviaron 4 opciones distintas al cliente, se realizó pregira, en revisión con el cliente
+  A85=2025-10-13 00:00:00 | B85=Frenecis | D85=Corporativo | E85=Director | F85=Aniversario | G85=Enviado | J85=6208.93 | L85=750.0 | M85=2222.25 | N85=444.45 [=M85*10%*2] | O85=2666.7 [=M85+N85]
+  A86=2025-10-13 00:00:00 | B86=Kristian | C86=Viajes y Turismo Ifamil | D86=Social | E86=CRM | F86=Fiesta de Navidad | G86=Enviado | J86=33042.25 | L86=1090.0 | M86=5273.7 | N86=1054.74 [=M86*10%*2] | O86=6328.44 [=M86+N86] | T86=Tiene dos versiones, buffet y plato servido navideño
+  A87=2025-10-13 00:00:00 | B87=Kristian | C87=Boda - Angela Lapenta | D87=Social | E87=CRM | F87=Boda | G87=Enviado | J87=45294.96 | L87=250.0 | M87=19434.35 | N87=3886.87 [=M87*10%*2] | O87=23321.22 [=M87+N87] | T87=Fecha en noviembre de 2026, detalles de decoración y talentos por revisar
+  A88=2025-10-14 00:00:00 | B88=Kristian | C88=Sika Venezuela S.A. - Patricia Semeco | D88=Corporativo | E88=CRM | F88=Reunión ejecutiva | G88=Aprobado y por ejecutar | H88=16.0 | J88=9137.44 | L88=1090.0 | M88=926.35 | N88=185.27 [=M88*10%*2] | O88=1111.62 [=M88+N88] | T88=En comunicación con el cliente.
+  A89=2025-10-14 00:00:00 | B89=Frenecis | C89=Pierina de Sousa | D89=Social | E89=CRM | F89=Sesión de fotos | J89=2352.4 | L89=400.0 | M89=766.0 | N89=153.2 [=M89*10%*2] | O89=919.2 [=M89+N89]
+  A90=2025-10-15 00:00:00 | B90=Kristian | C90=Jennifer Guirola | D90=Social | E90=Gerente | F90=Cena | G90=Enviado | J90=7353.2 | L90=250.0 | M90=2260.0 | N90=452 [=M90*10%*2] | O90=2712 [=M90+N90] | T90=Seguimiento el 11 de noviembre
+  A91=2025-10-17 00:00:00 | B91=Kristian | C91=Vanessa Pinto - LETI | D91=Corporativo | E91=CRM | F91=Reunión ejecutiva | G91=Enviado | J91=6575.03 | M91=926.35 | N91=185.27 [=M91*10%*2] | O91=1111.62 [=M91+N91] | T91=Visita a la propiedad el día 13-11
+  A92=2025-10-17 00:00:00 | B92=Kristian | C92=Valeria Cardeña - We Are Tims | D92=Social | E92=CRM | F92=Fiesta de Navidad | G92=Enviado | J92=2961.2 | M92=723.88 | N92=144.776 [=M92*10%*2] | O92=868.656 [=M92+N92]
+  A93=2025-10-21 00:00:00 | B93=Kristian | C93=Fabiola Espinoza - Plumrose | D93=Social | E93=Director | F93=Fiesta de Navidad | G93=Enviado | J93=14830.0 | M93=2932.0 | N93=586.4 [=M93*10%*2] | O93=3518.4 [=M93+N93]
+  A94=2025-10-22 00:00:00 | B94=Kristian | C94=Osvaldo Araujo - Play and Go producciones | D94=Corporativo | E94=Director | F94=Reunión ejecutiva | G94=Enviado | J94=7065.75 | M94=1560.5 | N94=312.1 [=M94*10%*2] | O94=1872.6 [=M94+N94] | T94=Enviado al cliente, visita a la propiedad el 14-11
+  A95=2025-10-23 00:00:00 | B95=Kristian | C95=Juan Daoud - Legionarios de Cristo | D95=Social | E95=Gerente | F95=Fiesta de Navidad | G95=Enviado | J95=6627.5 | M95=2662.5 | N95=532.5 [=M95*10%*2] | O95=3195 [=M95+N95]
+  A96=2025-10-27 00:00:00 | B96=Kristian | C96=Manría Contreras - Lab Sigfried | D96=Social | E96=CRM | F96=Fiesta de Navidad | G96=Enviado | J96=36485.0 | M96=15421.4 | N96=3084.28 [=M96*10%*2] | O96=18505.68 [=M96+N96]
+  A97=2025-10-28 00:00:00 | B97=Frenecis | C97=Madeleyns Guerrero | D97=Social | E97=CRM | F97=Coctel | G97=Enviado | N97=0 [=M97*10%*2] | O97=0 [=M97+N97]
+  A98=2025-10-29 00:00:00 | B98=Kristian | C98=Grabación Luis Brito | D98=Corporativo | E98=Director | F98=Sesión de fotos | G98=Aprobado y realizado | J98=503.5 | M98=49.0 | N98=9.8 [=M98*10%*2] | O98=58.8 [=M98+N98]
+  A99=2025-10-30 00:00:00 | B99=Frenecis | C99=Sasha Salazar (colegio concepción) | D99=Academico  | E99=CRM | F99=Graduación | G99=Enviado | J99=23061.0 | L99=3000.0 | M99=12001.0 | N99=2400.2 [=M99*10%*2] | O99=14401.2 [=M99+N99]
+  A100=2025-10-30 00:00:00 | B100=Frenecis | C100=Corporación Vnet | D100=Corporativo | E100=CRM | F100=Fiesta de Navidad | G100=Aprobado y realizado | J100=13471.5 | K100=30193.3 | L100=2340.0 | M100=5785.0 | N100=1157 [=M100*10%*2] | O100=6942 [=M100+N100]
+  A101=2025-10-30 00:00:00 | B101=Frenecis | C101=Fundación Proyecto Maniapure | D101=Corporativo | E101=CRM | F101=Fiesta de Navidad | G101=Enviado | J101=4029.88 | L101=500.0 | M101=853.75 | N101=170.75 [=M101*10%*2] | O101=1024.5 [=M101+N101]
+  A102=2025-11-01 00:00:00 | B102=Frenecis | C102=Gabriel Sánchez | D102=Social | E102=Contacto directo con el ejecutivo | F102=Propuesta de Matrimonio | G102=Aprobado y realizado | J102=497.24 | K102=497.24 | N102=0 [=M102*10%*2] | O102=0 [=M102+N102]
+  A103=2025-11-03 00:00:00 | B103=Kristian | C103=Fondo Nacional de Ciencia y Tecnología | D103=Corporativo | E103=CRM | F103=Almuerzo  | G103=Aprobado y realizado | J103=351.9 | M103=93.0 | N103=18.6 [=M103*10%*2] | O103=111.6 [=M103+N103]
+  A104=2025-11-03 00:00:00 | B104=Frenecis | C104=CNTI Vanessa Zambrano | D104=Corporativo | E104=CRM | F104=Fiesta de Navidad | G104=Rechazado | J104=14645.8 | L104=3090.0 | M104=5745.3 | N104=1149.06 [=M104*10%*2] | O104=6894.36 [=M104+N104]
+  A105=2025-11-03 00:00:00 | B105=Kristian | C105=Perfumería Las Villas | D105=Social | E105=Referido | F105=Fiesta de Navidad | G105=Rechazado | J105=8621.18 | L105=250.0 | M105=2750.75 | N105=550.15 [=M105*10%*2] | O105=110.03 [=N105*10%*2]
+  A106=2025-11-04 00:00:00 | B106=Frenecis | C106=Modusistema Mariangel | D106=Corporativo | E106=CRM | F106=Fiesta de Navidad | G106=Enviado | J106=4796.27 | L106=560.0 | M106=1582.15 | N106=316.43 [=M106*10%*2] | O106=1898.58 [=M106+N106]
+  A107=2025-11-04 00:00:00 | B107=Frenecis | C107=Eduardo Chakkal | D107=Social | E107=CRM | G107=Rechazado | J107=10103.0 | L107=950.0 | M107=3915.0 | N107=783 [=M107*10%*2] | O107=4698 [=M107+N107]
+  A108=2025-11-05 00:00:00 | B108=José | C108=María Milano | D108=Social | E108=CRM | F108=Fiesta de Navidad | G108=Rechazado | J108=2283.4 | M108=1123.4 | N108=224.68 [=M108*10%*2] | O108=1348.08 [=M108+N108]
+  A109=2025-11-05 00:00:00 | B109=Frenecis | C109=STP consultores | E109=CRM | F109=Fiesta de Navidad | G109=Rechazado | J109=9916.7 | L109=1350.0 | M109=3849.0 | N109=769.8 [=M109*10%*2] | O109=4618.8 [=M109+N109]
+  A110=2025-11-06 00:00:00 | B110=Kristian | C110=Accumes Holdings  | D110=Social | E110=CRM | F110=Fiesta de Navidad | G110=Rechazado | J110=3610.0 | L110=540.0 | M110=933.5 | N110=186.7 [=M110*10%*2] | O110=1120.2 [=M110+N110]
+  A111=2025-11-06 00:00:00 | B111=Kristian | C111=Policlínica metropolitana | D111=Social | E111=Referido | F111=Fiesta de Navidad | G111=Rechazado | J111=7237.79 | L111=250.0 | M111=2982.5 | N111=596.5 [=M111*10%*2] | O111=3579 [=M111+N111]
+  A112=2025-11-06 00:00:00 | B112=Kristian | C112=La Sante | D112=Social | E112=Referido | F112=Fiesta de Navidad | G112=Rechazado | J112=22798.15 | L112=4260.0 | M112=4030.0 | N112=806 [=M112*10%*2] | O112=4836 [=M112+N112]
+  A113=2025-11-07 00:00:00 | B113=Kristian | C113=Josefa Vielma Nestle | D113=Corporativo | E113=Contacto directo con el ejecutivo | F113=Reunión ejecutiva | G113=Suspendido | J113=12400.56 | L113=590.0 | M113=2942.45 | N113=588.49 [=M113*10%*2] | O113=3530.94 [=M113+N113]
+  A114=2025-11-10 00:00:00 | B114=Kristian | C114=Piercar repuestos - Alicia Medina | D114=Social | E114=CRM | F114=Fiesta de Navidad | G114=Rechazado | J114=2091.0 | L114=540.0 | M114=517.5 | N114=103.5 [=M114*10%*2] | O114=621 [=M114+N114]
+  A115=2025-11-10 00:00:00 | B115=Kristian | C115=Oncosanar María Belen Fuentes | D115=Social | E115=CRM | F115=Fiesta de Navidad | G115=Rechazado | J115=1999.0 | L115=540.0 | M115=447.5 | N115=89.5 [=M115*10%*2] | O115=537 [=M115+N115]
+  A116=2025-11-11 00:00:00 | B116=Kristian | C116=Yuri Paredes - Turaser | D116=Social | E116=Referido | F116=Fiesta de Navidad | G116=Rechazado | J116=12845.5 | L116=1280.0 | M116=4164.5 | N116=832.9 [=M116*10%*2] | O116=4997.4 [=M116+N116]
+  A117=2025-11-11 00:00:00 | B117=Kristian | C117=Digna Brochero | D117=Social | E117=CRM | F117=Fiesta de Navidad | G117=Aprobado y realizado | J117=9312.2 | L117=500.0 | M117=3623.0 | N117=724.6 [=M117*10%*2] | O117=4347.6 [=M117+N117]
+  A118=2025-11-11 00:00:00 | B118=Kristian | C118=CINEX | D118=Social | E118=Referido | F118=Fiesta de Navidad | G118=Rechazado | J118=29536.75 | L118=1200.0 | M118=13711.25 | N118=2742.25 [=M118*10%*2] | O118=16453.5 [=M118+N118]
+  A119=2025-11-11 00:00:00 | B119=Kristian | C119=Grupo Solfin | D119=Social | E119=CRM | F119=Fiesta de Navidad | G119=Rechazado | J119=3423.95 | L119=540.0 | M119=1195.0 | N119=239 [=M119*10%*2] | O119=1434 [=M119+N119]
+  A120=2025-11-12 00:00:00 | B120=Kristian | C120=Sociedad Venezolana de Endodoncia | D120=Social | E120=CRM | F120=Fiesta de Navidad | G120=Rechazado | J120=3591.0 | L120=250.0 | M120=1178.25 | N120=235.65 [=M120*10%*2] | O120=1413.9 [=M120+N120]
+  A121=2025-11-12 00:00:00 | B121=Kristian | C121=Corporación Papagayo | D121=Social | E121=crm | F121=Fiesta de Navidad | G121=Rechazado | J121=11337.0 | L121=940.0 | M121=2310.0 | N121=462 [=M121*10%*2] | O121=2772 [=M121+N121]
+  A122=2025-11-13 00:00:00 | B122=José | C122=Rossana Rodriguez | D122=Social | E122=Director | F122=Fiesta electronica | G122=Aprobado y realizado | H122=50.0 | I122=0.0 | J122=23450.0 | K122=21730.0 | L122=0.0 | M122=0.0 | N122=0 [=M122*10%*2] | O122=0 [=M122+N122] | P122=2025-11-13 00:00:00 | Q122=- | S122=Divisas Efectivo
+  A123=2025-11-14 00:00:00 | B123=José | C123=Luis Jímenez | D123=Social | E123=CRM | F123=Fiesta de Navidad | G123=Rechazado | J123=2201.0 | M123=1541.0 | N123=308.2 [=M123*10%*2] | O123=1849.2 [=M123+N123]
+  A124=2025-11-14 00:00:00 | B124=Kristian | C124=Gabriela Longa | D124=Social | E124=CRM | F124=Fiesta de Navidad | G124=Rechazado | J124=3775.1 | L124=940.0 | M124=1801.9 | N124=360.38 [=M124*10%*2] | O124=2162.28 [=M124+N124]
+  A125=2025-11-17 00:00:00 | B125=Frenecis | C125=Alimentos los Llanos | D125=Corporativo | E125=Director | F125=Fiesta de Navidad | G125=Rechazado | J125=7654.25 | L125=1250.0 | M125=3187.5 | N125=637.5 [=M125*10%*2] | O125=3825 [=M125+N125]
+  A126=2025-11-17 00:00:00 | B126=Frenecis | C126=Carlos Cordero | D126=Social | E126=CRM | F126=Boda | G126=Rechazado | J126=5972.25 | L126=400.0 | M126=1872.25 | N126=374.45 [=M126*10%*2] | O126=2246.7 [=M126+N126]
+  A127=2025-11-17 00:00:00 | B127=Frenecis | C127=Milagros Pacheco | D127=Corporativo | E127=CRM | F127=Fiesta de Navidad | G127=Rechazado | J127=14642.5 | L127=2330.0 | M127=6405.0 | N127=1281 [=M127*10%*2] | O127=7686 [=M127+N127]
+  A128=2025-11-18 00:00:00 | B128=José | C128=Ireana Sánchez - Boda | D128=Social | E128=Referido | F128=Boda | G128=Seguimiento | J128=8650.0
+  A129=2025-11-18 00:00:00 | B129=Frenecis | C129=Isabella Piccoli | D129=Social | E129=CRM | F129=Sesión de fotos | G129=Rechazado | J129=250.0 | N129=0 [=M129*10%*2] | O129=0 [=M129+N129]
+  A130=2025-11-18 00:00:00 | B130=Kristian | C130=Roman Martínez - Rodeneza | D130=Corporativo | E130=CRM | F130=Reunión ejecutiva | G130=Rechazado | J130=6743.75 | L130=390.0 | M130=1032.5 | N130=206.5 [=M130*10%*2] | O130=1239 [=M130+N130]
+  A131=2025-11-19 00:00:00 | B131=Frenecis | C131=CNPC América | D131=Corporativo | E131=Contacto directo con el ejecutivo | F131=Fiesta de Navidad | G131=Aprobado y realizado | H131=26.0 | K131=26882.46 | N131=0 [=M131*10%*2] | O131=0 [=M131+N131]
+  A132=2025-11-19 00:00:00 | B132=Frenecis | C132=Viajes Viramundo | G132=Rechazado | N132=0 [=M132*10%*2] | O132=0 [=M132+N132]
+  A133=2025-11-19 00:00:00 | B133=Frenecis | C133=Verónica Matos | D133=Social | E133=CRM | F133=Fiesta de Navidad | G133=Rechazado | J133=14158.5 | L133=1385.0 | M133=6230.0 | N133=1246 [=M133*10%*2] | O133=7476 [=M133+N133]
+  A134=2025-11-20 00:00:00 | B134=Frenecis | C134=Barco Jet Jrom Marian Suárez | D134=Social | E134=CRM | F134=Fiesta de Navidad | G134=Rechazado | J134=2169.0 | L134=540.0 | M134=510.0 | N134=102 [=M134*10%*2] | O134=612 [=M134+N134]
+  A135=2025-11-20 00:00:00 | B135=Frenecis | C135=Boda Anabella Martini | D135=Social | E135=CRM | F135=Boda | J135=22577.5 | L135=990.0 | M135=12348.5 | N135=2469.7 [=M135*10%*2] | O135=14818.2 [=M135+N135]
+  A136=2025-11-20 00:00:00 | B136=Kristian | C136=Claudette Mudadel | D136=Social | E136=Referido | F136=Lanzamiento de producto | G136=Rechazado | J136=1646.25 | M136=340.0 | N136=68 [=M136*10%*2] | O136=408 [=M136+N136]
+  A137=2025-11-20 00:00:00 | B137=Kristian | C137=Aiko Motors | D137=Social | E137=CRM | F137=Fiesta de Navidad | G137=Rechazado | J137=17557.7 | L137=250.0 | M137=6845.5 | N137=1369.1 [=M137*10%*2] | O137=8214.6 [=M137+N137]
+  A138=2025-11-25 00:00:00 | B138=Kristian | C138=Trufa en conserva - Delxy Suárez | D138=Social | E138=Referido | F138=Fiesta de Navidad | G138=Rechazado | J138=3797.53 | L138=250.0 | M138=1417.5 | N138=283.5 [=M138*10%*2] | O138=1701 [=M138+N138]
+  A139=2025-11-25 00:00:00 | B139=Kristian | C139=Huawei  | D139=Social | E139=Referido | F139=Fiesta de Navidad | G139=Aprobado y realizado | J139=15922.9 | M139=4990.0 | N139=998 [=M139*10%*2] | O139=5988 [=M139+N139]
+  A140=2025-11-25 00:00:00 | B140=Kristian | C140=Farmatodo - Daniela Segnini | D140=Social | E140=Referido | F140=Fiesta de Navidad | G140=Rechazado | J140=9371.25 | L140=250.0 | M140=3273.75 | N140=654.75 [=M140*10%*2] | O140=3928.5 [=M140+N140]
+  A141=2025-12-04 00:00:00 | B141=Otro | C141=Dayana Orellana | D141=Social | E141=CRM | F141=Fiesta de Navidad | G141=Rechazado | J141=2279.28 | M141=1069.2 | N141=213.84 [=M141*10%*2] | O141=1283.04 [=M141+N141]
+  A142=2025-12-05 00:00:00 | B142=Kristian | C142=Andrea Armada | D142=Social | E142=CRM | F142=Boda | G142=Aprobado y realizado | J142=1702.55 | M142=505.6 | N142=101.12 [=M142*10%*2] | O142=606.72 [=M142+N142]
+  A143=2025-12-05 00:00:00 | B143=Kristian | C143=IVIC  - Genesis Escalona | D143=Social | E143=Director | F143=Fiesta de Navidad | G143=Rechazado | J143=4561.8 | M143=1667.0 | N143=333.4 [=M143*10%*2] | O143=2000.4 [=M143+N143]
+  A144=2025-12-08 00:00:00 | B144=Otro | C144=Yamel Arias | D144=Social | E144=CRM | F144=Fiesta de Navidad | G144=Rechazado | J144=1650.68 | M144=517.0 | N144=103.4 [=M144*10%*2] | O144=620.4 [=M144+N144]
+  A145=2025-12-09 00:00:00 | B145=Otro | C145=Natalia Barrera | D145=Social | E145=CRM | F145=Fiesta de Navidad | G145=Rechazado | J145=4698.24 | M145=2441.2 | N145=488.24 [=M145*10%*2] | O145=2929.44 [=M145+N145] | AF145=//
+  A146=2025-12-09 00:00:00 | B146=Kristian | C146=Agua Grande (movilnet) | D146=Social | E146=Contacto directo con el ejecutivo | F146=Fiesta de Navidad | G146=Aprobado y realizado | J146=5389.92 | L146=250.0 | M146=2094.98 | N146=418.996 [=M146*10%*2] | O146=2513.976 [=M146+N146]
+  A147=2025-12-10 00:00:00 | B147=Otro | C147=Victoria González | D147=Social | E147=CRM | F147=Fiesta de Navidad | G147=Rechazado | J147=1500.6 | M147=420.5 | N147=84.1 [=M147*10%*2] | O147=504.6 [=M147+N147]
+  A148=2025-12-10 00:00:00 | B148=Otro | C148=Jesús Jímenez | D148=Social | E148=CRM | F148=Fiesta de Navidad | G148=Rechazado | J148=2121.0 | M148=682.5 | N148=136.5 [=M148*10%*2] | O148=819 [=M148+N148]
+  A149=2025-12-12 00:00:00 | B149=José | C149=Nadia Mignona | D149=Institucional  | E149=Director | F149=Lanzamiento de producto | G149=Aprobado y realizado | H149=1
+Cortesia | J149=3390.0 | K149=3390.0 | L149=- | M149=- | N149=- | O149=4325.0 | Q149=2025-12-19 00:00:00 | S149=Bolivares | T149=El 19/12/25 - Se realizo el cierre del evento principal y los adicionales (2 facturas por separado)
+  A150=2025-12-16 00:00:00 | B150=Kristian | C150=Max Glow | D150=Corporativo | E150=Director | F150=Sesión de fotos | G150=Rechazado | J150=705.2 | N150=0 [=M150*10%*2] | O150=0 [=M150+N150]
+  A151=2025-12-26 00:00:00 | B151=Frenecis | C151=Morella Gonzalez | D151=Social | E151=CRM | F151=Propuesta de Matrimonio | G151=Aprobado y realizado | J151=344.83 | K151=344.83
+  A152=2025-12-26 00:00:00 | B152=Kristian | C152=Roner Sandoval | D152=Social | E152=CRM | F152=Propuesta de Matrimonio | G152=Aprobado y realizado | J152=344.83 | N152=0 [=M152*10%*2] | O152=0 [=M152+N152]
+  A153=2025-12-27 00:00:00 | B153=Frenecis | C153=José Musrie | D153=Social | E153=CRM | F153=Propuesta de Matrimonio | G153=Aprobado y realizado | J153=2125.0 | K153=2125.0
+  A154=2025-12-29 00:00:00 | B154=Frenecis | C154=ExtraMuro | D154=Corporativo | E154=Contacto directo con el ejecutivo | F154=Reunión ejecutiva | G154=Seguimiento | H154=12.0 | J154=8269.0 | L154=1300.0 | M154=2274.1 | N154=454.82 [=M154*10%*2] | O154=2728.92 [=M154+N154]
+  A155=2025-12-29 00:00:00 | B155=José | C155=Casa Militar | D155=Institucional  | E155=Casa Matriz | F155=Fiesta de Navidad | G155=Cortesia CM ejecutada | H155=13.0 | J155=6690.0 | K155=8440.0 | L155=0.0 | M155=0.0 | N155=0 [=M155*10%*2] | O155=0 [=M155+N155] | P155=Cortesia CM | S155=OBSEQUIO | T155=Cortesia Inversionistas, no se agrega costo de AYB , personal  de AYB, y 10%, puesto  que la materia prima del buffet se compro directamente por el Sr Gaston Lugo con fondos otorgados desde Casa Matri
+  A156=2025-12-29 00:00:00 | B156=Kristian | C156=Jestefani Baroudi | D156=Corporativo | E156=CRM | F156=Sesión de fotos | G156=Rechazado | J156=400.0 | N156=0 [=M156*10%*2] | O156=0 [=M156+N156]
+  A157=2026-01-23 00:00:00 | B157=Frenecis | C157=Boda Rosa Ceballo | D157=Social | E157=Director | F157=Boda | G157=Enviado | J157=4384.94 | M157=1620.0 | N157=324 [=M157*10%*2] | O157=1944 [=M157+N157]
+  A158=2026-01-30 00:00:00 | B158=Frenecis | C158=Rafael Valencillo | D158=Social | E158=CRM | F158=Reunión ejecutiva | G158=Enviado | J158=8144.56 | L158=890.0 | M158=1401.0 | N158=280.2 [=M158*10%*2] | O158=1681.2 [=M158+N158]
+  A159=2026-02-03 00:00:00 | B159=Frenecis | C159=Grecia de Ponte | D159=Social | E159=CRM | F159=Boda | G159=Enviado | J159=19842.3 | L159=1830.0 | M159=5135.0 | N159=1027 [=M159*10%*2] | O159=6162 [=M159+N159]
+  A160=2026-02-03 00:00:00 | B160=Frenecis | C160=Raquel Chumacheiro | D160=Academico  | E160=Director | F160=Sesión de fotos | G160=Enviado | J160=664.0 | N160=0 [=M160*10%*2] | O160=0 [=M160+N160]
+  A161=2026-02-03 00:00:00 | B161=Frenecis | C161=Molina Rangel | D161=Social | E161=CRM | F161=Boda | G161=Enviado | J161=19858.3 | L161=1830.0 | M161=5035.0 | N161=1007 [=M161*10%*2] | O161=6042 [=M161+N161]
+  A162=2026-02-04 00:00:00 | B162=Frenecis | C162=Claudia Buscema | D162=Social | E162=Director | F162=HOSPEDAJE | G162=Enviado | H162=50.0 | J162=14500.0 | N162=0 [=M162*10%*2] | O162=0 [=M162+N162]
+
+======================================================================
+SHEET: 2026
+MERGED: B1:W1
+----------------------------------------------------------------------
+  B1=Hotel Humboldt – Control Gestión Ventas
+  A2=Fecha solicitud | B2=Fecha  de envío | C2=Ejecutivo | D2=Nombre Cliente | E2=Tipo Cliente | F2=Canal Ingreso | G2=Tipo Evento | H2=Estado | I2=N° de Hab | J2=N° de VG | K2=Monto Inicial USD | L2=Monto Final USD | M2=Proveedores | N2=AyB | O2=10% servcio | P2=TOTAL | Q2=Fecha Pago | R2=Fecha Cierre | S2=Motivo Cierre | T2=Forma de Pago | U2=Observaciones | V2=Seguimiento Futuro | W2=Motivo de rechazo 
+  B3=2025-10-08 00:00:00 | C3=Kristian | D3=Boda - Alexandra García | E3=Social | F3=CRM | G3=Boda | H3=Rechazado | K3=28843.6 | N3=11096.0 | O3=2219.2 [=N3*10%*2] | P3=13315.2 [=N3+O3] | U3=Evento cancelado por los siguientes motivos: fee muy alto por traer catering externo, fee por desmontar y montar árbol de Navidad, al cliente no le gustaron las opciones en la degustación realizada (p | W3=Precio
+  B4=2026-01-12 00:00:00 | C4=Kristian | D4=BANPLUS, Banco Universal CA | E4=Corporativo | F4=Director | G4=Convención | H4=Enviado | K4=9338.48 | N4=2756.3 | O4=551.26 [=N4*10%*2] | P4=3307.56 [=N4+O4]
+  B5=2026-01-12 00:00:00 | C5=Kristian | D5=Beatriz Damian | E5=Social | F5=CRM | G5=Boda | H5=Enviado | K5=18182.0 | N5=5668.0 | O5=1133.6 [=N5*10%*2] | P5=6801.6 [=N5+O5]
+  B6=2026-01-12 00:00:00 | C6=Kristian | D6=Catherine Vargas | E6=Social | F6=CRM | G6=Boda | H6=Enviado | K6=7538.8 | N6=2693.0 | O6=538.6 [=N6*10%*2] | P6=3231.6 [=N6+O6]
+  B7=2026-01-14 00:00:00 | C7=Kristian | D7=Raquel Pereira | E7=Social | F7=CRM | G7=Boda | H7=Enviado | K7=6196.0 | N7=1760.0 | O7=352 [=N7*10%*2] | P7=2112 [=N7+O7]
+  B8=2026-01-21 00:00:00 | C8=Kristian | D8=TS Sports  - Antonio Linares | E8=Corporativo | F8=Director | G8=Congreso | H8=Aprobado y por ejecutar | K8=10424.0 | N8=1440.0 | O8=288 [=N8*10%*2] | P8=1728 [=N8+O8]
+  B9=2026-01-23 00:00:00 | C9=Frenecis | D9=Andres Socorro | E9=Social | F9=Casa Matriz | G9=Boda | H9=Aprobado y por ejecutar | K9=4384.94 | L9=9940.0 | N9=1620.0 | O9=324 [=N9*10%*2] | P9=1944 [=N9+O9] | U9=- Realizando ajustes de AYB, y cortesias por CM.
+  B10=2026-01-23 00:00:00 | C10=Kristian | D10=Auto Club MM | E10=Corporativo | F10=CRM | G10=Sesión de fotos | H10=Aprobado y realizado | K10=400.0 | O10=0 [=N10*10%*2] | P10=0 [=N10+O10]
+  B11=2026-01-27 00:00:00 | C11=Kristian | D11=Coca Cola | E11=Corporativo | F11=Correo | G11=Reunión ejecutiva | H11=Aprobado y realizado | I11=39.0 | K11=18031.2 | M11=2700.0 | N11=3231.15 | O11=646.23 [=N11*10%*2] | P11=3877.38 [=N11+O11] | U11=Realizado en febrero 2026
+  B12=2026-01-28 00:00:00 | C12=Kristian | D12=Camila Macero (CCS Catering) | E12=Social | F12=Contacto directo con el ejecutivo | G12=Boda | H12=Enviado | K12=7250.0 | M12=0.0 | N12=0.0 | O12=0 [=N12*10%*2] | P12=0 [=N12+O12]
+  B13=2026-01-30 00:00:00 | C13=Frenecis | D13=Rafael Valencillo | E13=Social | F13=CRM | G13=Reunión ejecutiva | H13=Seguimiento | K13=8144.56 | M13=890.0 | N13=1401.0 | O13=280.2 [=N13*10%*2] | P13=1681.2 [=N13+O13]
+  B14=2026-02-03 00:00:00 | C14=Frenecis | D14=Grecia de Ponte | E14=Social | F14=CRM | G14=Boda | H14=Rechazado | K14=19842.3 | M14=1830.0 | N14=5135.0 | O14=1027 [=N14*10%*2] | P14=6162 [=N14+O14]
+  B15=2026-02-03 00:00:00 | C15=Frenecis | D15=Raquel Chumacheiro | E15=Academico  | F15=Director | G15=Sesión de fotos | H15=Evento realizado | K15=664.0 | O15=0 [=N15*10%*2] | P15=0 [=N15+O15]
+  B16=2026-02-03 00:00:00 | C16=Frenecis | D16=Molina Rangel | E16=Social | F16=CRM | G16=Boda | H16=Rechazado | K16=19858.3 | M16=1830.0 | N16=5035.0 | O16=1007 [=N16*10%*2] | P16=6042 [=N16+O16]
+  B17=2026-02-04 00:00:00 | C17=Frenecis | D17=Claudia Buscema | E17=Academico  | F17=Director | G17=HOSPEDAJE | H17=Seguimiento | I17=50.0 | K17=14500.0 | O17=0 [=N17*10%*2] | P17=0 [=N17+O17]
+  B18=2026-02-04 00:00:00 | C18=Frenecis | D18=Daniel Urbano | E18=Corporativo | F18=CRM | G18=Congreso | H18=Seguimiento | K18=10702.64 | M18=1230.0 | N18=1060.0 | O18=212 [=N18*10%*2] | P18=1272 [=N18+O18]
+  B19=2026-02-04 00:00:00 | C19=Frenecis | D19=Emilia Central Madeirense | E19=Corporativo | F19=Contacto directo con el ejecutivo | G19=HOSPEDAJE | H19=Rechazado | I19=1.0 | K19=375.0 | O19=0 [=N19*10%*2] | P19=0 [=N19+O19]
+  B20=2026-02-04 00:00:00 | C20=Frenecis | D20=José Luis Colmenares | E20=Social | F20=Referido | H20=Rechazado | K20=19646.8 | M20=1780.0 | N20=5715.0 | O20=1143 [=N20*10%*2] | P20=6858 [=N20+O20]
+  B21=2026-02-04 00:00:00 | C21=Kristian | D21=15 años de Ana Isabel | E21=Social | F21=CRM | G21=Cumpleaños | H21=Aprobado y realizado | K21=2625.5 | N21=1210.75 | O21=242.15 [=N21*10%*2] | P21=1452.9 [=N21+O21]
+  B22=2026-02-07 00:00:00 | C22=Malvis | D22=Luis Semprun | E22=Social | F22=Director | G22=HOSPEDAJE | H22=Rechazado | I22=7.0 | K22=2227.2 | O22=0 [=N22*10%*2] | P22=0 [=N22+O22]
+  B23=2026-02-07 00:00:00 | C23=Malvis | D23=Luis Semprun | E23=Social | F23=Director | G23=HOSPEDAJE | H23=Rechazado | I23=7.0 | K23=4454.4 | O23=0 [=N23*10%*2] | P23=0 [=N23+O23]
+  B24=2026-02-09 00:00:00 | C24=Frenecis | D24=Turisma Agua Grande  | E24=Corporativo | F24=Contacto directo con el ejecutivo | G24=HOSPEDAJE | H24=Rechazado | I24=8.0 | K24=5350.0 | O24=0 [=N24*10%*2] | P24=0 [=N24+O24]
+  B25=2026-02-10 00:00:00 | C25=Kristian | D25=Viajes Humboldt | E25=Social | F25=Correo | G25=Cumpleaños | H25=Seguimiento | I25=2.0 | K25=12088.0 | M25=760.0 | N25=4036.5 | O25=807.3 [=N25*10%*2] | P25=4843.8 [=N25+O25]
+  B26=2026-02-10 00:00:00 | C26=Kristian | D26=BBVA Banco Provincial | E26=Corporativo | F26=CRM | G26=Reunión ejecutiva | H26=Rechazado | I26=23.0 | K26=16218.43 | M26=820.0 | N26=3604.88 | O26=720.976 [=N26*10%*2] | P26=4325.856 [=N26+O26]
+  B27=2026-02-10 00:00:00 | C27=Kristian | D27=Vanessa Carreño | E27=Social | F27=Casa Matriz | G27=Boda | H27=Seguimiento | K27=47329.0 | N27=34079.0 | O27=6815.8 [=N27*10%*2] | P27=40894.8 [=N27+O27]
+  B28=2026-02-13 00:00:00 | C28=Kristian | D28=Sra. Trina Cedeño | E28=Social | F28=CRM | G28=Almuerzo  | H28=Seguimiento | K28=27355.94 | N28=9591.0 | O28=1918.2 [=N28*10%*2] | P28=11509.2 [=N28+O28]
+  B29=2026-02-18 00:00:00 | C29=José | D29=Santiago uzcategui | E29=Social | F29=Contacto directo con el ejecutivo | G29=Almuerzo  | H29=Rechazado | I29=0.0 | K29=3169.0 | N29=1839.0 | O29=367.8 [=N29*10%*2] | P29=2206.8 [=N29+O29] | U29=- Rechazado puesto que por cambio de precios de AYB, se demoro el envio de presupuesto (se envio 34 dias antes del evento), lo que complicaba la organizacion dle mismo.
+  B30=2026-02-18 00:00:00 | C30=Frenecis | D30=Jonathan Macía (Sunset Yoga & Kangoo Fit) | E30=Social | F30=Contacto directo con el ejecutivo | H30=Aprobado y por ejecutar | K30=2290.0 | O30=0 [=N30*10%*2] | P30=0 [=N30+O30]
+  B31=2026-02-18 00:00:00 | C31=Frenecis | D31=JAC Motors Venezuela | E31=Corporativo | F31=CRM | G31=Lanzamiento de producto | H31=Rechazado | K31=1100.0 | O31=0 [=N31*10%*2] | P31=0 [=N31+O31]
+  B32=2026-02-19 00:00:00 | C32=Frenecis | D32=Día Internacional de la Mujer (Eliana) | E32=Corporativo | F32=Referido | G32=Coctel | H32=Seguimiento | K32=13187.0 | N32=6121.0 | O32=1224.2 [=N32*10%*2] | P32=7345.2 [=N32+O32]
+  B33=2026-02-19 00:00:00 | C33=Kristian | D33=Javier Mujica | E33=Corporativo | F33=CRM | G33=Reunión ejecutiva | H33=Seguimiento | K33=3649.0 | N33=408.25 | O33=81.65 [=N33*10%*2] | P33=489.9 [=N33+O33]
+  B34=2026-02-23 00:00:00 | C34=Kristian | D34=Dr Daniel Urbano | E34=Asociacion  | F34=CRM | G34=Congreso | H34=Seguimiento | K34=23356.0 | M34=5880.0 | N34=3384.0 | O34=676.8 [=N34*10%*2] | P34=4060.8 [=N34+O34]
+  B35=2026-02-23 00:00:00 | C35=Kristian | D35=Optica Caroní | E35=Corporativo | F35=CRM | H35=Aprobado y realizado | K35=10627.6 | N35=6217.6 | O35=1243.52 [=N35*10%*2] | P35=7461.12 [=N35+O35]
+  B36=2026-02-24 00:00:00 | C36=Frenecis | D36=Angel Coruco (Xocolatl) | E36=Corporativo | F36=Director | G36=Reunión ejecutiva | H36=Seguimiento | K36=6180.0 | M36=1310.0 | N36=1637.6 | O36=327.52 [=N36*10%*2] | P36=1965.12 [=N36+O36]
+  B37=2026-02-24 00:00:00 | C37=Frenecis | D37=Alcoholes y Añejos Monagas C.a | E37=Corporativo | F37=CRM | G37=Lanzamiento de producto | H37=Seguimiento | K37=7813.84 | M37=1290.0 | N37=2316.8 | O37=463.36 [=N37*10%*2] | P37=2780.16 [=N37+O37]
+  B38=2026-02-24 00:00:00 | C38=Kristian | D38=Andreina Vegas | E38=Social | F38=CRM | G38=Boda | H38=Seguimiento | K38=4806.45 | N38=1744.07 | O38=348.814 [=N38*10%*2] | P38=2092.884 [=N38+O38]
+  B39=2026-02-26 00:00:00 | C39=Kristian | D39=Jhoan Manuel Blanco | E39=Corporativo | F39=Director | G39=Sesion de Fotos | H39=Rechazado | K39=800.0 | O39=0 [=N39*10%*2] | P39=0 [=N39+O39]
+  B40=2026-02-26 00:00:00 | C40=Kristian | D40=Sr José Oropeza | E40=Social | F40=CRM | G40=Boda | H40=Rechazado | K40=26820.0 | M40=2000.0 | N40=7359.42 | O40=1471.884 [=N40*10%*2] | P40=8831.304 [=N40+O40] | U40=Comentario de cliente
+
+Me hicieron un descuento en la totalidad del evento en divisa
+  B41=2026-02-26 00:00:00 | C41=José | D41=Keban frias | E41=Institucional  | F41=Director | G41=Institucional | H41=Institucional, en espera de pago | I41=1.0 | K41=1146.0 | M41=0.0 | N41=96.0 | O41=19.2 [=N41*10%*2] | P41=115.2 [=N41+O41]
+  B42=2026-02-27 00:00:00 | C42=Kristian | D42=Sra Ana Teresa Galvis | E42=Social | F42=CRM | G42=Boda | H42=Seguimiento | K42=28300.0 | M42=2000.0 | O42=0 [=N42*10%*2] | P42=0 [=N42+O42]
+  B43=2026-02-27 00:00:00 | C43=Kristian | D43=Sra. Andrea Corona | E43=Corporativo | F43=CRM | G43=Almuerzo  | H43=Seguimiento | I43=35.0 | K43=11250.0 | O43=0 [=N43*10%*2] | P43=0 [=N43+O43]
+  B44=2026-02-27 00:00:00 | C44=Frenecis | D44=Fernando Martínez | E44=Social | F44=Gerente | G44=Fiesta electronica | H44=Seguimiento | I44=50.0 | K44=1850.0 | O44=0 [=N44*10%*2] | P44=0 [=N44+O44]
+  B45=2026-02-28 00:00:00 | C45=Kristian | D45=Kristell Alibardi (productora) | E45=Corporativo | F45=Contacto directo con el ejecutivo | G45=Almuerzo  | H45=Rechazado | K45=19163.5 | M45=2000.0 | N45=4485.19 | O45=897.038 [=N45*10%*2] | P45=5382.228 [=N45+O45] | U45=Poductor indica que no lo escogieron para llevar el evento
+  B46=2026-03-06 00:00:00 | C46=José | D46=Lisbeth MAta
+Inversiones Kaluka - panini | E46=Corporativo | F46=Contacto directo con el ejecutivo | G46=Reunión ejecutiva | H46=Rechazado | I46=0.0 | K46=3751.0 | M46=770.0 | N46=1331.0 | O46=266.2 [=N46*10%*2] | P46=1597.2 [=N46+O46] | U46=- Reunion ejecutiva panini, en marco del nuevo album panini FIFA 2026 -----  Precios en general por persona queda muy costoso, tomando en cuenta los alimentos más traslados, más espacios, etc. | W46=Precio
+  B47=2026-03-06 00:00:00 | C47=José | D47=Federico Rios | E47=Social | F47=CRM | G47=Boda | H47=Enviado | I47=50.0 | J47=0.0 | K47=33980.0 | M47=0.0 | N47=16000.5 | O47=3200.1 [=N47*10%*2] | P47=19200.6 [=N47+O47] | U47=- cliente solicitó dos presupuesto: estaciones y pasapalos y buffet con pasapalos
+Este es buffet y pasapalos
+  B48=2026-03-06 00:00:00 | C48=José | D48=Federico Rios | E48=Social | F48=CRM | G48=Boda | H48=Enviado | I48=50.0 | J48=0.0 | K48=30345.0 | M48=0.0 | N48=1365.0 | O48=273 [=N48*10%*2] | P48=1638 [=N48+O48] | U48=- cliente solicitó dos presupuesto: estaciones y pasapalos y buffet con pasapalos
+Este es estaciones y pasapalos
+  B49=2026-03-06 00:00:00 | C49=Frenecis | D49=Francis Mendoza | E49=Social | F49=CRM | G49=Sesión de fotos | H49=Enviado | K49=300.0 | O49=0 [=N49*10%*2] | P49=0 [=N49+O49]
+  B50=2026-03-09 00:00:00 | C50=Frenecis | D50=Mariana & Eduardo | E50=Social | F50=CRM | G50=Boda | H50=Enviado | K50=22582.5 | M50=1740.0 | N50=4330.8 | O50=866.16 [=N50*10%*2] | P50=5196.96 [=N50+O50]
+  B51=2026-03-09 00:00:00 | C51=Frenecis | D51=Luis Rodriguez & Keila Vanegas | E51=Academico  | F51=CRM | G51=Sesion de Fotos | H51=Enviado | K51=600.0 | O51=0 [=N51*10%*2] | P51=0 [=N51+O51]
+  B52=2026-03-09 00:00:00 | C52=Kristian | D52=CAF - Banco de desarrollo de América latina y el Caribe | E52=Corporativo | F52=Director | G52=Reunión ejecutiva | H52=Aprobado y realizado | K52=10913.5 | M52=1340.0 | N52=4712.5 | O52=942.5 [=N52*10%*2] | P52=5655 [=N52+O52] | U52=evento realizado sin novedad
+  B53=2026-03-10 00:00:00 | C53=Frenecis | D53=Ana Vasquez (The Creative Group) | E53=Corporativo | F53=CRM | G53=Reunión ejecutiva | H53=Enviado | K53=10497.5 | M53=890.0 | N53=4423.8 | O53=884.76 [=N53*10%*2] | P53=5308.56 [=N53+O53]
+  B54=2026-03-10 00:00:00 | C54=Frenecis | D54=Ana Vasquez (The Creative Group) | E54=Corporativo | F54=CRM | G54=Coctel | H54=Enviado | K54=4945.0 | M54=250.0 | N54=1549.1 | O54=309.82 [=N54*10%*2] | P54=1858.92 [=N54+O54]
+  B55=2026-03-11 00:00:00 | C55=Frenecis | D55=Turismo Agua Grande | E55=Corporativo | F55=Contacto directo con el ejecutivo | G55=Evento VG | H55=Enviado | K55=400.0 | O55=0 [=N55*10%*2] | P55=0 [=N55+O55]
+  B56=2026-03-11 00:00:00 | C56=Kristian | D56=ORGANIZACIÓN KANGURO, S.A. - Dany Salazar | E56=Corporativo | F56=Director | G56=Evento VG | H56=Seguimiento | K56=723.0 | M56=0.0 | N56=0.0 | O56=0 [=N56*10%*2] | P56=0 [=N56+O56] | U56=Se enviaron 4 versiones a esta agencia, se coloca la de mayor aforo de personas
+  B57=2026-03-12 00:00:00 | C57=Kristian | D57=Caracas Catering - Sra. María Cristina Vallenilla | E57=Social | F57=Contacto directo con el ejecutivo | G57=Boda | H57=Seguimiento | K57=7230.0 | M57=0.0 | N57=0.0 | O57=0 [=N57*10%*2] | P57=0 [=N57+O57]
+  B58=2026-03-12 00:00:00 | C58=Kristian | D58=Pedida de noviazgo - sr Ali el Sahle | E58=Social | F58=CRM | G58=Propuesta de Matrimonio | H58=Aprobado y realizado | K58=480.0 | M58=0.0 | N58=0.0 | O58=0 [=N58*10%*2] | P58=0 [=N58+O58] | U58=Sólo uso del espacio
+  B59=2026-03-13 00:00:00 | C59=Frenecis | D59=Grissel Rodriguez | E59=Academico  | F59=CRM | H59=Enviado | K59=21829.5 | N59=11410.8 | O59=2282.16 [=N59*10%*2] | P59=13692.96 [=N59+O59]
+  B60=2026-03-17 00:00:00 | C60=Frenecis | D60=Promo Colegio Yale (Aylin Chacón) | E60=Academico  | F60=CRM | G60=Coctel | H60=Enviado | K60=12085.0 | M60=1690.0 | N60=3897.0 | O60=779.4 [=N60*10%*2] | P60=4676.4 [=N60+O60]
+  B61=2026-03-17 00:00:00 | C61=Frenecis | D61=Andres Caracciolo | E61=Social | F61=CRM | G61=Boda | H61=Enviado | K61=7490.0 | O61=0 [=N61*10%*2] | P61=0 [=N61+O61]
+  B62=2026-03-19 00:00:00 | C62=Frenecis | D62=Jennifer Araujo | E62=Social | F62=CRM | H62=Enviado | I62=5.0 | K62=4580.0 | O62=0 [=N62*10%*2] | P62=0 [=N62+O62]
+  B63=2026-03-19 00:00:00 | C63=Frenecis | D63=Alberto Diquez | E63=Corporativo | F63=CRM | G63=Rueda de prensa | H63=Enviado | K63=7858.5 | N63=2858.4 | O63=571.68 [=N63*10%*2] | P63=3430.08 [=N63+O63]
+  B64=2026-03-24 00:00:00 | C64=José | D64=Yosmir Chaffardet | E64=Social | F64=CRM | G64=Pijamada | H64=Perdido / Rechazado | I64=5.0 | J64=0.0 | K64=2006.0 | M64=0.0 | N64=540.54 | O64=108.108 [=N64*10%*2] | P64=648.648 [=N64+O64]
+  B65=2026-03-25 00:00:00 | C65=Frenecis | D65=Corporación Turimo de Caracas | E65=Institucional  | F65=Director | G65=Coctel | H65=institucional pagado | K65=1436.8 | N65=252.0 | O65=50.4 [=N65*10%*2] | P65=302.4 [=N65+O65]
+  B66=2026-03-25 00:00:00 | C66=Frenecis | D66=Grupo Iro (Milagros Galindez) | E66=Corporativo | F66=CRM | G66=Reunión ejecutiva | H66=Enviado | K66=9863.85 | M66=640.0 | N66=3069.5 | O66=613.9 [=N66*10%*2] | P66=3683.4 [=N66+O66]
+  B67=2026-03-27 00:00:00 | C67=Frenecis | D67=Natalia Moretti | E67=Social | F67=Contacto directo con el ejecutivo | G67=Boda | H67=Enviado | K67=3876.75 | N67=1950.55 | O67=390.11 [=N67*10%*2] | P67=2340.66 [=N67+O67]
+  B68=2026-03-31 00:00:00 | C68=Frenecis | D68=Ruben Padilla | E68=Asociacion  | F68=Director | H68=Enviado | K68=2110.0 | M68=1440.0 | O68=0 [=N68*10%*2] | P68=0 [=N68+O68]
+  B69=2026-04-07 00:00:00 | C69=Frenecis | D69=Genesis Sapienza | E69=Social | F69=Contacto directo con el ejecutivo | G69=Sesión de fotos | H69=Rechazado | K69=350.0 | O69=0 [=N69*10%*2] | P69=0 [=N69+O69]
+  B70=2026-04-07 00:00:00 | C70=Frenecis | D70=Fatima Rodriguez | E70=Social | F70=CRM | G70=Cumpleaños | H70=Enviado | K70=6156.0 | M70=590.0 | N70=2292.4 | O70=458.48 [=N70*10%*2] | P70=2750.88 [=N70+O70]
+  B71=2026-04-07 00:00:00 | C71=Frenecis | D71=Productos Broche | E71=Corporativo | F71=CRM | G71=Congreso | H71=Seguimiento | K71=9165.0 | M71=1470.0 | N71=3176.6 | O71=635.32 [=N71*10%*2] | P71=3811.92 [=N71+O71]
+  B72=2026-04-08 00:00:00 | C72=Frenecis | D72=Maria Castillo | E72=Social | F72=CRM | G72=Cumpleaños | H72=Seguimiento | K72=3635.29 | M72=250.0 | N72=871.95 | O72=174.39 [=N72*10%*2] | P72=1046.34 [=N72+O72]
+  B73=2026-04-08 00:00:00 | C73=Frenecis | D73=Nestlé Venezuela | E73=Corporativo | F73=Contacto directo con el ejecutivo | G73=Cena | H73=Rechazado | K73=1930.0 | N73=630.0 | O73=126 [=N73*10%*2] | P73=756 [=N73+O73] | U73=Rechazado, sin embargo el evento se realizó en el Restaurante Humboldt. No deseaban un menú fijo, sino la posibilidad de poder escoger
+  B74=2026-04-08 00:00:00 | C74=José | D74=Nazir Jaafar | E74=Social | F74=CRM | G74=Boda | H74=Enviado | K74=8451.0 | M74=0.0 | N74=5441.0 | O74=1088.2 [=N74*10%*2] | P74=6529.2 [=N74+O74]
+  B75=2026-04-08 00:00:00 | C75=José | D75=Gloria Sanchez | E75=Corporativo | F75=CRM | G75=HOSPEDAJE | H75=Enviado | I75=3.0 | J75=0.0 | K75=1737.0 | M75=0.0 | N75=237.0 | O75=47.4 [=N75*10%*2] | P75=284.4 [=N75+O75]
+  B76=2026-04-09 00:00:00 | C76=Frenecis | D76=Rony Gomez (Dimassi, C.A) | E76=Corporativo | F76=Director | G76=Reunión ejecutiva | H76=Enviado | K76=5033.75 | M76=640.0 | N76=1782.2 | O76=356.44 [=N76*10%*2] | P76=2138.64 [=N76+O76]
+  B77=2026-04-15 00:00:00 | C77=José | D77=Ricardo Nava | E77=Social | F77=CRM | G77=Propuesta de Matrimonio | H77=Perdido / Rechazado | K77=439.0 | M77=90.0 | N77=30.0 | O77=6 [=N77*10%*2] | P77=36 [=N77+O77] | U77=Rechazado por accidente familiar en uno de los invitados. informacion recibida por CRM
+  B78=2026-04-15 00:00:00 | C78=José | D78=Grehilys Hernández | E78=Corporativo | F78=Contacto directo con el ejecutivo | G78=Networking | H78=Enviado | I78=0.0 | J78=60.0 | K78=2441.0 | M78=0.0 | N78=1165.0 | O78=233 [=N78*10%*2] | P78=1398 [=N78+O78] | U78=Enviado a la espera de confirmacion por parte del cliente
+  B79=2026-04-15 00:00:00 | C79=Kristian | D79=Invermedia Comercializadora de Medios (Lanzamiento de Alimex) | E79=Corporativo | F79=CRM | G79=Lanzamiento de producto | H79=Rechazado | K79=13510.0 | N79=5210.0 | O79=1042 [=N79*10%*2] | P79=6252 [=N79+O79] | U79=La productora indicó que el cliente vió un poco complicado la logística de los invitados nacionales. Prefieren un hotel en Caracas, es más sencillo en este punto
+  B80=2026-04-16 00:00:00 | C80=Frenecis | D80=Haymara de Valerio | E80=Social | F80=CRM | G80=Almuerzo  | H80=Seguimiento | K80=7590.0 | N80=4508.0 | O80=901.6 [=N80*10%*2] | P80=5409.6 [=N80+O80]
+  B81=2026-04-17 00:00:00 | C81=Frenecis | D81=Lisett Muñoz | E81=Social | F81=CRM | G81=Cumpleaños | H81=Seguimiento | K81=5576.34 | M81=150.0 | N81=3131.8 | O81=626.36 [=N81*10%*2] | P81=3758.16 [=N81+O81]
+  B82=2026-04-20 00:00:00 | C82=Kristian | D82=Helena Paez Pumar | E82=Social | F82=Director | G82=Boda | H82=Enviado | K82=6320.0 | O82=0 [=N82*10%*2] | P82=0 [=N82+O82] | U82=Cotización de sólo espacios
+  B83=2026-04-20 00:00:00 | C83=Kristian | D83=Marqués de Cáceres - frigorífico Canarias | E83=Social | F83=Director | G83=Lanzamiento de producto | H83=Aprobado y realizado | K83=5466.0 | N83=2209.7 | O83=441.94 [=N83*10%*2] | P83=2651.64 [=N83+O83]
+  B84=2026-04-21 00:00:00 | C84=Frenecis | D84=Sabrina Moreno | E84=Social | F84=CRM | G84=Sesion de Fotos | H84=Enviado | K84=550.0 | O84=0 [=N84*10%*2] | P84=0 [=N84+O84]
+  B85=2026-04-22 00:00:00 | C85=José | D85=IKAIKA SHOW & EVENTOS, C.A - BIggott | E85=Corporativo | F85=Contacto directo con el ejecutivo | G85=Reunión ejecutiva | H85=Aprobado y realizado | K85=3335.5 | N85=865.0 | O85=173 [=N85*10%*2] | P85=1038 [=N85+O85]
+  B86=2026-04-23 00:00:00 | C86=Frenecis | D86=Monica Guerrero | E86=Social | F86=CRM | G86=Cumpleaños | H86=Enviado | K86=3057.48 | M86=200.0 | N86=1083.25 | O86=216.65 [=N86*10%*2] | P86=1299.9 [=N86+O86]
+  B87=2026-04-23 00:00:00 | C87=Kristian | D87=Productos Heinz | E87=Corporativo | F87=CRM | G87=Reunión ejecutiva | H87=Rechazado | K87=6731.0 | N87=473.66 | O87=94.732 [=N87*10%*2] | P87=568.392 [=N87+O87] | U87=Sin repuesta por parte del cliente
+  B88=2026-04-27 00:00:00 | C88=Frenecis | D88=Rodrigo Izaguirre | E88=Social | F88=CRM | G88=Boda | H88=Enviado | K88=4970.6 | M88=250.0 | N88=2117.2 | O88=423.44 [=N88*10%*2] | P88=2540.64 [=N88+O88]
+  B89=2026-04-28 00:00:00 | C89=Frenecis | D89=Monica Caro | E89=Corporativo | F89=CRM | G89=Almuerzo  | H89=Enviado | K89=2333.08 | N89=957.6 | O89=191.52 [=N89*10%*2] | P89=1149.12 [=N89+O89]
+  B90=2026-04-28 00:00:00 | C90=José | D90=Dery Pabon | E90=Social | F90=Casa Matriz | G90=Coctel | H90=Rechazado | K90=5928.0 | N90=148.5 | U90=Enviado a la espera de la confirmacion de la fecha por parte de Dery Pabon
+  B91=2026-04-28 00:00:00 | C91=Kristian | D91=15 años - Juan Daoud | E91=Social | F91=Contacto directo con el ejecutivo | G91=Cumpleaños | H91=Aprobado y por ejecutar | K91=6107.5 | N91=3209.5 | O91=641.9 [=N91*10%*2] | P91=3851.4 [=N91+O91] | U91=Evento aprobado, aún en proceso de negociaicón y en espera de pago
+  B92=2026-04-29 00:00:00 | C92=José | D92=Dulce Figueroa | E92=Corporativo | F92=Contacto directo con el ejecutivo | G92=Networking | H92=Enviado | K92=918.0 | N92=210.0 | U92=Enviado, sin embargo por esta oportunidad fue rechazado por presupuesto interno de la empresa destinado a estas actividades (es la primera vez que la empresa plantea realizar actividades externas, por
+  B93=2026-04-30 00:00:00 | C93=Frenecis | D93=Colegio Francia | E93=Academico  | F93=CRM | G93=Cena | H93=Enviado | K93=12981.5 | M93=1205.0 | N93=6579.4 | O93=1315.88 [=N93*10%*2] | P93=7895.28 [=N93+O93]
+  B94=2026-05-05 00:00:00 | C94=José | D94=Dery Pabon | E94=Social | F94=Contacto directo con el ejecutivo | G94=Boda | H94=Rechazado | K94=4403.75 | N94=2250.5 | O94=450.1 [=N94*10%*2] | P94=2700.6 [=N94+O94] | U94=- Rechazado por cambio de locación, el evento se realizara en Casaita, con festejos mar.
+  B95=2026-05-07 00:00:00 | C95=Frenecis | D95=Daniella Pinto | E95=Corporativo | F95=CRM | G95=Aniversario | H95=Enviado | K95=9310.0 | M95=3445.0 | N95=2323.2 | O95=464.64 [=N95*10%*2] | P95=2787.84 [=N95+O95]
+  B96=2026-05-07 00:00:00 | C96=Frenecis | D96=Jean Carlo (Afro Criollo) | E96=Social | F96=Director | H96=Enviado | K96=6530.0 | O96=0 [=N96*10%*2] | P96=0 [=N96+O96]
+  B97=2026-05-18 00:00:00 | C97=José | D97=Cristina Lorenzo | E97=Academico  | F97=CRM | G97=Sesion de Fotos | H97=Enviado | K97=849.0 | N97=299.49 | O97=59.898 [=N97*10%*2] | P97=359.388 [=N97+O97]
+  B98=2026-05-18 00:00:00 | C98=José | D98=Vanessa luna | E98=Social | F98=CRM | G98=Boda | H98=Enviado | K98=8125.0 | N98=5265.0 | O98=1053 [=N98*10%*2] | P98=6318 [=N98+O98] | U98=Cliente solicito dos propuestas: una para 60 pax (este) y otro para 30.
+  B99=2026-05-20 00:00:00 | C99=Frenecis | D99=Corporación Turimo de Caracas | E99=Institucional  | F99=Director | G99=Reunión ejecutiva | H99=Rechazado | K99=6044.36 | M99=585.0 | N99=2720.2 | O99=544.04 [=N99*10%*2] | P99=3264.24 [=N99+O99] | U99=Rechazado, cambio de locacion
+  B100=#VALUE! | C100=José | D100=Marian Guevara | E100=Institucional  | F100=Caminante | G100=Institucional | H100=institucional pagado | K100=300.0 | M100=0.0 | N100=0.0 | O100=0 [=N100*10%*2] | P100=0 [=N100+O100]
+  B101=#VALUE! | C101=José | D101=Jaime Rivero | E101=Social | F101=CRM | G101=Cumpleaños | H101=Enviado | K101=8075.5 | N101=5265.5 | O101=1053.1 [=N101*10%*2] | P101=6318.6 [=N101+O101]
+  B102=#VALUE! | C102=José | D102=Vanessa Luna | E102=Social | F102=CRM | G102=Boda | H102=Enviado | K102=4232.0 | N102=2652.0 | O102=530.4 [=N102*10%*2] | P102=3182.4 [=N102+O102] | U102=Cliente solicito dos propuestas: una para 60 pax y otro para 30 (este).
+  B103=2026-05-27 00:00:00 | C103=Frenecis | D103=UCV MUN | E103=Academico  | F103=Director | G103=Cena | H103=Rechazado | K103=4245.0 | N103=2009.0 | O103=401.8 [=N103*10%*2] | P103=2410.8 [=N103+O103] | U103=Rechazo por costo del teleferico
+  B104=2026-05-29 00:00:00 | C104=Frenecis | D104=Diego Urdaneta - Fumada Tabaco | E104=Social | F104=Director | H104=Seguimiento | K104=1813.75 | N104=717.5 | O104=143.5 [=N104*10%*2] | P104=861 [=N104+O104]
+  O105=0 [=N105*10%*2] | P105=0 [=N105+O105]
+  O106=0 [=N106*10%*2] | P106=0 [=N106+O106]
+  O107=0 [=N107*10%*2] | P107=0 [=N107+O107]
+  O108=0 [=N108*10%*2] | P108=0 [=N108+O108]
+  O109=0 [=N109*10%*2] | P109=0 [=N109+O109]
+  O110=0 [=N110*10%*2] | P110=0 [=N110+O110]
+
+======================================================================
+SHEET: Resumen 2026
+----------------------------------------------------------------------
+  A2=2026-03-01 00:00:00 | B2=# | C2=Ref $
+  A3=Presupuestos realizados | B3=24.0 | C3=200183.9
+  A4=Presupuestos realizados y facturados el mismo mes | B4=3.0 | C4=11693.5
+  A5=Presupuestos facturados (eventos) | B5=9.0 | C5=58162.58
+  A6=Presupuestos rechazados | B6=2.0 | C6=5757.0
+  A7=Presupuestos sin respuesta por parte del cliente | B7=17.0 | C7=174780.4
+  A8=Prespuestos enviados, con seguimiento | B8=2.0 | C8=7953.0
+  A11=2026-04-01 00:00:00 | B11=# | C11=Ref $ | E11=Por ejecutar +facturados el mismo mes + rechazdos +sin respuesta + seguimiento
+  A12=Presupuestos realizados | B12=25.0 | C12=124713.04 | E12=124713.04 [=C13+C14+C16+C17+C18]
+  A13=Presupuestos realizados por ejecutar | B13=2.0 | C13=11573.5 | E13=Fundacíón  Instituto  Simón Bolívar para la Paz
+  A14=Presupuestos realizados y facturados el mismo mes | B14=1.0 | C14=3335.5 | E14=Sportbitz (2 facturas)
+  A15=Presupuestos facturados (eventos) de arrastre | B15=8.0 | C15=19457.260000000002 | E15=Marqués de Cáceres (2 facturas)
+  A16=Presupuestos rechazados | B16=7.0 | C16=29806.0 | E16=Ikaika (Bigott - 2 facturas)
+  A17=Presupuestos sin respuesta por parte del cliente | B17=11.0 | C17=54031.41 | E17=Agua Grande (1 factura)
+  A18=Prespuestos enviados, con seguimiento, en feedback | B18=4.0 | C18=25966.63
+
+======================================================================
+SHEET: Hoja 5
+----------------------------------------------------------------------
+  A2=2026-04-07 00:00:00 | B2=Frenecis | C2=Genesis Sapienza | D2=Social | E2=Contacto directo con el ejecutivo | F2=Sesión de fotos | G2=Rechazado | J2=350.0 | N2=0 [=M2*10%*2] | O2=0 [=M2+N2]
+  A3=2026-04-07 00:00:00 | B3=Frenecis | C3=Fatima Rodriguez | D3=Social | E3=CRM | F3=Cumpleaños | G3=Enviado | J3=6156.0 | L3=590.0 | M3=2292.4 | N3=458.48 [=M3*10%*2] | O3=2750.88 [=M3+N3]
+  A4=2026-04-07 00:00:00 | B4=Frenecis | C4=Productos Broche | D4=Corporativo | E4=CRM | F4=Congreso | G4=Seguimiento | J4=9165.0 | L4=1470.0 | M4=3176.6 | N4=635.32 [=M4*10%*2] | O4=3811.92 [=M4+N4]
+  A5=2026-04-08 00:00:00 | B5=Frenecis | C5=Maria Castillo | D5=Social | E5=CRM | F5=Cumpleaños | G5=Seguimiento | J5=3635.29 | L5=250.0 | M5=871.95 | N5=174.39 [=M5*10%*2] | O5=1046.34 [=M5+N5]
+  A6=2026-04-08 00:00:00 | B6=Frenecis | C6=Nestlé Venezuela | D6=Corporativo | E6=Contacto directo con el ejecutivo | F6=Cena | G6=Rechazado | J6=1930.0 | M6=630.0 | N6=126 [=M6*10%*2] | O6=756 [=M6+N6] | T6=Rechazado, sin embargo el evento se realizó en el Restaurante Humboldt. No deseaban un menú fijo, sino la posibilidad de poder escoger
+  A7=2026-04-08 00:00:00 | B7=José | C7=Nazir Jaafar | D7=Social | E7=CRM | F7=Boda | G7=Enviado | J7=8451.0 | L7=0.0 | M7=5441.0 | N7=1088.2 [=M7*10%*2] | O7=6529.2 [=M7+N7]
+  A8=2026-04-08 00:00:00 | B8=José | C8=Gloria Sanchez | D8=Corporativo | E8=CRM | F8=HOSPEDAJE | G8=Enviado | H8=3.0 | I8=0.0 | J8=1737.0 | L8=0.0 | M8=237.0 | N8=47.4 [=M8*10%*2] | O8=284.4 [=M8+N8]
+  A9=2026-04-09 00:00:00 | B9=Frenecis | C9=Rony Gomez (Dimassi, C.A) | D9=Corporativo | E9=Director | F9=Reunión ejecutiva | G9=Enviado | J9=5033.75 | L9=640.0 | M9=1782.2 | N9=356.44 [=M9*10%*2] | O9=2138.64 [=M9+N9]
+  A10=2026-04-15 00:00:00 | B10=José | C10=Ricardo Nava | D10=Social | E10=CRM | F10=Propuesta de Matrimonio | G10=Perdido / Rechazado | J10=439.0 | L10=90.0 | M10=30.0 | N10=6 [=M10*10%*2] | O10=36 [=M10+N10] | T10=Rechazado por accidente familiar en uno de los invitados. informacion recibida por CRM
+  A11=2026-04-15 00:00:00 | B11=José | C11=Grehilys Hernández | D11=Corporativo | E11=Contacto directo con el ejecutivo | F11=Networking | G11=Enviado | H11=0.0 | I11=60.0 | J11=2441.0 | L11=0.0 | M11=1165.0 | N11=233 [=M11*10%*2] | O11=1398 [=M11+N11] | T11=Enviado a la espera de confirmacion por parte del cliente
+  A12=2026-04-15 00:00:00 | B12=Kristian | C12=Invermedia Comercializadora de Medios (Lanzamiento de Alimex) | D12=Corporativo | E12=CRM | F12=Lanzamiento de producto | G12=Rechazado | J12=13510.0 | M12=5210.0 | N12=1042 [=M12*10%*2] | O12=6252 [=M12+N12] | T12=La productora indicó que el cliente vió un poco complicado la logística de los invitados nacionales. Prefieren un hotel en Caracas, es más sencillo en este punto
+  A13=2026-04-16 00:00:00 | B13=Frenecis | C13=Haymara de Valerio | D13=Social | E13=CRM | F13=Almuerzo  | G13=Seguimiento | J13=7590.0 | M13=4508.0 | N13=901.6 [=M13*10%*2] | O13=5409.6 [=M13+N13]
+  A14=2026-04-17 00:00:00 | B14=Frenecis | C14=Lisett Muñoz | D14=Social | E14=CRM | F14=Cumpleaños | G14=Seguimiento | J14=5576.34 | L14=150.0 | M14=3131.8 | N14=626.36 [=M14*10%*2] | O14=3758.16 [=M14+N14]
+  A15=2026-04-20 00:00:00 | B15=Kristian | C15=Helena Paez Pumar | D15=Social | E15=Director | F15=Boda | G15=Enviado | J15=6320.0 | N15=0 [=M15*10%*2] | O15=0 [=M15+N15] | T15=Cotización de sólo espacios
+  A16=2026-04-20 00:00:00 | B16=Kristian | C16=Marqués de Cáceres - frigorífico Canarias | D16=Corporativo | E16=Director | F16=Lanzamiento de producto | G16=Aprobado y realizado | J16=5466.0 | M16=2209.7 | N16=441.94 [=M16*10%*2] | O16=2651.64 [=M16+N16]
+  A17=2026-04-21 00:00:00 | B17=Frenecis | C17=Sabrina Moreno | D17=Social | E17=CRM | F17=Sesion de Fotos | G17=Enviado | J17=550.0 | N17=0 [=M17*10%*2] | O17=0 [=M17+N17]
+  A18=2026-04-22 00:00:00 | B18=José | C18=IKAIKA SHOW & EVENTOS, C.A - BIggott | D18=Corporativo | E18=Contacto directo con el ejecutivo | F18=Reunión ejecutiva | G18=Aprobado y realizado | J18=3335.5 | M18=865.0 | N18=173 [=M18*10%*2] | O18=1038 [=M18+N18]
+  A19=2026-04-23 00:00:00 | B19=Frenecis | C19=Monica Guerrero | D19=Social | E19=CRM | F19=Cumpleaños | G19=Enviado | J19=3057.48 | L19=200.0 | M19=1083.25 | N19=216.65 [=M19*10%*2] | O19=1299.9 [=M19+N19]
+  A20=2026-04-23 00:00:00 | B20=Kristian | C20=Productos Heinz | D20=Corporativo | E20=CRM | F20=Reunión ejecutiva | G20=Rechazado | J20=6731.0 | M20=473.66 | N20=94.732 [=M20*10%*2] | O20=568.392 [=M20+N20] | T20=Sin repuesta por parte del cliente
+  A21=2026-04-27 00:00:00 | B21=Frenecis | C21=Rodrigo Izaguirre | D21=Social | E21=CRM | F21=Boda | G21=Enviado | J21=4970.6 | L21=250.0 | M21=2117.2 | N21=423.44 [=M21*10%*2] | O21=2540.64 [=M21+N21]
+  A22=2026-04-28 00:00:00 | B22=Frenecis | C22=Monica Caro | D22=Corporativo | E22=CRM | F22=Almuerzo  | G22=Enviado | J22=2333.08 | M22=957.6 | N22=191.52 [=M22*10%*2] | O22=1149.12 [=M22+N22]
+  A23=2026-04-28 00:00:00 | B23=José | C23=Dery Pabon | D23=Social | E23=Casa Matriz | F23=Coctel | G23=Rechazado | J23=5928.0 | M23=148.5 | T23=Enviado a la espera de la confirmacion de la fecha por parte de Dery Pabon
+  A24=2026-04-28 00:00:00 | B24=Kristian | C24=15 años - Juan Daoud | D24=Social | E24=Contacto directo con el ejecutivo | F24=Cumpleaños | G24=Aprobado y por ejecutar | J24=6107.5 | M24=3209.5 | N24=641.9 [=M24*10%*2] | O24=3851.4 [=M24+N24] | T24=Evento aprobado, aún en proceso de negociaicón y en espera de pago
+  A25=2026-04-29 00:00:00 | B25=José | C25=Dulce Figueroa | D25=Corporativo | E25=Contacto directo con el ejecutivo | F25=Networking | G25=Rechazado | J25=918.0 | M25=210.0 | T25=Enviado, sin embargo por esta oportunidad fue rechazado por presupuesto interno de la empresa destinado a estas actividades (es la primera vez que la empresa plantea realizar actividades externas, por
+  A26=2026-04-30 00:00:00 | B26=Frenecis | C26=Colegio Francia | D26=Social | E26=CRM | F26=Cena | G26=Enviado | J26=12981.5 | L26=1205.0 | M26=6579.4 | N26=1315.88 [=M26*10%*2] | O26=7895.28 [=M26+N26]
+  J27=124713.04 [=SUM(J2:J26)]
+  ... (3 filas vacías)
+  J31=11573.5 [=J24+J16]

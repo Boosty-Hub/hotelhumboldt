@@ -1,0 +1,1180 @@
+{
+  "summary": "Deep-analyze 6 hotel quoting Excel dumps and synthesize a unified data model",
+  "agentCount": 7,
+  "logs": [
+    "Analizados 6/6 archivos"
+  ],
+  "result": {
+    "analyses": [
+      {
+        "file": "alimentos-mary",
+        "proposito": "Es el libro de trabajo de una COTIZACIÓN INDIVIDUAL DE EVENTO del departamento comercial de banquetes del Hotel Humboldt (Caracas, acceso por teleférico de Maripérez). Un archivo por evento/cliente: aquí la fiesta de Navidad de IANCARINA C.A. (marca 'Alimentos Mary'), ~200 personas, para el 4 o 5 de diciembre de 2026. El equipo comercial lo usa simultáneamente para 4 cosas: (1) generar el presupuesto presentable al cliente (hoja 'Hoja1', columnas A–G, con secciones Misceláneos / Traslados / Alimentos y Bebidas / Espacios, resumen de totales con IVA, 10% de servicio y garantía, y condiciones legales); (2) calcular internamente costos y márgenes contra proveedores externos de catering (columnas ocultas I–X de la misma hoja, rotuladas 'OCULTO', con escenarios de markup +30%, +15%, +30% adicional y costo×2); (3) mantener el catálogo maestro de precios (hoja 'Productos', ~296 ítems con precio en USD, consultado vía VLOOKUP); y (4) conciliar pagos reales en bolívares con retenciones fiscales (hoja 'Hoja2'). Nota importante: Diana Sánchez NO es la vendedora del hotel — es la CONTACTO DEL CLIENTE (dsanchez@alimentosmary.com); la ejecutiva del hotel que firma el documento es 'K. Jaén' (celda A120). Archivo fuente: C:/Users/marke/Desktop/Github Projects/Hotel Humboldt APP/_analysis/Alimentos Mary - Diana Sánchez.txt",
+        "hojas": [
+          {
+            "nombre": "Hoja1",
+            "rol": "Cotización del evento: documento cliente (cols A–G) + motor de costos/márgenes oculto (cols I–X) + mini-tabla interna de staffing (K16:L24). Es la hoja que se imprime/envía al cliente.",
+            "estructura": "BLOQUE 1 — Encabezado cliente/evento (filas 6–18, etiqueta en A, valor en B combinado B:G): Cliente, Rif, Dirección, Contacto, Teléfono, Email, Nombre del Evento, Cantidad de Personas, Hora de Inicio, Hora de Culminación, Fecha Presupuesto, Fecha del Acuerdo (VACÍA = aún no confirmado), Fecha del Evento. A la derecha (K16:L24) tabla interna de personal por área: área p=1, ayb=12, cocina=3, batender=3, montaje=1, prevención=1, coordinador=1, Total=22 [=SUM(L17:L23)]. BLOQUE 2 — Fila 20 mensaje de cortesía; fila 22 título 'COTIZACION DE EVENTO'. BLOQUE 3 — Sección MISCELANEOS (24–35): columnas Ítem(A) | OCULTO(C, costo vía VLOOKUP a Productos) | Precio Unit.(D) | Cantidad(E) | Comentarios(F) | SubTotal(G=D*E); Sub Total G35=SUM(G26:G34)=4.939,65. BLOQUE 4 — Sección TRASLADOS (37–41), mismas columnas; Sub Total G41=2.000. BLOQUE 5 — Sección ALIMENTOS Y BEBIDAS (43–84): cols A–G visibles al cliente; a la derecha el motor oculto: I43='Provedor: Alternativa Gastronómica', N43='Proveedo vino FIRIUS', T43='15% extra', U43='10% de servicio al precio full lista del 19/07'. Fila 44 encabezados internos: I=Monto(costo) | J=Cantidad[=E] | K=Total[=I*J] | L=0.3 (30%)[=I*30%] | M=PVP[=I+L] | N y T=PVP+15%[=(M*15%)+M] | Q=0.2 | R=PVP | S=TOTAL FINAL | U=costo×2[=I*2] | V=[U*J] | X='30%%'=PVP+30%[=(M*30%)+M]. Filas 45–56 ítems reales; 57–81 filas de relleno con ítem '.' y fórmulas en cero. Totales fila 82: G82=12.760 (cliente), K82=9.810 (costo), V82=19.620 (escenario full). Fila 83: nota '10 pasapalos por persona, aproximadamente', 10% Servicio G83=G82*10%=1.276 (lado costo K83=981; 'Servicio FULL' V83=1.962; celda suelta Q83/R83 'Precio vino'=M46+R46=3,64 — fórmula rota). Fila 84: Total AyB G84=14.036; Total costo K84=10.791. BLOQUE 6 — Sección ESPACIOS (86–93), mismas columnas A–G; Sub Total G93=5.000. BLOQUE 7 — Resumen (95–104): Total Misceláneos=G35 | Total AyB=G82 (SIN el servicio) | Total Salones=G93 | Sub Total USD G98=22.699,65 | Traslados-Exento de IVA=G41 | Total 10% de servicio=G83 | 16% IVA G101=G98*16%=3.631,944 | Total USD G102=SUM(G98:G101)=29.607,594 | Garantìa 10% G103=G102*10% | TOTAL G104=32.568,3534. BLOQUE 8 — CONDICIONES IMPORTANTES (106–116): 10 cláusulas (IVA en Bs al facturar, 3% IGTF, vigencia 7 días, 100% anticipo 48h antes, 10% garantía, no bloquea espacios, etc.). Fila 120: firma 'K. Jaén'. Múltiples rangos MERGED para títulos de sección y celdas de valor."
+          },
+          {
+            "nombre": "Productos",
+            "rol": "Catálogo maestro de precios (lista de tarifas en USD). Es la tabla de referencia del VLOOKUP(A_item, Productos!$A$1:$C$511, 2, FALSE) que alimenta la columna oculta C ('OCULTO') de la cotización. Mezcla productos propios del hotel, catálogo de proveedor externo, espacios, traslados, mobiliario, hospedaje y consumibles.",
+            "estructura": "Dos columnas: A=nombre del producto/servicio, B=precio USD. A1='PRODUCTOS', B1=2024-06-27 (fecha de la lista). A2='.' con B2=0 — fila-hack para que las filas de relleno '.' de la cotización resuelvan a costo 0 sin #N/A. Categorías implícitas por bloques: sandwiches y buffets con nombres de hitos del Ávila (Galipán 24,5; Gaviota 28; Humboldt 28; Paco 25,5; Sabas Nieves 24; Sanabria 24); mini postres (1–2,4); pasapalos propios SIN punto final (0,9–2,75); buffets 3 tiempos (23,5–27,5) y 4 tiempos (32,5–37); estaciones (chupe 6, quesos 16, sushi 6,5...); coffee breaks (11,5–12,5); box lounge (12,5–13); bebidas (aguas 1–2, jugos 2,15–4, refresco lata 2); ESPACIOS con tarifa de alquiler (BAR MIRADOR PH=3000, ESTAR GENERAL=3000, Bar GAVIOTA=1500, SALÓN REDONDO=500, TERRAZA NORTE Y SUR=1000; Restaurante Bonpland y Piscina SIN precio); mobiliario (silla 5, mesa 10 pers. 50); PROTOCOLO DE MARIPEREZ (<100 pers=90, >100 pers=180); traslados (ida-vuelta p/persona=10, Visita Guiada=15, 'Traslado especial' sin precio); descorches (vinos 15, otros licores 20); paquetes de Hospedaje (Escape en las alturas 250; Romance entre las nubes 336,21; Humboldt Spa 370,69; Experiencia Humboldt 301,72; Experiencia entre las nubes 336,21; Aventura en el Humboldt 293,10); ítems genéricos SIN precio que actúan como categorías comodín (Personal de evento, Mobiliario, Audiovisuales, Planta eléctrica, Talento, Servicio especial, Cena especial, Utilería, Actividad recreativa...) — para ellos el VLOOKUP devuelve 0 y el precio se teclea a mano en D; consumibles retail (Caja Pepsi 42, caja agua Minalba 20, hielo 3, limón 1kg 4); menús navideños (1=34, 2=38, plateado=17,5); y desde la fila ~208 un segundo catálogo (croissants, danesas, pasapalos CON punto final al estilo del proveedor Alternativa Gastronómica a precios mayores: ESFERAS DE CHICHARRON.=2,8 vs ESFERAS DE CHICHARRON=1,7; TEQUEÑO TRADICIONAL CON CHUTNEY DE AJI.=2,25; SUSHI ROLL DINAMITA.=2,5; bebidas: limonada 6, jugos 8, Mocktails 9). Rareza: B260=3.50912427552421 (precisión absurda, probable resto de conversión de tasa)."
+          },
+          {
+            "nombre": "Hoja2",
+            "rol": "Hoja de conciliación de cobranza post-venta (de otro evento o del ciclo de facturación): cruza pagos recibidos en BOLÍVARES (incluyendo comprobantes de retención de IVA e ISLR del cliente) contra facturas emitidas, y calcula el saldo a devolver convertido a USD con una tasa puntual.",
+            "estructura": "Bloque 'pagos': A4 Pago=2.050.876,48 Bs | A5 Rete iva 1=181.440,52 | A6 Rete ISLR 1=36.179,97 | A7 Rete iva 2=11.789,00 | A8 Rete ISLR 2=3.416,49 | A9 Total \"pagos\"=2.283.702,46 [=SUM(B4:B8)]. Bloque 'cobrado': A11 Factura 1=2.050.918,96 | A12 Factura 2=186.543,30 | A13 Total \"cobrado\"=2.237.462,26 [=SUM(B11:B12)]. Cierre: C14='Tasa 22-04' con C15=482,76 (Bs/USD, fecha embebida en el rótulo) | A15 Saldo a devolver B15=46.240,20 [=B9-B13] | A16 'Ref en $' B16=95,78 [=B15/C15]. Demuestra que las retenciones fiscales se tratan como parte del pago del cliente y que la referencia final siempre se reexpresa en dólares."
+          }
+        ],
+        "entidades": [
+          {
+            "entidad": "Cliente",
+            "campos": [
+              "Razón social: texto — 'IANCARINA C.A. (Alimentos Mary)' (nombre legal + marca comercial entre paréntesis)",
+              "RIF o cédula: texto con formato libre — 'J- 085033289' (persona jurídica)",
+              "Dirección fiscal: texto largo — 'Parque Industrial los Llanos, km. 185 carretera nacional via Guanare, Araure, Edo. Portuguesa'",
+              "Contacto: nombre con tratamiento — 'Sra. Diana Sánchez' (contacto del lado del cliente)",
+              "Teléfono: texto — '0412 - 031 4334'",
+              "Email: 'dsanchez@alimentosmary.com'"
+            ]
+          },
+          {
+            "entidad": "Evento",
+            "campos": [
+              "Nombre del Evento: texto — 'Evento de Navidad'",
+              "Cantidad de Personas: TEXTO LIBRE, no número — '200 personas, aproximadamente.' (el 200 luego se re-teclea como cantidad en las líneas)",
+              "Hora de Inicio: hora — 15:00:00",
+              "Hora de Culminación: texto libre — '02:00 am (HORARIOS EN REVISIÓN)' (cruza medianoche; estado embebido en el valor)",
+              "Fecha Presupuesto: fecha — jueves 07/05/2026",
+              "Fecha del Acuerdo: fecha — VACÍA (indicador implícito de estado: cotizado pero no confirmado)",
+              "Fecha del Evento: TEXTO LIBRE con alternativas — 'viernes 04 o sábado 05 de diciembre de 2026'",
+              "Ejecutivo de ventas del hotel (firma): 'K. Jaén' (A120)"
+            ]
+          },
+          {
+            "entidad": "Cotización",
+            "campos": [
+              "Secciones: MISCELANEOS, TRASLADOS, ALIMENTOS Y BEBIDAS, ESPACIOS (cada una con su Sub Total)",
+              "Sub Total USD (base imponible): 22.699,65 [=SUM(Misceláneos+AyB sin servicio+Salones)]",
+              "Traslados - Exento de IVA: 2.000 (fuera de la base de IVA)",
+              "Total 10% de servicio: 1.276 (solo sobre AyB)",
+              "16% IVA: 3.631,944 [=SubTotalUSD*16%]",
+              "Total USD: 29.607,594",
+              "Garantía 10%: 2.960,76 [=TotalUSD*10%] (depósito reembolsable por gastos adicionales)",
+              "TOTAL: 32.568,3534",
+              "Vigencia: 7 días desde Fecha Presupuesto",
+              "Condiciones: 10 cláusulas de texto fijo (filas 107–116)",
+              "Moneda de cotización: USD; facturación/IVA en Bolívares; IGTF 3% si pagan en divisa"
+            ]
+          },
+          {
+            "entidad": "Línea de cotización (ítem)",
+            "campos": [
+              "Ítem (A): nombre — clave exacta del VLOOKUP contra el catálogo Productos",
+              "OCULTO (C): costo/precio de lista — [=VLOOKUP(A,Productos!$A$1:$C$511,2,FALSE)]; columna oculta al cliente",
+              "Precio Unit. (D): precio cobrado — a veces =C, a veces =I (costo proveedor), a veces tecleado a mano por encima de la lista (override)",
+              "Cantidad (E): número (en pasapalos: unidades; en menú/traslados: pax; en espacios: 1)",
+              "Comentarios (F): texto libre rico — alcance, condiciones, pendientes ('Costos en revisión', 'por determinar', 'debemos ver el Ryder de la agrupación')",
+              "Sub Total (G): [=D*E]",
+              "Bloque oculto AyB: Monto/costo (I), Cantidad (J=E), Total costo (K=I*J), 30% (L=I*0.3), PVP (M=I+L), PVP+15% (N/T), costo×2 'full lista' (U=I*2), Total full (V=U*J), PVP+30% (X)"
+            ]
+          },
+          {
+            "entidad": "Producto de catálogo",
+            "campos": [
+              "Nombre (A): clave única textual; sufijo '.' distingue ítems del proveedor externo de los propios ('ESFERAS DE CHICHARRON'=1,7 propio vs 'ESFERAS DE CHICHARRON.'=2,8 proveedor)",
+              "Precio USD (B): decimal; puede estar VACÍO (ítems comodín sin tarifa: Talento, Audiovisuales, Mobiliario, Restaurante Bonpland, Piscina...)",
+              "Fecha de lista: B1=2024-06-27 (una sola fecha global, sin historial)",
+              "Categoría: implícita por posición/bloque, no hay columna de categoría",
+              "Fila comodín: A2='.' B2=0 (para que las filas vacías de la cotización no den error)"
+            ]
+          },
+          {
+            "entidad": "Espacio / Salón",
+            "campos": [
+              "Nombre: BAR MIRADOR (PH), ESTAR GENERAL, Bar GAVIOTA, SALÓN REDONDO, TERRAZA NORTE Y SUR, Restaurante Bonpland, Piscina",
+              "Tarifa de alquiler USD: 3000 / 3000 / 1500 / 500 / 1000 / s.p. / s.p.",
+              "Uso en el evento: ESTAR GENERAL=evento principal (cobrado 4.500, sobre lista de 3.000); SALÓN REDONDO=camerino de talento/producción (500); espacios adicionales en 0 con 'descuento especial'",
+              "Capacidad: NO está modelada en el Excel (solo se infiere de notas como 'Más de 100 pers.')"
+            ]
+          },
+          {
+            "entidad": "Proveedor externo",
+            "campos": [
+              "Catering: 'Alternativa Gastronómica' (I43) — provee menú navideño y pasapalos; su costo va en columna I",
+              "Vinos: 'FIRIUS' (N43, escrito 'Proveedo vino FIRIUS')",
+              "Costo proveedor por ítem: columna I del bloque oculto",
+              "Referencia de lista del proveedor: nota '10% de servicio al precio full lista del 19/07'"
+            ]
+          },
+          {
+            "entidad": "Personal del evento (staffing interno)",
+            "campos": [
+              "Área: texto — área p, ayb (alimentos y bebidas), cocina, batender (bartender), montaje, prevencion, coordinador",
+              "Cantidad: 1 / 12 / 3 / 3 / 1 / 1 / 1",
+              "Total: 22 [=SUM(L17:L23)]",
+              "Costo al cliente: línea 'Personal de evento' en Misceláneos = 1.320 USD (sin desglose por persona)"
+            ]
+          },
+          {
+            "entidad": "Pago / Conciliación (Hoja2)",
+            "campos": [
+              "Pago directo Bs: 2.050.876,48",
+              "Retención IVA 1 / 2: 181.440,52 / 11.789,00 (comprobantes de retención del cliente, cuentan como pago)",
+              "Retención ISLR 1 / 2: 36.179,97 / 3.416,49",
+              "Total pagos: 2.283.702,46 [=SUM]",
+              "Factura 1 / 2 Bs: 2.050.918,96 / 186.543,30",
+              "Total cobrado/facturado: 2.237.462,26",
+              "Saldo a devolver: 46.240,20 Bs [=pagos-facturado]",
+              "Tasa de cambio: 482,76 Bs/USD, rotulada 'Tasa 22-04' (fecha en el texto del rótulo)",
+              "Saldo en USD de referencia: 95,78 [=saldo/tasa]"
+            ]
+          },
+          {
+            "entidad": "Hospedaje (paquetes, en catálogo)",
+            "campos": [
+              "Escape en las alturas: 250",
+              "Romance entre las nubes: 336,21",
+              "Humboldt Spa: 370,69",
+              "Experiencia Humboldt: 301,72",
+              "Experiencia entre las nubes: 336,21",
+              "Aventura en el Humboldt: 293,10",
+              "Uso en esta cotización: 'Habitación para talento' cobrada a 189,65 (precio manual, no de catálogo)"
+            ]
+          }
+        ],
+        "logica_precios": "MONEDA: todo el presupuesto se construye y presenta en USD ('Sub Total USD', 'Total USD'); la facturación legal y el IVA se emiten en BOLÍVARES al cambio del día (cláusula A107), y todo pago en moneda extranjera genera 3% de IGTF (cláusula A108, mencionado pero NUNCA calculado en el libro). La Hoja2 confirma el ciclo: se cobra en Bs y se reexpresa a USD con una tasa puntual tecleada a mano (482,76 Bs/USD, 'Tasa 22-04'). — CADENA DE CÁLCULO POR LÍNEA: C(oculto)=VLOOKUP(nombre, Productos!$A$1:$C$511, 2, FALSE) trae el costo/lista; D=precio unitario cobrado (a veces =C, a veces =I, a veces override manual); G=D*E. — MOTOR DE MÁRGENES OCULTO (solo sección AyB, cols I–X): I=costo del proveedor Alternativa Gastronómica; J=E (cantidad espejo); K=I*J (costo total); L=I*30%; M=PVP=I+L (costo+30%); N y T=(M*15%)+M (= costo*1,495, rótulo '15% extra'); X=(M*30%)+M (= costo*1,69, rótulo '30%%'); U=I*2 ('precio full lista', costo doblado); V=U*J. Es decir, el vendedor tiene 4 escenarios de precio precalculados (cost+30%, cost+49,5%, cost+69%, cost×2) y elige a mano qué cobrar en D. En esta cotización: pasapalos vendidos AL COSTO del proveedor (D=I: esferas 2,8; empanaditas 1,8; tequeños 2,25; sushi 2,5...), el Menú navideño plateado con override manual de 17,5→28 (+60%), agua 1,5→2 (+33%), refrescos 2→4 (+100%), descorche licores 20→25, ESTAR GENERAL 3.000→4.500 (+50%). Margen global AyB: cliente 12.760 vs costo 9.810 = 30,07% sobre costo. — RECARGOS Y TOTALES: 10% de Servicio SOLO sobre el subtotal de AyB (G83=G82*10%=1.276; no aplica a misceláneos, salones ni traslados; internamente también se calcula sobre el costo, K83=981, y sobre el escenario full, V83=1.962). IVA 16% SOLO sobre Sub Total USD = Misceláneos+AyB(sin servicio)+Salones (G101=G98*16%=3.631,944); los TRASLADOS están explícitamente 'Exento de IVA' y el 10% de servicio tampoco entra en la base (tratamiento venezolano correcto del recargo de servicio). Total USD = base + traslados + servicio + IVA = 29.607,594. GARANTÍA 10% sobre el Total USD ya con IVA (G103=2.960,76) → TOTAL final 32.568,3534. No hay redondeos en ninguna parte: se muestran colas de punto flotante (3.6399999999999997; 26.1625; 32.568,3534). DESCUENTOS: no hay campo formal; se simulan con líneas a precio 0 y comentario 'descuento especial', o cantidades en 0 para ítems opcionales 'de referencia' (flores 45×0, vino de mora 30×0, descorches ×0). Protocolo de Maripérez con precio escalonado por tamaño del grupo (<100 pax=90, >100 pax=180). Traslado en teleférico 10 USD ida-vuelta por persona ANTES de las 6pm (200 pax=2.000) y 0 después de las 6pm (40 pax sin costo). FISCAL (Hoja2): el cliente —contribuyente especial— retiene IVA e ISLR; esos comprobantes se suman como 'pagos'; la diferencia pagos-facturado da un saldo a devolver que se convierte a USD a la tasa del día.",
+        "flujo_trabajo": "Flujo comercial implícito, reconstruido de fechas, cláusulas y celdas vacías: (1) SOLICITUD — el cliente contacta (Sra. Diana Sánchez, Alimentos Mary) con requerimientos aproximados; muchos datos entran 'en revisión' (horarios, fecha entre dos opciones, pax aproximado, costos del menú 'en revisión de acuerdo a las condiciones del cliente', rider técnico de la banda pendiente). (2) COTIZACIÓN — el ejecutivo del hotel (K. Jaén) duplica esta plantilla, llena el encabezado, arma las líneas tomando precios del catálogo Productos vía VLOOKUP, pide costos a los proveedores externos (Alternativa Gastronómica para catering, FIRIUS para vino), corre los escenarios de margen en las columnas ocultas y fija a mano el precio final D por línea; Fecha Presupuesto = 07/05/2026; vigencia de precios 7 días; la cotización 'no implica un bloqueo de los espacios' (estado: solo informativa). (3) NEGOCIACIÓN — ítems opcionales quedan a cantidad 0 como referencia (flores, vino de mora, descorches); comentarios actúan como bitácora de pendientes. (4) CONFIRMACIÓN — el cliente contacta al ejecutivo para verificar disponibilidad; se llenaría 'Fecha del Acuerdo' (aquí VACÍA = no confirmado todavía) y se envía 'el contrato definitivo'. (5) PAGO — se exige 100% de ANTICIPO del total, pagado completamente 48 horas antes del evento, más un 10% de GARANTÍA para gastos adicionales (reembolsable); si pagan en divisas, +3% IGTF; el IVA se materializa en la factura en bolívares. (6) OPERACIÓN — planificación interna embebida: tabla de staffing por área (22 personas: 12 AyB, 3 cocina, 3 bartenders, montaje, prevención, coordinador, área p), protocolo de recibimiento en la estación Maripérez con brazaletes, logística del teleférico con corte a las 6pm, camerino para el talento (Salón Redondo), habitación de hotel para el DJ. (7) LIQUIDACIÓN/CONCILIACIÓN (Hoja2) — se cruzan pagos en Bs + comprobantes de retención de IVA/ISLR contra facturas emitidas, se calcula saldo a devolver y se reexpresa en USD a la tasa del día anotada a mano. Estados implícitos detectables: Borrador/En revisión → Cotizado (Fecha Presupuesto) → Acordado (Fecha del Acuerdo) → Anticipado/Garantizado → Ejecutado (Fecha del Evento) → Conciliado/Cerrado (Hoja2). Responsables: ejecutivo de ventas del hotel (firma el documento), contacto del cliente, y coordinación con 2 proveedores externos.",
+        "datos_ejemplo": "CLIENTE: IANCARINA C.A. (Alimentos Mary), RIF J-085033289, Araure, Edo. Portuguesa; contacto Sra. Diana Sánchez, 0412-031-4334, dsanchez@alimentosmary.com. EVENTO: 'Evento de Navidad', ~200 pax, 15:00 a 02:00 am, viernes 04 o sábado 05/12/2026; presupuesto del 07/05/2026; ejecutiva K. Jaén. SALONES/ESPACIOS (tarifa lista USD): Bar Mirador (PH) 3.000; Estar General 3.000 (cobrado 4.500 para el evento principal); Bar Gaviota 1.500; Salón Redondo 500 (usado como camerino); Terraza Norte y Sur 1.000; Restaurante Bonpland y Piscina sin tarifa. MISCELÁNEOS COTIZADOS: Protocolo de Maripérez >100 pax 180; Mobiliario mixto (banquetes + lounge) 600; Planta eléctrica con operador 800; Personal de evento 1.320; Audiovisuales/sonido 1.500; DJ hasta 8h 350 (costo interno '250$ + IVA'); habitación para talento 189,65; centros de mesa flores naturales 45/ud (ref.); vino de mora 30/botella con descorche (ref.). TRASLADOS: teleférico ida-vuelta 10 USD/pax antes de 6pm (200 pax = 2.000); después de 6pm sin costo (40 pax). MENÚS Y AyB (costo proveedor → precio cliente): Menú navideño plateado (hallaca, pernil, pan de jamón, ensalada de gallina) 17,5→28 ×200 pax = 5.600; pasapalos a costo: Esferas de chicharrón 2,8×300, Esferas de plátano 2,8×250, Mini empanaditas 1,8×400, Tequeño tradicional con chutney de ají 2,25×400, Burokku de tartar de atún 2,5×220, Sushi roll chicken teriyaki 2,5×250, Sushi roll dinamita 2,5×250 (≈10 pasapalos/persona); agua mineral 330ml 1,5→2×500; refrescos de lata 2→4×300; descorche vinos 15, otros licores 20→25. CATÁLOGO (muestras): Buffet Gaviota 28, Buffet Galipán 24,5, Buffet Sabas Nieves 24; Buffets 4 tiempos 32,5–37; Menú navideño 1=34, 2=38; Coffee breaks 11,5–12,5; Estación de quesos 16 (mín. 30 pax); Estación de sushi 6,5 (6 und/pax); silla 5, mesa 10 pax 50; Visita guiada 15; Hospedaje: Humboldt Spa 370,69, Romance entre las nubes 336,21, Escape en las alturas 250. PROVEEDORES: Alternativa Gastronómica (catering), FIRIUS (vinos). TOTALES DEL CASO: AyB 12.760 + servicio 10% 1.276; Misceláneos 4.939,65; Salones 5.000; Traslados 2.000 exentos; IVA 16% 3.631,944; Total USD 29.607,594; Garantía 10% 2.960,76; TOTAL 32.568,35. STAFFING: 22 personas (12 AyB, 3 cocina, 3 bartenders, 1 montaje, 1 prevención, 1 coordinador, 1 área p). CONCILIACIÓN (Hoja2, Bs): pago 2.050.876,48 + retenciones IVA 181.440,52/11.789 + ISLR 36.179,97/3.416,49 = 2.283.702,46 vs facturado 2.237.462,26 → devolver 46.240,20 Bs ≈ 95,78 USD a tasa 482,76.",
+        "rarezas": "1) CAMPOS ESTRUCTURADOS CON TEXTO LIBRE: pax='200 personas, aproximadamente.', fecha del evento='viernes 04 o sábado 05 de diciembre de 2026' (dos fechas candidatas en una celda), hora fin='02:00 am (HORARIOS EN REVISIÓN)' — la app necesita campos numéricos/fecha + flags de estado ('en revisión') + fechas alternativas. 2) ESTADO POR CELDA VACÍA: 'Fecha del Acuerdo' vacía es el único indicador de que no está confirmado; no hay campo de estado del pipeline. 3) FILAS DE RELLENO '.': ~25 filas con ítem '.' y fórmulas vivas; el catálogo tiene una fila-hack A2='.' B2=0 solo para que el VLOOKUP no dé #N/A. 4) VLOOKUP POR NOMBRE EXACTO: la clave del producto es el texto literal; existen duplicados deliberados diferenciados por un PUNTO FINAL ('ESFERAS DE CHICHARRON'=1,7 propio vs 'ESFERAS DE CHICHARRON.'=2,8 del proveedor) — gravísimo para integridad; la app necesita IDs y campo proveedor/origen. 5) COSTOS 'OCULTOS' EN EL DOCUMENTO DEL CLIENTE: la columna C se titula literalmente 'OCULTO' y las columnas I–X contienen costos de proveedor y márgenes en la MISMA hoja que se envía al cliente — riesgo de fuga si se reenvía el xlsx. 6) OVERRIDES MANUALES SILENCIOSOS: D45=28 tecleado sobre la fórmula (costo 17,5), Estar General 3.000→4.500, refrescos 2→4; nada registra quién/por qué cambió el precio de lista. 7) FÓRMULA ROTA/HUÉRFANA: R83 'Precio vino'=M46+R46 con R46 vacío → da el PVP de las esferas de chicharrón (3,64), no de ningún vino; resto de un cálculo anterior. 8) ENCABEZADOS-NÚMERO Y ERRATAS: L44='0.3', Q44='0.2', X44='30%%' (doble %), 'Provedor', 'Proveedo', 'batender', 'CHIKEN', 'incuye', 'general un 3%' (por 'genera'), 'ensaladada'. 9) SIN REDONDEO: colas binarias visibles (3.6399999999999997; 29607.594; 32568.3534) llegarían así al cliente. 10) PRECIO ABSURDO EN CATÁLOGO: B260=3.50912427552421 (resto de una conversión de tasa pegada como valor). 11) CATÁLOGO SIN HISTORIAL NI CATEGORÍAS: una sola fecha global (27/06/2024) ya desactualizada para un evento de 2026; nota interna referencia otra lista 'del 19/07'; categorías solo implícitas por posición; ítems comodín sin precio obligan a teclear D a mano. 12) BASE DE IVA FRÁGIL: G98 suma celdas espejo (G95:G97) y el IVA/servicio dependen de que nadie inserte filas; traslados exentos y servicio fuera de base están bien, pero la regla vive en fórmulas sueltas, no en configuración. 13) IGTF 3% solo como texto legal, jamás calculado — el cliente no ve el impacto real de pagar en divisas. 14) GARANTÍA 10% calculada SOBRE el total CON IVA (interés compuesto de recargos) — decisión de negocio que debería ser explícita y parametrizable. 15) DATOS INTERNOS EN LA HOJA CLIENTE: tabla de staffing K16:L24 y notas de proveedor (I43, N43, I31 '250 $ + IVA --- DJ') conviven con el documento imprimible. 16) HOJA2 DESCONECTADA: la conciliación de pagos/retenciones no tiene vínculo con la cotización (parece incluso de otro evento), tasa de cambio tecleada con la fecha metida en el rótulo ('Tasa 22-04'), sin historial de tasas BCV; los 'pagos' incluyen retenciones IVA/ISLR sumadas a mano — la app debe modelar pagos, comprobantes de retención, facturas, tasa por fecha y saldo automáticamente. 17) CANTIDADES REDUNDANTES: J=E duplicada por fórmula; el pax del evento (200) se re-teclea en cada línea por persona — debería derivarse del evento. 18) Comentario residual de otro evento: F91 'Espacio para cocina de equipo de Festejos Mar' delata que la plantilla se recicla copiando archivos de eventos anteriores sin limpiar. 19) Sin capacidades de salones, sin disponibilidad/calendario, sin bloqueo de espacios: todo se gestiona 'contactando al ejecutivo'. 20) El total de pasapalos (2.070 uds) vs la regla '10 por persona' (2.000) se cuadra a ojo, sin validación."
+      },
+      {
+        "file": "menu-eventos",
+        "proposito": "Es el CATÁLOGO MAESTRO DE PRECIOS de alimentos y bebidas para eventos/banquetes, elaborado por el caterer \"ALTERNATIVA GASTRONOMICA 2023, C.A.\" (la \"A.G.\" del nombre del archivo) para la operadora del Hotel Humboldt (referida como \"OTH\" en las columnas de descuento). El equipo comercial lo usa para: (1) consultar el precio unitario por pieza/por persona de cada producto (bebidas, pasapalos, buffet, platos servidos); (2) armar menús personalizados sumando opciones (\"EL PRECIO TOTAL DEL MENU DEPENDE DE LAS OPCIONES A ELEGIR. CADA MENU ES PERSONALIZADO\"); (3) cotizar degustaciones previas al evento; y (4) aplicar el acuerdo B2B fijo de 30% de descuento que A.G. otorga a OTH sobre su precio sugerido. NO es una hoja de cotización ni de gestión de eventos: no contiene clientes, salones, fechas ni pagos — es exclusivamente la lista de precios insumo del proceso comercial. El nombre del archivo (\"copia 6-03-26\") y el de la hoja \"3 Y 4 TIEMPOS (2)\" delatan que el versionado se hace duplicando archivos/hojas con fecha.",
+        "hojas": [
+          {
+            "nombre": "EVENTOS BEBIDAS",
+            "rol": "Catálogo de bebidas para eventos, precio por unidad servida, con el descuento OTH precalculado.",
+            "estructura": "Encabezado corporativo en filas 1-2 (A1='ALTERNATIVA GASTRONOMICA 2023, C.A.', A2='BEBIDAS PARA EVENTOS', celdas combinadas A1:H1/A2:H2). Luego 7 secciones apiladas verticalmente, cada una con título en celda combinada y una tabla Excel nombrada (Tabla109185044, Tabla111315215348, Tabla1113195145, Tabla4249...): (1) BEBIDAS SIN ALCOHOL filas 4-16 (12 ítems); (2) JUGOS & SMOOTHIES filas 17-22 (4 ítems); (3) MOCKTAIL filas 23-27 (3 ítems); (4) COCTELES filas 28-34 (5 ítems, esta sección NO es tabla nombrada — fórmulas con referencias directas E30*0.3); (5) MEZCLADORES DE COCTELES filas 36-42 (5 ítems: las mismas recetas de cocteles pero SIN licor, para cuando el cliente trae botellas con descorche); (6) CERVEZAS filas 43-45 (1 ítem, encabezado dice 'INGREDIENTES' en vez de 'PRODUCTOS'); (7) DESCORCHE filas 46-49 (2 ítems). Columnas uniformes: B=PRODUCTOS, C=CANTIDAD (siempre 1), D=UNIDAD ('UND'), E=PRECIO SUGERIDO, F='30% DE DESCUENTO OTH' [=E*0.3], G=PRECIO CON DESCUENTO [=E-F]."
+          },
+          {
+            "nombre": "EVENTOS COMIDA",
+            "rol": "Catálogo de comida por pieza (precio unitario): panadería, pastelería, desayunos, pasapalos y sandwiches. Es además la hoja FUENTE de la que '3 Y 4 TIEMPOS (2)' toma precios de abrebocas por referencia cruzada.",
+            "estructura": "Encabezado filas 1-2 + dos notas de política en celdas combinadas B4:H4 y B5:H5: 'LOS PRECIOS PARA DEGUSTACION DE CADA PASALO O PRODUCTO ES \"PRECIO CON DESCUENTO\" POR PERSONA' y 'LOS PRECIOS CON DESCUENTO NO INCLUYE IVA NI 10% DE SERVICIO'. Siete secciones con misma estructura de columnas que BEBIDAS (B-G) más una columna H de anotaciones libres ('Modificado', 'Precio especial'): (1) PANADERIA filas 6-25 (18 ítems: croissants, danesas, golfeados, cachitos, pastelitos); (2) PASTELERIA filas 26-35 (8 ítems); (3) SALUDABLES filas 36-42 (5 ítems); (4) DESAYUNOS filas 43-48 (4 ítems: mini arepitas, cachapas, panquecas); (5) PASAPALOS CALIENTES filas 49-70 (20 ítems, encabezado 'INGREDIENTES'); (6) PASAPALOS FRIOS filas 71-94 (22 ítems: burokkus, canapés, sushi rolls, voulevants); (7) SANDWICH Y HAMBURGUESAS filas 95-106 (10 ítems). Mezcla de tablas nombradas (Tabla1091850, Tabla1113152153, Tabla11131951, Tabla1113142052) y secciones con fórmulas de celda directa (DESAYUNOS, PASAPALOS CALIENTES, PASAPALOS FRIOS)."
+          },
+          {
+            "nombre": "BUFFET",
+            "rol": "Catálogo de componentes de buffet con precio por persona (PAX) y las REGLAS DE ARMADO del paquete buffet.",
+            "estructura": "Encabezado filas 1-2. Filas 3-11: reglas de composición del buffet: PROTEINAS máx 3 opciones, GUARNICIONES máx 3, POTAJES 1, ESTACION SALAD BAR (ensaladas simples/compuestas/toppings/aderezos), ESTACION DE PANES 1 opción (ajo, parmesano, avena, orégano, afrecho), ESTACION DE POSTRES máx 3, ESTACION DE JUGOS máx 2. Filas 13-16: políticas: menú personalizado; 'LOS PRECIOS DE DEGUSTACION DE CADA PRODUCTO ES LA MITAD DEL PRECIO CON DESCUENTO POR PERSONA'; los listados sirven también para degustaciones y platos pasados; precios sin IVA ni 10% servicio. Luego secciones con columnas B=OPCIONES, C=PAX (siempre 1), D/E/F=columnas auxiliares vacías ('Columna1/2/3', restos de un modelo de costeo), G=PRECIO SUGERIDO, H=30% DESC. OTH, I=PRECIO CON DESCUENTO: CARNE DE RES filas 18-34 (15 ítems, Tabla5612), AVES filas 36-57 (20 ítems, Tabla5713), CERDO filas 59-69 (9 ítems, Tabla114), PESCA filas 71-79 (7 ítems, Tabla31527), ACOMPAÑANTES filas 81-95 (13 ítems, Tabla216), POTAJES filas 97-107 (9 ítems, Tabla5172928), MINI POSTRES (PARA ESTACION) filas 109-128 (18 ítems, Tabla71019), bloque filas 130-133 titulado erróneamente 'ESTACION DE JUGOS' que en realidad contiene SALAD BAR ($17) y ESTACION DE PANES ($1.5), y la verdadera ESTACION DE JUGOS filas 137-146 donde los precios están en celdas COMBINADAS por grupo (G139:G143=$6 cubre melón/lechosa/patilla/papelón con limón/piña; G144:G146=$8 cubre naranja/parchita/fresa). Tras 456 filas vacías, celda huérfana D603=#REF! [=BUFFET!#REF!]."
+          },
+          {
+            "nombre": "3 Y 4 TIEMPOS (2)",
+            "rol": "Catálogo de menús servidos (emplatados) de 3 y 4 tiempos con precio por persona, más sus reglas de armado. El '(2)' indica que es una copia/versión de una hoja anterior.",
+            "estructura": "Encabezado filas 1-2. Filas 3-8: reglas en dos columnas: PLATOS 3 TIEMPOS = ENTRADA 1 opción (ensalada o potaje) + PRINCIPAL (máx 1 proteína + máx 2 acompañantes) + POSTRE 1 opción; PLATOS 4 TIEMPOS = lo mismo más ABREBOCAS 1 opción. Filas 10-11: menú personalizado, precios sin IVA ni 10% servicio. Secciones con el mismo layout B/C/G/H/I que BUFFET: CARNE DE RES filas 13-29 (15 ítems, Tabla563211 — precios del plato completo, ej. ASADO NEGRO $26 vs $11 en buffet), AVES filas 31-52 (20 ítems, Tabla573312), CERDO filas 54-64 (9 ítems, Tabla13413), PESCADO filas 66-74 (7 ítems, Tabla33514), ACOMPAÑANTES filas 76-90 (13 ítems, Tabla23615, mismos precios que buffet $7-9), ENSALADAS Y OTROS filas 92-107 (14 ítems, Tabla43817), POTAJES filas 109-119 (9 ítems, Tabla53716), ABREBOCAS filas 121-132 (10 ítems, Tabla63918, con PRECIO SUGERIDO traído por fórmula desde 'EVENTOS COMIDA' — varias referencias apuntan a celda equivocada), POSTRES filas 134-148 (13 ítems, Tabla74019, postres enteros $9-16), ESTACION DE JUGOS filas 150-159 (mismo patrón de celdas combinadas $6/$8). Tras 441 filas vacías, celda huérfana D601=#REF!."
+          }
+        ],
+        "entidades": [
+          {
+            "entidad": "Ítem de catálogo (producto/opción de menú)",
+            "campos": [
+              "nombre (texto, MAYÚSCULAS, con descripción de ingredientes entre paréntesis): ej. 'MOJITO TRADICIONAL (RON, HIERBA BUENA, ZUMO DE LIMON Y SEVEN UP)', 'TEQUEÑO TRADICIONAL CON CHUTNEY DE AJI'",
+              "categoría/sección (implícita por bloque): BEBIDAS SIN ALCOHOL, JUGOS & SMOOTHIES, MOCKTAIL, COCTELES, MEZCLADORES, CERVEZAS, DESCORCHE, PANADERIA, PASTELERIA, SALUDABLES, DESAYUNOS, PASAPALOS CALIENTES, PASAPALOS FRIOS, SANDWICH Y HAMBURGUESAS, CARNE DE RES, AVES, CERDO, PESCA/PESCADO, ACOMPAÑANTES, POTAJES, MINI POSTRES, ENSALADAS Y OTROS, ABREBOCAS, POSTRES, ESTACION DE JUGOS, SALAD BAR, ESTACION DE PANES",
+              "cantidad (entero, casi siempre 1; excepción PALMERITAS=2 por porción)",
+              "unidad/UDM (texto: 'UND'; en hojas BUFFET y 3Y4 la columna se llama PAX=1, es decir precio por persona)",
+              "precio_sugerido (decimal USD implícito, 1.2 a 38): precio de lista de Alternativa Gastronómica",
+              "descuento_oth (decimal, fórmula = precio_sugerido * 0.30)",
+              "precio_con_descuento (decimal, fórmula = precio_sugerido - descuento_oth, equivale al 70%)",
+              "nota_estado (texto libre en columna H, opcional): 'Modificado' (yogures, mini arepitas, cachapas, panquecas) o 'Precio especial' (tequeño de chistorra, club house, hamburguesa clásica, sandwich de pernil)",
+              "columnas auxiliares Columna1/Columna2/Columna3 (vacías; vestigio de un modelo de costeo: en BUFFET!G27 sobrevive la fórmula =Columna1*100*4 que da 0)",
+              "fuente_precio (solo ABREBOCAS de 3Y4): referencia cruzada a celda de 'EVENTOS COMIDA', ej. G123 ='EVENTOS COMIDA'!E56"
+            ]
+          },
+          {
+            "entidad": "Sección/Categoría de catálogo",
+            "campos": [
+              "título (celda combinada, ej. A17='JUGOS & SMOOTHIES')",
+              "tabla Excel nombrada asociada (Tabla109185044, Tabla5612, Tabla74019, etc. — nombres autogenerados sin convención)",
+              "encabezados de columna inconsistentes: 'PRODUCTOS' vs 'OPCIONES' vs 'INGREDIENTES'; 'CANTIDAD/UNIDAD' vs 'PAX/UDM'; '30% DE DESCUENTO OTH' vs '30% DESC. OTH'"
+            ]
+          },
+          {
+            "entidad": "Paquete de menú (estructura componible)",
+            "campos": [
+              "tipo: BUFFET | PLATO 3 TIEMPOS | PLATO 4 TIEMPOS | DEGUSTACION | PLATOS PASADOS",
+              "reglas de composición BUFFET: proteínas máx 3, guarniciones máx 3, potaje 1, salad bar incluido como estación, panes 1 opción, postres máx 3, jugos máx 2",
+              "reglas 3 TIEMPOS: entrada 1 (ensalada o potaje) + principal (1 proteína + máx 2 acompañantes) + postre 1",
+              "reglas 4 TIEMPOS: abrebocas 1 + entrada 1 + principal + postre",
+              "precio total = suma de precios por persona de las opciones elegidas (no hay precio de paquete fijo)",
+              "precio degustación: en comida por pieza = precio_con_descuento por persona; en buffet = 50% del precio_con_descuento por persona"
+            ]
+          },
+          {
+            "entidad": "Proveedor (caterer)",
+            "campos": [
+              "razón social: ALTERNATIVA GASTRONOMICA 2023, C.A. (membrete de las 4 hojas)",
+              "rol: define precio sugerido y otorga el descuento"
+            ]
+          },
+          {
+            "entidad": "Cliente B2B / Operadora (OTH)",
+            "campos": [
+              "sigla 'OTH' (presumiblemente la Operadora del [Hotel] Teleférico/Humboldt): único cliente con condición comercial explícita",
+              "condición: descuento fijo del 30% sobre precio sugerido en TODOS los ítems"
+            ]
+          },
+          {
+            "entidad": "Política comercial (texto en celdas, no estructurado)",
+            "campos": [
+              "IVA: excluido de todos los precios (porcentaje no indicado en el libro; en Venezuela es 16%)",
+              "cargo por servicio: 10%, excluido de todos los precios, nunca calculado en el libro",
+              "regla de degustación por tipo de menú",
+              "personalización: cada menú se cotiza ítem por ítem"
+            ]
+          },
+          {
+            "entidad": "AUSENTES (no existen en este libro pese a esperarse en el dominio)",
+            "campos": [
+              "Cliente final / contacto: no hay",
+              "Evento (fecha, tipo, nro. invitados): no hay",
+              "Salón y capacidades: no hay ningún salón ni aforo en el archivo",
+              "Pagos/abonos/estados de cotización: no hay",
+              "Tasa de cambio Bs/USD: no hay; el libro opera en una sola moneda implícita"
+            ]
+          }
+        ],
+        "logica_precios": "MODELO CENTRAL (uniforme en las 4 hojas): para cada ítem, DESCUENTO = PRECIO_SUGERIDO × 0.30 y PRECIO_CON_DESCUENTO = PRECIO_SUGERIDO − DESCUENTO (es decir, 70% del sugerido). Se implementa con dos fórmulas encadenadas en vez de una sola ×0.7 — si alguien pisa manualmente la columna F/H, el precio final cambia en silencio. El 30% es el descuento comercial fijo a 'OTH' (la operadora del hotel): el precio sugerido es la tarifa de lista del caterer y el precio con descuento es lo que paga/cobra la operadora. MONEDA: ningún símbolo ni celda de tasa de cambio en todo el libro; los montos (aguas $2-3, cocteles $11.50, descorche $15-25, platos $7-38) son inequívocamente DÓLARES USD — práctica estándar del sector eventos en Venezuela post-dolarización. NO hay bolívares ni tasa BCV; la conversión, si ocurre, es externa al libro. IMPUESTOS Y SERVICIO: tres hojas declaran 'LOS PRECIOS CON DESCUENTO NO INCLUYE IVA NI 10% DE SERVICIO' — el IVA (16% en Venezuela, % no escrito en el libro) y el 10% de servicio se agregan aguas abajo en la cotización, pero el libro NUNCA los calcula. PRECIO POR PERSONA vs POR PIEZA: EVENTOS BEBIDAS y EVENTOS COMIDA cotizan por unidad (UND); BUFFET y 3Y4 TIEMPOS cotizan por PAX=1 (por persona). El total de un menú = Σ(precio de cada opción elegida) × nº personas; no existe en el libro ninguna celda que haga esa suma — se hace a mano fuera. DEGUSTACIONES: dos reglas distintas: (a) pasapalos/productos por pieza: la degustación se cobra al 'PRECIO CON DESCUENTO' por persona; (b) buffet: la degustación vale LA MITAD del precio con descuento por persona. ESCALADO BUFFET→EMPLATADO: la misma proteína cuesta ~2.2-2.4× más como plato principal de 3/4 tiempos que como opción de buffet (ASADO NEGRO: $11 buffet vs $26 emplatado; CHURRASCO DE POLLO: $8 vs $13; PERNIL: $10 vs $22), porque el precio emplatado parece embeber porción completa y servicio a la mesa; los acompañantes ($7-9) y potajes ($7-14) valen igual en ambas hojas. COSTEO RESIDUAL: hay evidencia de un modelo de costos anterior hoy destruido: (1) la fórmula superviviente BUFFET!G27 = Columna1×100×4 (precio sugerido = costo ×400, con la columna de costo ya vaciada → precio $0); (2) precios 'sucios' claramente calculados y pegados como valor: mezclador Cuba Libre E40=3.8959929003882303, Mini Lumpias E64=3.509124275524214. REFERENCIAS CRUZADAS: los ABREBOCAS de '3 Y 4 TIEMPOS (2)' traen su PRECIO SUGERIDO por fórmula desde 'EVENTOS COMIDA' (ej. ='EVENTOS COMIDA'!E56) y le re-aplican el 30%; varias referencias apuntan a fila/columna equivocada y producen DOBLE DESCUENTO (ver rarezas). REDONDEO: inexistente — no hay ninguna función ROUND y el libro muestra colas binarias (0.8999999999999999, 6.300000000000001, 2.4563869928669497).",
+        "flujo_trabajo": "El libro revela un flujo comercial de dos actores: el caterer ALTERNATIVA GASTRONOMICA 2023, C.A. produce y mantiene la lista de precios sugeridos; la operadora del hotel (OTH) compra/revende con 30% de descuento fijo pactado. El proceso de venta implícito: (1) el ejecutivo comercial recibe la solicitud del cliente del evento; (2) arma un menú PERSONALIZADO eligiendo opciones dentro de las reglas de composición (buffet: 3 proteínas/3 guarniciones/1 potaje/estaciones; emplatado: 3 o 4 tiempos con 1 proteína y 2 acompañantes); (3) suma manualmente los precios por persona de las opciones elegidas y multiplica por el nº de invitados — el libro no tiene hoja de cotización, así que esto ocurre fuera (otro Excel, Word o a mano); (4) ofrece degustación previa cobrada según la regla (precio con descuento por pieza, o 50% en buffet); (5) sobre el subtotal agrega IVA y 10% de servicio en el documento final. Mantenimiento del catálogo: los cambios de precio se marcan a mano en la columna H ('Modificado' = precio recién actualizado, 'Precio especial' = precio negociado/promocional), sin fecha ni autor; el versionado se hace por copias del archivo con fecha en el nombre ('copia 6-03-26') y por duplicación de hojas ('3 Y 4 TIEMPOS (2)'). NO existen en el libro: estados de cotización (borrador/enviada/confirmada), fechas de evento, datos de cliente, salones/capacidades, abonos ni plan de pagos, responsables — todo ese seguimiento es invisible y seguramente vive en correos u otros archivos, lo que es exactamente el hueco que la app debe cubrir conectando este catálogo a un módulo de cotización/evento/pagos.",
+        "datos_ejemplo": "EMPRESA: ALTERNATIVA GASTRONOMICA 2023, C.A.; cliente con descuento: OTH (30%). Todos los montos en USD implícito, formato sugerido/con-descuento. BEBIDAS: Agua Minalba 330ml $2/$1.40; Café americano $4/$2.80; Refrescos de lata (Seven Up, Chinotto, Coca Cola, Pepsi, Kolita, Piña) $4/$2.80; Jarra de leche caliente $8/$5.60; Limonada $6/$4.20; Jugos naranja/parchita/fresa $8/$5.60; Mocktails (Frutos del Bosque, Parchi Coco, Julieth) $10/$7; Cocteles (Mimosa, Daiquiri de fresa, Cuba Libre, Mojito, Tinto Verano) todos $11.50/$8.05; Mezcladores sin alcohol $1.90-$4.30; Cerveza nacional $5/$3.50; Descorche destilados $25/$17.50; descorche vinos y espumantes $15/$10.50. COMIDA POR PIEZA: Croissant plain $3/$2.10; Golfeado con queso $4/$2.80; Tequeño tradicional con chutney de ají $2.25/$1.575; Tequeño de chistorra $2.89 ('Precio especial'); Mini empanaditas $1.80/$1.26; Mini brochetas de lomito $6.90/$4.83; Sushi roll California $2.50/$1.75; Ceviche en shot $4/$2.80; Club House con papas $19/$13.30 ('Precio especial'); Hamburguesa César con pollo $28/$19.60; Mini hamburguesa de res $7.50/$5.25. BUFFET (por persona): Asado negro $11/$7.70; Escalopas de lomito con champiñones trufados $15/$10.50; Suprema de pollo BBQ $8/$5.60; Pernil navideño $10/$7; Churrasco de salmón $14/$9.80; Arroz basmati $7/$4.90; Crema de hongos silvestres $14/$9.80; Mini cheesecake $4/$2.80; SALAD BAR $17/$11.90; Estación de panes $1.50/$1.05; Estación de jugos: melón/lechosa/patilla/papelón/piña $6/$4.20, naranja/parchita/fresa $8/$5.60. EMPLATADO 3-4 TIEMPOS (por persona): Asado negro $26/$18.20; Escalopas de lomito con champiñones trufados $38/$26.60 (el plato más caro); Lomito Wellington $28/$19.60; Cordon blue $14/$9.80; Salmón al grill $33/$23.10; Ensalada César $9/$6.30; Ensalada Humboldt $13/$9.10; Carpaccio de lomito $9/$6.30; Postres enteros: Waraira $16/$11.20, Ópera $9/$6.30, Brownie con helado $16/$11.20. Ejemplo de menú 3 tiempos típico (lista, por persona): César $9 + Asado negro $26 + acompañantes incluidos en el precio del principal... no: principal $26 ya es el plato; entrada $9 + principal $26 + quesillo $9 = $44 sugerido / $30.80 con descuento OTH + IVA + 10% servicio. NO HAY salones, capacidades, ni tipos de evento nombrados en el archivo.",
+        "rarezas": "(1) DOBLE DESCUENTO POR REFERENCIA ERRADA: en ABREBOCAS de '3 Y 4 TIEMPOS (2)', G124 (Mini quiche) apunta a 'EVENTOS COMIDA'!G66 — que es el PRECIO CON DESCUENTO de OTRO producto (Pastelito andino, fila 66, no la fila 65 del quiche) — y encima le re-aplica el 30%: queda $2.205 en vez de $2.87. Igual G129 (Croqueta de pollo) toma G52 (precio ya descontado $2.10) y lo vuelve a descontar → $1.47. Mezcla de referencias a columna E (sugerido) y G (descontado) según la fila: descuentos del 30% y del 51% conviviendo sin que nadie lo sepa. (2) PRECIO $0 PUBLICADO: BUFFET fila 27 'ESCALOPAS DE LOMITO CON SALSA DE FRUTOS ROJOS' tiene G27=0 porque conserva la fórmula =Columna1*100*4 apuntando a una columna auxiliar ya vaciada — vestigio del modelo de costeo original (precio = costo×400) destruido al pegar valores; el plato aparece gratis. (3) PRECIOS FÓSILES SIN REDONDEAR: $3.8959929003882303 (mezclador Cuba Libre) y $3.509124275524214 (Mini lumpias) son resultados de cálculos de costo pegados como valor; además todo el libro muestra colas de punto flotante (0.8999999999999999, 6.300000000000001) por ausencia total de ROUND. (4) CELDAS HUÉRFANAS #REF!: BUFFET!D603 y '3 Y 4 TIEMPOS (2)'!D601, tras ~450 filas vacías, con fórmulas rotas =BUFFET!#REF! — rangos borrados que inflan el área usada. (5) TÍTULO DUPLICADO/ERRADO: en BUFFET el bloque B130 dice 'ESTACION DE JUGOS' pero contiene SALAD BAR y ESTACION DE PANES; la estación de jugos real está más abajo (B137). (6) PRECIOS EN CELDAS COMBINADAS POR GRUPO: en las estaciones de jugos solo MELON y NARANJA tienen precio en celda; lechosa/patilla/papelón/piña y parchita/fresa heredan el precio vía merge (G139:G143, G144:G146) — al exportar o filtrar, 6 de 8 jugos quedan sin precio. (7) AUDITORÍA POR TEXTO LIBRE: 'Modificado' y 'Precio especial' en columna H sin fecha, autor ni precio anterior. (8) VERSIONADO POR COPIAS: nombre de archivo 'copia 6-03-26' y hoja '3 Y 4 TIEMPOS (2)' — no hay historial real. (9) INCONSISTENCIAS DE ESQUEMA: encabezados PRODUCTOS/OPCIONES/INGREDIENTES intercambiados; CANTIDAD-UNIDAD vs PAX-UDM; '30% DE DESCUENTO OTH' vs '30% DESC. OTH'; precio sugerido en columna E en unas hojas y G en otras; columnas fantasma 'Columna1/2/3' vacías; sección 'PESCA' en BUFFET vs 'PESCADO' en 3Y4; el mismo plato se llama 'CURVINA BLANCA EN SALSA DE AJO CHINO' en una hoja y 'PESCA BLANCA EN SALSA DE AJO CHINO' en otra; 'VOULEVANT CON TARTAR DE CARNE EN VARA' (3Y4) referencia el precio de 'VOULEVANT CON STEAK TARTAR AHUMADO' (COMIDA) — mismo ítem, dos nombres. (10) FÓRMULA FRÁGIL EN DOS PASOS: descuento en una celda y resta en otra en lugar de ×0.7; ediciones manuales de la columna de descuento alteran el precio final sin alerta. (11) TIPOGRAFÍA SUCIA para catálogo de cara al cliente: CROISSSANT, DANEESSAS, BOLW, COCCA COLA, SPARKLIN, CARPACCION, TRACIDIONAL, CHIKEN, GRIL, MIINI PIE, 'PASTELITO ANDINO CON DE AJO', espacios finales en nombres — claves duplicadas aseguradas si se usan los textos como ID. (12) LO QUE EL EXCEL NO HACE Y LA APP DEBE RESOLVER: cálculo de IVA (16%) y 10% de servicio (solo mencionados en notas, jamás computados); totalización de menús por nº de invitados; manejo dual USD/Bs con tasa BCV del día; catálogo normalizado con un solo registro por plato y precios por contexto (buffet/emplatado/pieza) en vez de ítems duplicados en 4 hojas; reglas de composición (máx 3 proteínas, etc.) como validaciones; trazabilidad de cambios de precio; y todo el módulo inexistente de clientes/eventos/salones/abonos."
+      },
+      {
+        "file": "jac-motors",
+        "proposito": "Libro Excel \"JAC Motors Venezuela - Luis Torres.xlsx\": cotización individual de un evento corporativo de 2 días con pernocta (retiro de empresa para 50 personas, 17-19 julio 2026) generada por el departamento comercial del Hotel Humboldt (Caracas). Es a la vez (1) el documento imprimible que se envía al cliente (columnas A-G de Hoja1, con secciones Misceláneos/Traslados/AyB/Espacios, totales e impuestos, y condiciones legales), (2) una herramienta interna de costeo y márgenes oculta en las columnas C (\"OCULTO\") e I-X de la misma hoja, donde se calculan costos de proveedores externos (catering \"Alternativa Gastronómica\", vino \"FIRIUS\"), markups del 30%, escenarios de precio (+15%, +30%, costo x2) y notas de negociación con terceros, y (3) un mini-plan operativo (tabla de staffing K16:L24). La hoja Productos es el catálogo maestro de precios (~290 ítems en USD, fechado 27-06-2024) que alimenta la cotización vía VLOOKUP. El nombre del archivo sigue la convención \"Cliente - Contacto\" (Luis Torres es el contacto del CLIENTE, no el vendedor; la ejecutiva del hotel que prepara es \"K. Jaén\", firmada al pie en A133).",
+        "hojas": [
+          {
+            "nombre": "Hoja1",
+            "rol": "Cotización del evento: documento cliente (cols A-G) + costeo/márgenes interno oculto (cols C, I-X) + tabla de staffing (K16:L24). Es la hoja que se imprime/exporta a PDF para el cliente.",
+            "estructura": "BLOQUE 1 — Encabezado de cliente/evento (filas 6-18, pares etiqueta:valor con B combinada hasta G): Cliente, Rif o cédula, Dirección, Contacto, Teléfono, Email, Nombre del Evento, Cantidad de Persona, Hora de Inicio, Hora de culminacion, Fecha Presupuesto, Fecha del Acuerdo (vacía), Fecha del Evento (texto libre multi-día). Al margen derecho (K16:L24) tabla de staffing 'Àrea/Cantidad' con Total=SUM(L17:L23). BLOQUE 2 — Saludo (A20) y título combinado 'COTIZACION DE EVENTO' (A22:G22). BLOQUE 3 — Sección MISCELANEOS (filas 24-40): encabezados A25=Ítem | C25=OCULTO (precio de lista vía VLOOKUP a Productos) | D=Precio Unit. | E=Cantidad | F=Comentarios | G=subtotal línea [=D*E]. Filas separadoras de día como texto plano ('Dia viernes 17 de julio, día 1er de evento - llegada', 'Dia sábado 18...'). Notas internas de costo de proveedor en columna I (I32, I33, I36-I38). Sub Total en F40/G40=SUM(G27:G39)=25000. BLOQUE 4 — TRASLADOS (filas 42-46), misma estructura de columnas; Sub Total G46=SUM(G44:G45)=0; luego en totales se marca 'Exento de IVA'. BLOQUE 5 — ALIMENTOS Y BEBIDAS (filas 48-96): además de A-G, lleva una matriz interna oculta de costeo I-X con encabezados en fila 49: I=Monto (costo proveedor=C), J=Cantidad (=E), K=Total (=I*J), L='0.3' (=I*30%), M=PVP (=I+L), T=(M*15%)+M ('15% extra'), U=I*2 ('10% de servicio al precio full lista del 19/07'), V=U*J, X='30%%' (=(M*30%)+M), Q95/R95='Precio vino'=M54+R54. Notas de proveedor: I48='Provedor: Alternativa Gastronómica', N48='Proveedo vino FIRIUS'. Subtotales paralelos: cliente F94/G94=SUM(G50:G93), F95='10% Servicio'=G94*10%, F96='Total Alimentos y Bebidas'=G94+G95; internos I94/K94 (costo), K95=10% servicio sobre costo, K96 total costo; U94/V94 'Sub Total' full-list, V95='Servicio FULL'=V94*10%. Todas las líneas AyB usan ítem '.' (placeholder que VLOOKUPea a 0). BLOQUE 6 — ESPACIOS (filas 98-106): mismas columnas A-G; 6 espacios listados; Sub Total G106=SUM(G100:G104)=1000 (¡excluye fila 105!). BLOQUE 7 — Resumen de totales (filas 108-117): Total Misceláneos=G40 | Total AyB=G94 (sin servicio) | Total Salones=G106 | Sub Total USD=SUM(G108:G110)=26000 | Traslados-Exento de IVA=G46 | Total 10% de servicio=G95 | 16% IVA=G111*16%=4160 | Total USD=SUM(G111:G114)=30160 | Garantìa 10%=G115*10%=3016 | TOTAL=SUM(G115:G116)=33176. BLOQUE 8 — CONDICIONES IMPORTANTES (filas 119-129, 10 cláusulas: IVA en Bs, IGTF 3%, tarifas sujetas a cambio, anticipo 100% / 48h, garantía 10%, sin bloqueo de espacios, vigencia 7 días, contrato al confirmar). Firma A133='K. Jaén'."
+          },
+          {
+            "nombre": "Productos",
+            "rol": "Catálogo maestro de precios (lista en USD del 27-06-2024) que alimenta los VLOOKUP de Hoja1. Dos columnas: A=nombre del producto/servicio, B=precio. ~290 filas en bloques temáticos implícitos sin encabezados de categoría.",
+            "estructura": "Fila 1: A1='PRODUCTOS' | B1=fecha 2024-06-27. Fila 2: A2='.' B2=0 — fila placeholder deliberada para que las líneas '.' de la cotización resuelvan a precio 0. Bloques implícitos por orden: sandwiches (filas 3-4), buffets nombrados por rutas del Ávila (5-10: Galipan 24.5, Gaviota 28, Humboldt 28, Paco 25.5, Sabas Nieves 24, Sanabria 24), mini postres/shots (11-33, $1-2.4), tortas por kilo (34-36), pasapalos fríos/sushi (37-58, $0.9-2.4), pasapalos calientes (59-80, $0.55-2.75), buffets/menús 3 tiempos I-IX (81-89, $23.5-27.5), buffets 4 tiempos I-VI (90-95, $32.5-37), estaciones (96-107, $2-16), coffee breaks (108-112, $11.5-12.5), box lounge (113-116, $12.5-13), bebidas no alcohólicas (117-135), ESPACIOS con tarifa de alquiler (136-142: BAR MIRADOR PH 3000, ESTAR GENERAL 3000, Bar GAVIOTA 1500, SALÓN REDONDO 500, Bonpland y Piscina SIN precio, TERRAZA NORTE Y SUR 1000), mobiliario (143-144: silla 5, mesa 10 pers. 50), PROTOCOLO DE MARIPEREZ por tramos de pax (145-146: <100 pers 90, >100 pers 180), traslados/visita guiada/descorche (147-151), paquetes de HOSPEDAJE por persona/noche (152-157: Escape en las alturas 250, Romance entre las nubes 336.21, Humboldt Spa 370.69, Experiencia Humboldt 301.72, Experiencia entre las nubes 336.21, Aventura en el Humboldt 293.1), ítems genéricos SIN precio usados como conceptos libres (158-171: Personal de evento, Protocolo Hotel, Mobiliario, Audiovisuales, Planta eléctrica, Talento, Servicio especial, Ticket de Restaurante...), estaciones premium (172-177), pasapalos premium nuevos (179-192), insumos por caja para barra (193-199: Caja Pepsi 42, agua gasificada 20, hielo 3, limón 4), menús navideños (203-205), bollería/croissants (208-225), dulces/galletas (227-234), frutas/yogurt (236-240), arepitas/cachapas (242-245), segunda lista de pasapalos con precios MÁS ALTOS que duplica ítems anteriores (247-289, p.ej. ESFERAS DE CHICHARRON 1.7 vs 2.8, TEQUEÑO TRADICIONAL 1.05 vs 2.25 — aparenta lista costo vs PVP o lista vieja vs nueva), bebidas/jugos (291-294), Mocktails 9 (296)."
+          }
+        ],
+        "entidades": [
+          {
+            "entidad": "Cliente",
+            "campos": [
+              "Nombre/Razón social: texto — 'JAC Motors Venezuela'",
+              "RIF o cédula: texto — 'J309046578' (formato RIF venezolano J-...)",
+              "Dirección: texto libre — 'Caracas'",
+              "Contacto: texto — 'Sr. Luis Torres'",
+              "Teléfono: texto — '0414-3501196' (móvil venezolano)",
+              "Email: texto — 'luis.torres@bel.com.ve'"
+            ]
+          },
+          {
+            "entidad": "Evento / Cotización",
+            "campos": [
+              "Nombre del Evento: texto — 'Por definir'",
+              "Cantidad de Persona: texto libre, no numérico — '50 huéspedes'",
+              "Hora de Inicio: hora — 08:00:00",
+              "Hora de culminacion: hora — 18:00:00",
+              "Fecha Presupuesto: fecha — 'lunes, 04 de mayo de 2026'",
+              "Fecha del Acuerdo: fecha — VACÍA (se llena al confirmar; funciona como estado implícito)",
+              "Fecha del Evento: TEXTO LIBRE multi-día — 'viernes 17 y sábado 18 de julio (salida el 19) de 2026'",
+              "Ejecutivo/preparador (hotel): texto al pie — 'K. Jaén'",
+              "Vigencia de precios: 7 días desde Fecha Presupuesto (cláusula)",
+              "Moneda: USD (IVA facturado en Bolívares)",
+              "Totales: Sub Total USD, IVA 16%, Total USD, Garantía 10%, TOTAL"
+            ]
+          },
+          {
+            "entidad": "Línea de cotización (ítem de sección)",
+            "campos": [
+              "Sección: enum — MISCELANEOS | TRASLADOS | ALIMENTOS Y BEBIDAS | ESPACIOS",
+              "Agrupador de día: fila de texto plano — 'Dia viernes 17 de julio, día 1er de evento - llegada'",
+              "Ítem (A): nombre que enlaza a Productos vía VLOOKUP, o '.' como placeholder, o genérico 'Servicio'/'Servicio especial'",
+              "Precio lista OCULTO (C): =VLOOKUP(A,Productos!$A$1:$C$511,2,FALSE) — referencia del catálogo, no se muestra al cliente",
+              "Precio Unit. (D): manual, puede diferir del de lista (descuentos); en AyB D=I (enlazado al costo)",
+              "Cantidad (E): numérica — 50, 40, 180, 540...",
+              "Comentarios (F): texto largo multilínea con la descripción comercial del servicio",
+              "Sub Total (G): =D*E (salvo overrides manuales)",
+              "Nota interna de costo (I, fuera del área imprimible): texto libre — 'Cada persona en $35 más iva a Deisy Oropeza', '800$ + IVA'"
+            ]
+          },
+          {
+            "entidad": "Costeo interno AyB (matriz I-X por línea)",
+            "campos": [
+              "Monto/costo proveedor (I): =C (VLOOKUP)",
+              "Cantidad (J): =E (con override manual: J65=8 mientras E65=540)",
+              "Total costo (K): =I*J",
+              "Markup 30% (L, encabezado '0.3'): =I*30%",
+              "PVP (M): =I+L (costo +30%)",
+              "Escenario +15% (T, '15% extra'): =(M*15%)+M",
+              "Precio full lista (U, 'costo x2'): =I*2 — nota '10% de servicio al precio full lista del 19/07'",
+              "Total full lista (V): =U*J",
+              "Escenario +30% (X, '30%%'): =(M*30%)+M",
+              "Sub Total costo (K94) y 10% Servicio sobre costo (K95), Total (K96)",
+              "Sub Total full (V94) y 'Servicio FULL' (V95=V94*10%)",
+              "Precio vino (R95): =M54+R54"
+            ]
+          },
+          {
+            "entidad": "Producto (catálogo Productos)",
+            "campos": [
+              "Nombre (A): texto — 'BUFFET HUMBOLDT', 'COFFE BREAK CRIOLLO', 'Hospedaje - Escape en las alturas'",
+              "Precio USD (B): decimal, a veces sin precio (NULL) para conceptos libres, a veces con precisión absurda (3.50912427552421)",
+              "Categoría: IMPLÍCITA solo por orden de filas (postres, pasapalos, buffets, espacios, hospedaje, mobiliario...)",
+              "Fecha de lista (B1): 2024-06-27",
+              "Unidad implícita: por persona (buffets, coffee breaks, hospedaje), por unidad (pasapalos), por botella (descorche), por kilo/8 pax (tortas), por caja (insumos), por evento (espacios)"
+            ]
+          },
+          {
+            "entidad": "Espacio / Salón",
+            "campos": [
+              "Nombre: ESTAR GENERAL, Bar GAVIOTA, SALÓN REDONDO, Restaurante Bonpland, BAR MIRADOR (PH), TERRAZA NORTE Y SUR, Piscina",
+              "Tarifa de alquiler USD: 3000, 1500, 500, sin precio, 3000, 1000, sin precio",
+              "Descuento: manual sobre D o directamente en G — BAR MIRADOR lista 3000 → D=1500 → G=1000 hardcodeado '(descuento especial)'"
+            ]
+          },
+          {
+            "entidad": "Paquete de hospedaje",
+            "campos": [
+              "Nombre: 'Hospedaje - Escape en las alturas' (250), 'Romance entre las nubes' (336.21), 'Humboldt Spa' (370.69), 'Experiencia Humboldt' (301.72), 'Experiencia entre las nubes' (336.21), 'Aventura en el Humboldt' (293.1)",
+              "Precio: USD por persona/noche",
+              "Contenido (texto en Comentarios): suite, desayuno, traslado en teleférico, minibar sin alcohol, acceso a piscina/sauna/gimnasio"
+            ]
+          },
+          {
+            "entidad": "Proveedor externo",
+            "campos": [
+              "Nombre: 'Alternativa Gastronómica' (catering AyB), 'FIRIUS' (vino), 'Deisy Oropeza' (senderismo, $35+IVA p/p), 'Gustavo' (evenplus $180 + transporte $100), instructora de yoga ($100+IVA + traslados $90)",
+              "Costo pactado: texto libre en columna I, sin estructura",
+              "Condición fiscal: '+ IVA' anotado a mano"
+            ]
+          },
+          {
+            "entidad": "Staffing del evento (tabla K16:L24)",
+            "campos": [
+              "Àrea: àrea p (1), ayb (11), cocina (2), batender [sic] (3), montaje (1), prevencion (1), coordinador (1)",
+              "Cantidad: entero",
+              "Total: =SUM(L17:L23) = 20 personas"
+            ]
+          },
+          {
+            "entidad": "Condiciones de pago / fiscales",
+            "campos": [
+              "IVA: 16%, 'reflejado al momento de la facturación en Bolívares'",
+              "IGTF: 3% sobre todo pago en moneda extranjera",
+              "Anticipo: 100% del total, pago completo 48 horas antes del evento",
+              "Garantía: 10% del Total USD para cubrir gastos adicionales (depósito, se suma al TOTAL del documento)",
+              "Servicio: 10% solo sobre Alimentos y Bebidas",
+              "Exención: Traslados exentos de IVA",
+              "Vigencia: 7 días; cotización informativa, no bloquea espacios; contrato definitivo al confirmar"
+            ]
+          }
+        ],
+        "logica_precios": "TODO EN USD; el IVA se factura en Bolívares al tipo de cambio del momento de facturación (no hay tasa en el libro) y los pagos en divisa generan 3% de IGTF adicional (solo cláusula, no se calcula en el Excel). CADENA CLIENTE (columnas A-G): (1) Por línea: Sub Total G = Precio Unit. D × Cantidad E. La columna C ('OCULTO') trae el precio de catálogo con =VLOOKUP(Ítem, Productos!$A$1:$C$511, 2, FALSE) pero D se digita a mano, lo que permite descuentos silenciosos (BAR MIRADOR: lista 3000 → D 1500 → G 1000 escrito a mano). (2) Subtotales por sección: Misceláneos SUM(G27:G39)=25.000; Traslados SUM(G44:G45)=0; AyB SUM(G50:G93)=0 en este caso; Espacios SUM(G100:G104)=1.000. (3) Cargo por servicio: 10% SOLO sobre AyB (G95=G94*10%); se muestra como línea separada en el resumen y NO entra en la base del IVA. (4) Resumen: Sub Total USD = Misceláneos + AyB(sin servicio) + Salones = 26.000. (5) IVA 16% = Sub Total USD × 16% = 4.160 — los Traslados se suman aparte como 'Exento de IVA' y el 10% de servicio tampoco se grava. (6) Total USD = Sub Total + Traslados + Servicio + IVA = 30.160. (7) Garantía 10% = Total USD × 10% = 3.016 (depósito para extras, ¡se suma al gran TOTAL!). (8) TOTAL = 33.176 USD. CADENA INTERNA DE MÁRGENES AyB (columnas I-X, solo para alimentos tercerizados con 'Alternativa Gastronómica' y vino 'FIRIUS'): costo unitario I (= precio de catálogo C, que para AyB funciona como lista de COSTOS del proveedor) → markup fijo 30%: L = I×0,30 → PVP M = I + L → tres escenarios paralelos de precio: T = M×1,15 ('15% extra'), X = M×1,30 ('30%%'), y U = I×2 (precio 'full lista', costo ×2) con V = U×J y un 10% de servicio calculado tanto sobre el costo (K95=K94×10%) como sobre el full-list (V95 'Servicio FULL'). En la cotización al cliente, D=I (D52..D93 [=I52] etc.), o sea que el precio publicado quedó enganchado al COSTO, y como todos los ítems AyB son '.' (precio 0 en el catálogo) toda la sección quedó en $0 — es una cotización preliminar donde el menú aún no se valoriza. Redondeos: no hay función de redondeo en ninguna fórmula; los precios de catálogo arrastran decimales raros (1.255, 1.175, 3.50912427552421) que sugieren markups previos pegados como valor. Los traslados ($10 ida-vuelta p/p) son la única categoría exenta de IVA. El hospedaje ($250 p/p/noche × 50 pax × 2 noches = $25.000) sí paga IVA 16% dentro de Misceláneos.",
+        "flujo_trabajo": "Flujo comercial implícito: (1) Solicitud del cliente → la ejecutiva de ventas (K. Jaén, firma al pie) arma la COTIZACIÓN copiando una plantilla y poniendo 'Fecha Presupuesto' (04-05-2026, ~10 semanas antes del evento del 17-19/07/2026). El archivo se nombra 'Cliente - Contacto'. (2) Etapa PRELIMINAR: muchos ítems quedan como 'Servicio especial por definir', cantidades en 0 (yoga, senderismo, tour) como menú de opciones con precio de referencia, y toda la sección AyB sin valorizar ('Precios de referencia, cantidades a definir con el cliente') — la cotización es 'de carácter informativo, no implica bloqueo de espacios', vigencia 7 días. (3) En paralelo, la ejecutiva NEGOCIA COSTOS con proveedores externos y los anota como texto en la columna I (Deisy Oropeza senderismo $35+IVA p/p, instructora de yoga $100+IVA+$90 traslados, Gustavo evenplus $180+$100 transporte vs 'sonido del Hotel', partidas de $450 y $800+IVA) y modela su margen en las columnas I-X (30% markup, escenarios +15%/+30%/x2). (4) También pre-planifica la OPERACIÓN: tabla de staffing por área (20 personas: 11 de AyB, 2 cocina, 3 bartenders, montaje, prevención, coordinador) — esto es operativo, no se cobra. (5) Estados implícitos por fechas: 'Fecha Presupuesto' llena + 'Fecha del Acuerdo' vacía = cotización enviada/no confirmada; al confirmar se llenaría Fecha del Acuerdo, se verifica disponibilidad con el ejecutivo y 'le haremos llegar el contrato definitivo'. (6) PAGOS: 100% de anticipo del total, pagado completo 48 horas antes del evento; además 10% de garantía para gastos adicionales (que aquí se suma al TOTAL cotizado); IVA 16% se materializa en la factura en Bolívares; pagos en divisas generan IGTF 3%. No hay registro de abonos parciales ni de tasa de cambio en este libro (eso vive en otro archivo de control de gestión). (7) Tarifas 'sujetas a cambios sin previo aviso' y revisables al confirmar — el catálogo Productos está fechado 27-06-2024, casi 2 años antes del evento cotizado.",
+        "datos_ejemplo": "EVENTO COTIZADO: JAC Motors Venezuela (RIF J309046578), contacto Sr. Luis Torres (0414-3501196, luis.torres@bel.com.ve), 50 huéspedes, retiro corporativo viernes 17 y sábado 18 de julio 2026 (salida el 19), 08:00-18:00; total cotizado $33.176 (hospedaje $25.000 + Bar Mirador $1.000 + IVA $4.160 + garantía $3.016). SALONES/ESPACIOS (tarifa alquiler USD): BAR MIRADOR (PH) $3.000 (cotizado con descuento a $1.000), ESTAR GENERAL $3.000, Bar GAVIOTA $1.500, TERRAZA NORTE Y SUR $1.000, SALÓN REDONDO $500, Restaurante Bonpland y Piscina sin tarifa publicada. HOSPEDAJE (USD p/p/noche): Escape en las alturas $250 (suite + desayuno + teleférico + minibar sin alcohol + piscina/sauna/gym), Aventura en el Humboldt $293,10, Experiencia Humboldt $301,72, Romance entre las nubes y Experiencia entre las nubes $336,21, Humboldt Spa $370,69. MENÚS (USD p/p): Buffets nombrados por rutas del Ávila — Sabas Nieves y Sanabria $24, Galipán $24,50, Paco $25,50, Gaviota y Humboldt $28; Buffet 3 Tiempos I-IX $23,50-27,50; Buffet 4 Tiempos I-VI $32,50-37; menús navideños $17,50-38. COFFEE BREAKS p/p: Criollo y Fit $11,50, College y Pérez Jiménez $12, Tea Time $12,50; Box Lounge $12,50-13. ESTACIONES: quesos $16 (mín. 30 pax), frutas importadas $9,50, sushi $6,50 (6 und), chupe $6, mini hot dog $2. PASAPALOS por unidad: empanaditas $0,55, tequeños tradicionales $1,05, mini hamburguesa de res $2,75, mini filet mignon $2,65, tartar de atún en nori $2,40 (lista premium 2024: $1,80-6,90). SERVICIOS: traslado ida-vuelta $10 p/p (exento IVA), visita guiada $15, senderismo Picacho de Galipán $55 p/p (costo proveedor $35+IVA), yoga $25 p/p (costo $100+IVA + $90 traslados), tour Galipán con cata de licores $70 p/p, descorche vino $15/botella y otros licores $20, silla $5, mesa 10 pax $50, protocolo Mariperez $90 (<100 pax) / $180 (>100 pax). INSUMOS DE BARRA: caja Pepsi $42, caja agua mineral Minalba $20, bolsa de hielo $3, kilo de limón (35 pax) $4. CONSUMOS COTIZADOS PARA 50 PAX: menú buffet 180 raciones, pasapalos ~1.240 unidades en 6 líneas (200-220 c/u), mesas de postre 370 unidades, agua 120+540, refrescos 360, cóctel de bienvenida 180.",
+        "rarezas": "1) OVERRIDES MANUALES QUE MATAN FÓRMULAS: G104=1000 escrito a mano (debería ser D104*E104=1500) para aplicar un 'descuento especial' sin dejar rastro estructurado; G105=0 también hardcodeado. Una app necesita campo de descuento explícito por línea (monto/% y motivo). 2) BUG DE RANGO EN SUBTOTAL: G106=SUM(G100:G104) EXCLUYE la fila 105 (TERRAZA NORTE Y SUR) — hoy vale 0 y no afecta, pero si se cotizara la terraza el total saldría mal. Igual riesgo en V94=SUM(V50:V89) que ignora filas 90-93 mientras K94 suma hasta 93. 3) ÍTEMS '.': el catálogo tiene una fila A2='.' precio 0 creada a propósito para que las decenas de líneas placeholder '.' del presupuesto no den #N/A en el VLOOKUP — hack de plantilla; la app debería permitir líneas libres sin enlazar catálogo. 4) #N/A VIVO: C34 da #N/A porque 'Servicio' no existe en el catálogo; conviven dos referencias VLOOKUP distintas: al libro EXTERNO '[1]Productos!$A$1:$C$510' y a la hoja local 'Productos!$A$1:$C$511' — vínculos rotos en potencia y rangos inconsistentes (el catálogo solo llega a la fila ~296 y solo tiene columnas A:B aunque el rango pide A:C). 5) FUGA DE INFORMACIÓN SENSIBLE: los costos de proveedores, los márgenes (30%, x2) y las notas de negociación ('Cada persona en $35 más iva a Deisy Oropeza', '800$ + IVA', 'evenplus180$ + Transporte 100 a Gustavo /// sonido del Hotel') viven en columnas I-X DE LA MISMA HOJA que se envía al cliente — basta un PDF mal recortado para exponer toda la estructura de costos. La app debe separar vista cliente vs vista interna con permisos. 6) DOBLE FUENTE DE VERDAD EN CANTIDADES: J65=8 hardcodeado mientras la cantidad cliente E65=540 ('Agua para el evento') — el costeo interno y la cotización divergen silenciosamente. 7) PRECIO AyB ENGANCHADO AL COSTO: D52..D93 tienen fórmula =I (precio de venta = costo del proveedor), contradiciendo el modelo de markup 30% de al lado; además hay TRES escenarios de precio paralelos (PVP+15%, PVP+30%, costox2) con encabezados crípticos ('0.3', '30%%', 'T48=15% extra', 'U48=10% de servicio al precio full lista del 19/07') que nadie más que el autor entiende. 8) DATOS NO ESTRUCTURADOS: Fecha del Evento como texto libre ('viernes 17 y sábado 18 de julio (salida el 19) de 2026'), pax como texto ('50 huéspedes'), días del evento como filas de texto plano intercaladas — imposible de validar/calcular noches automáticamente. 9) GARANTÍA SUMADA AL TOTAL: el 'TOTAL 33.176' incluye la garantía reembolsable del 10%, inflando el precio percibido; debería mostrarse como depósito aparte. 10) AMBIGÜEDAD FISCAL: el 10% de servicio queda FUERA de la base del IVA (G114=G111*16% no incluye G113) sin justificación documentada; el IGTF 3% se menciona pero nunca se calcula; no hay tasa Bs/USD en el libro pese a que el IVA se factura en Bolívares. 11) CATÁLOGO SUCIO: productos duplicados con precios distintos (ESFERAS DE CHICHARRON $1,70 y $2,80; TEQUEÑO TRADICIONAL $1,05 y $2,25 — aparentes listas vieja/nueva o costo/PVP conviviendo), ítems sin precio (Bonpland, Piscina, Audiovisuales, Talento...), precio con 13 decimales (MINI LUMPIAS 3.50912427552421), sin categorías formales (solo el orden de filas), lista fechada 27-06-2024 usada para un evento de 2026 (mitigado con la cláusula de '7 días de vigencia'). 12) TYPOS SISTEMÁTICOS que delatan ausencia de validación: 'Provedor', 'Proveedo', 'batender', 'Garantìa', 'Cantidad de Persona', 'general un 3% por IGTF' (por 'genera'), 'COFFE BREAK', 'Duracción'. 13) DUPLICIDAD DE TOTALES AyB: existe 'Total Alimentos y Bebidas' (G96=G94+G95) pero el resumen usa G94 y suma el servicio aparte (G113) — dos formas de leer el mismo número. 14) La tabla de staffing (K16:L24) flota en el área del encabezado sin relación con el layout imprimible; el total de personal (20) no se traduce en ningún costo. 15) Identidad confusa: el archivo se llama '...Luis Torres' (que es el CONTACTO DEL CLIENTE) y la verdadera ejecutiva (K. Jaén) solo aparece como texto suelto en A133 — la app necesita campos separados de vendedor/ejecutivo y contacto del cliente."
+      },
+      {
+        "file": "sportbitz",
+        "proposito": "Libro de cotización de eventos del departamento comercial del Hotel Humboldt (Caracas) para el cliente \"TS Sport\" (evento Sportbitz, contacto Antonio Linares). Un mismo evento del 07-may-2026 se descompone en 3 sub-eventos, cada uno con su hoja-cotización basada en una plantilla común: \"conferencia\" (Conferencia deportiva, 80 pax, 9:00-13:00), \"CENA\" (Cena especial, 30 pax, 18:00-21:00) y \"ESPACIOS\" (Evento extra Sport Bitz, asistentes \"circulantes\", 18:00-21:00). El libro cumple 4 funciones a la vez: (1) documento de propuesta al cliente (con condiciones, vigencia 7 días, firma del ejecutivo K. Jaén); (2) motor interno de costeo y márgenes (columnas ocultas con costos del proveedor de catering Alternativa Gastronómica, vinos FIRIUS, audiovisuales Evenplus, y escenarios de markup 60%/100%/+15%); (3) control de cobranza (\"plan de pagos\": matriz de abonos contra IVA, % servicio y garantías, con conversión de pagos en bolívares a USD); y (4) \"facturación inversa\": las 3 hojas cuyo nombre es un monto (1899,99 / 4994,95 / 8265,96) son copias de la plantilla manipuladas a mano para que el TOTAL calce exactamente con montos a facturar/cobrar.",
+        "hojas": [
+          {
+            "nombre": "conferencia",
+            "rol": "Cotización del sub-evento 1: Conferencia deportiva, 80 personas (montajes para 90), 09:00-13:00. Total $7.165,58 con garantía.",
+            "estructura": "Plantilla estándar: filas 6-18 bloque cliente/evento (Cliente, Rif, Dirección, Contacto, Teléfono, Email, Nombre del Evento, Cantidad de Persona, Hora Inicio/Culminación, Fecha Presupuesto, Fecha del Acuerdo, Fecha del Evento). Bloque oculto K16:L24 'Àrea/Cantidad' = planificación de personal interno (àrea p=1, ayb=4, cocina=1, bartender=1, montaje=1, prevencion=1, coordinador=1, Total=SUM=10). Fila 22 título 'COTIZACION DE EVENTO'. Sección MISCELANEOS (25-34): columnas A=Ítem, C='OCULTO' (=VLOOKUP a libro externo [1]Productos!$A$1:$C$511 — catálogo de 511 productos con precio lista), D=Precio Unit., E=Cantidad, F=Comentarios, G=Sub Total (=D*E); subtotal $3.490 (Protocolo Maripérez $90, Mobiliario $300, Servicio $600, Audiovisuales $2.500 con nota interna I30: 'Sonido del Hotel - pantalla y micrófonos con Evenplus 1.740$ camión de evenplus 240'). Sección TRASLADOS (36-40): teleférico ida-vuelta p/persona (90 pax a $0, 'coordinado con VENTEL') y terrestre $60/unidad. Sección ALIMENTOS Y BEBIDAS (42-84): área cliente A-G + área interna oculta I-V: I42='Provedor: Alternativa Gastronómica', N42='Proveedo vino FIRIUS', T42='15% extra', U42='10% de servicio al precio full lista del 19/07'; I=Monto(costo), J=Cantidad, K=Total(=I*J), L=margen(=I*60%, encabezado 0.6), M=PVP(=I+L), T=(M*15%)+M, U=I*2(precio full lista), V=U*J; F82 SubTotal $576, F83 10% Servicio $57,6, F84 Total AyB $633,6; en paralelo K82/K83/K84 = costo interno $504/$50,4/$554,4 y V82/V83 escenario full $1.008/$100,8. Sección ESPACIOS (86-93): discoteca La Boite (lista C=1.000, D=2.000, G88=1500 valor manual 'descuento especial'), ESTAR GENERAL $0 (montaje preventivo), Restaurante Humboldt cortesía (#N/A en catálogo, D=3.000, G=0); subtotal $1.500. Resumen 95-104: Total Misceláneos =G34, Total AyB =G82 (sin servicio), Total Salones =G93, Sub Total USD =SUM ($5.566), Traslado (exento de IVA) =G40, Total 10% servicio =G83, 16% IVA =G98*16% ($890,56), Total USD $6.514,16, Garantìa 10% $651,42, TOTAL $7.165,58. Filas 106-116 CONDICIONES IMPORTANTES (texto legal). A120 firma 'K. Jaén'."
+          },
+          {
+            "nombre": "CENA",
+            "rol": "Cotización del sub-evento 2: Cena especial de 30 personas con menú de 3 tiempos. Total $4.727,12 con garantía.",
+            "estructura": "Misma plantilla que 'conferencia'. Misceláneos $790 (Protocolo $50, Servicio $540, Sonido ambiente sin operador $200). AyB $2.223: MENÚ 3 TIEMPOS D=61,3 × 30 = $1.839 (costo proveedor I44=35,7, margen L44=I*70% → PVP 60,69, pero D44=61,3 tipeado a mano), Estación de café 3,2×0, vino 6,4 × 60 copas = $384 (costo: 6 botellas × $10,5 = $63), descorche vinos $15 / otros licores $25 (qty 0). 10% servicio $222,3. Espacios: Bar GAVIOTA (lista 1.500, D=1.000, G88=500 manual 'precio especial'), subtotal $500. Resumen: Sub Total USD $3.513, IVA $562,08, Total USD $4.297,38, Garantía $429,74, TOTAL $4.727,12. Celdas sueltas sin etiqueta en K86=4,9 K87=18,2 K88=6,3 K93=11,2 K94=40,6 [=SUM(K86:K93)] — cálculo lateral anónimo."
+          },
+          {
+            "nombre": "ESPACIOS",
+            "rol": "Cotización del sub-evento 3: 'Evento extra Sport Bitz' con público circulante; básicamente alquiler de espacios + despliegue eléctrico. Total $4.746,72 con garantía.",
+            "estructura": "Misma plantilla. Misceláneos $720: 'Despliegue de redes eléctricas, 12 puntos (en espera de plano de distribución) tiempo extra de personal de pantalla' con nota interna I26='Evenplus $360 + IVA'; línea de 'Servicio de internet dedicado 300 MB por el día (EN REVISIÓN)' D=2.500 con cantidad 0. AyB toda en 0 (pero llena de cantidades fantasma heredadas de la plantilla: 140 pasapalos, 96 refrigerios, etc., con precios 0). Espacios: ESTAR GENERAL $3.000 (G88=3000 manual), Antigua Estación D=1.000 qty 0, Restaurante Humboldt cortesía. Resumen: Sub Total $3.720, IVA $595,20, Total USD $4.315,20, Garantía $431,52, TOTAL $4.746,72."
+          },
+          {
+            "nombre": "plan de pagos",
+            "rol": "Hoja de control de cobranza: desglosa cada sub-evento en componentes (Misceláneos / AyB / Espacios / Garantía), calcula IVA y % de servicio, y aplica 4 abonos recibidos hasta dejar saldo pendiente. Incluye la conversión de pagos en bolívares a USD.",
+            "estructura": "A1='Desglose de pagos', B1='Ref. en $'. Encabezado F3:I3 (merged) 'Abonos', J3='Total'. Cuatro bloques de filas, cada uno con filas Conferencia/Cena/Espacios comerciales: (1) Misceláneos (filas 4-7): B=base, D=IVA(=B*16%), E=Total(=SUM(B:D)), F-I=montos imputados de cada abono, J=saldo(=E-F-G-H-I); fila 4 además guarda los montos de los abonos recibidos: F4=1900, G4=4995, H4=5000, I4=3666. (2) Alimentos y bebidas (9-12): igual + C='% de servicio'(=B*10%). (3) Espacios (14-17): B/D/E/abonos/J. (4) Garantía (19-22): B y E inconsistentes entre sí (B20=742,14 vs E20=651,42; B22=823,6 vs E22=417,6), J = saldo pendiente. Fila 24 totales: F24=1900, G24=4995, H24=5000, I24=3231,74 [=SUM], J24=1.514,8631 = total pendiente (exactamente la suma de las 3 garantías). Cálculo paralelo en N-Q: N7=1.622.647,11 y N8=2.466.882,50 (pagos en Bs), N9=4.089.529,61 (=N7+N8), O9=496,83 (tasa Bs/USD), P9=8.231,25 (=N9/O9, equivalente USD), P10=3.526,74, P11=4.704,51 (=P9-P10), Q11=4.055,61 (=P11/1.16, quita IVA), P12=35,42, Q12=30,53 (=P12/1.16) → este 30,53 reaparece como línea 'Diferencial cambiario' en la hoja 8265,96."
+          },
+          {
+            "nombre": "1899,99",
+            "rol": "Hoja de facturación inversa #1 (clon de 'conferencia'): todo en cero salvo el espacio La Boite, ajustado a mano para que el TOTAL dé $1.899,9872 ≈ el monto del nombre.",
+            "estructura": "Plantilla idéntica a 'conferencia' con todas las cantidades de Misceláneos y AyB puestas en 0. Único cargo: discoteca La Boite G88=1637,92 (valor manual = 1.899,99/1,16, retro-calculado desde el total deseado). Garantía 10% forzada a 0 (G103=0 sin fórmula). Resumen: Sub Total $1.637,92 + IVA 16% $262,07 = TOTAL $1.899,9872. Curiosidad: en esta copia L45 usa =I45*60% (PVP café 4,48) mientras 'conferencia' usaba 30% en esa misma fila — el % de margen muta entre copias."
+          },
+          {
+            "nombre": "4994,95",
+            "rol": "Hoja de facturación inversa #2 (clon de 'ESPACIOS'): solo el ESTAR GENERAL, ajustado a mano para que el TOTAL dé $4.994,9484 ≈ el monto del nombre.",
+            "estructura": "Igual a ESPACIOS pero desplazada UNA FILA hacia arriba respecto a las demás hojas (secciones en filas 35/41/85 en vez de 36/42/86 — se eliminó una fila al copiar). Misceláneos en 0 (la línea de redes eléctricas D=720 con qty 0). Único cargo: ESTAR GENERAL D=4.500 'descuento especial' con G87=4305,99 manual (= 4.994,95/1,16). Garantía = 0. Sub Total $4.305,99 + IVA $688,96 = TOTAL $4.994,9484."
+          },
+          {
+            "nombre": "8265,96",
+            "rol": "Hoja de facturación inversa #3 (mezcla cena+conferencia): agrupa los cargos restantes (misceláneos, AyB y el diferencial cambiario) para que el TOTAL dé $8.265,9548 ≈ el monto del nombre.",
+            "estructura": "Plantilla estándar (encabezado = Cena especial, 30 pax). Misceláneos $4.085,53: Protocolo $90, Mobiliario G27=300 (manual, sin fórmula), Planta eléctrica $800, Personal de servicio G29=365 manual (D=600), Audiovisuales $2.500, y línea 'Servicio / Diferencial cambiario' G31=30,53 (importado del cálculo en Bs de plan de pagos). Celda suelta I26=4055 [=SUM(G26:G30)] como ayuda. AyB $2.799: MENÚ 3 TIEMPOS 61,3×30=1.839 (aquí L44=I*30%, PVP 46,41, pero D sigue en 61,3), Estación de café 3,2×180=576, vino 6,4×60=384; 10% servicio $279,90. Espacios: fila Bar GAVIOTA sin celda G (subtotal espacios 0). Mismas celdas sueltas K86-K94 que CENA. Resumen: Sub Total $6.884,53 + servicio $279,90 + IVA $1.101,52 = TOTAL $8.265,9548; garantía manual 0."
+          }
+        ],
+        "entidades": [
+          {
+            "entidad": "Cliente",
+            "campos": [
+              "Cliente (razón social): texto, ej. 'TS Sport'",
+              "Rif o cédula: texto formato venezolano, ej. 'V15.419.123'",
+              "Dirección: texto, ej. 'Caracas'",
+              "Contacto (persona): texto, ej. 'Antonio Linares'",
+              "Teléfono: vacío en este libro",
+              "Email: vacío en este libro"
+            ]
+          },
+          {
+            "entidad": "Evento (sub-evento / cotización)",
+            "campos": [
+              "Nombre del Evento: texto, ej. 'Conferencia deportiva', 'Cena especial', 'Evento extra Sport Bitz'",
+              "Cantidad de Persona: TEXTO LIBRE, ej. '80 personas, aproximadamente', '30 personas, aproximadamente', 'Circulantes'",
+              "Hora de Inicio / Hora de culminacion: hora, ej. 09:00-13:00, 18:00-21:00",
+              "Fecha Presupuesto: fecha texto, 'miércoles, 21 de enero de 2026'",
+              "Fecha del Acuerdo: vacía (etapa contrato no alcanzada)",
+              "Fecha del Evento: fecha texto con anotación embebida 'jueves, 07 de mayo de 2026 (fechas en revisión)'",
+              "Ejecutivo de ventas (firma): 'K. Jaén'",
+              "Estado implícito: cotización informativa, no bloquea espacios"
+            ]
+          },
+          {
+            "entidad": "Línea de cotización (ítem)",
+            "campos": [
+              "Ítem: nombre o '.' (placeholder)",
+              "C 'OCULTO': precio lista vía =VLOOKUP(A,[1]Productos!$A$1:$C$511,2,FALSE) a libro externo de catálogo (511 productos); da 0 o #N/A si no existe",
+              "Precio Unit. (D): USD, manual o =M (PVP calculado)",
+              "Cantidad (E): número (personas, unidades, botellas, copas, servicios)",
+              "Comentarios (F): texto largo descriptivo, incluye menús y condiciones ('cliente trae el licor', 'precio de referencia')",
+              "Sub Total (G): =D*E, frecuentemente PISADO con valor manual para descuentos",
+              "Sección: MISCELANEOS / TRASLADOS / ALIMENTOS Y BEBIDAS / ESPACIOS"
+            ]
+          },
+          {
+            "entidad": "Línea AyB - costeo interno (columnas ocultas I-V)",
+            "campos": [
+              "Monto (I): costo unitario del proveedor (Alternativa Gastronómica / FIRIUS), ej. menú $35,70, café $2,80, vino $10,50/botella",
+              "Cantidad (J): =E o ajustada a mano (ej. E67=93 vs J67=81)",
+              "Total (K): =I*J (costo total)",
+              "Margen (L): encabezado '0.6'; fórmula =I*60% pero también 30% o 70% según fila/hoja",
+              "PVP (M): =I+L (precio venta = costo + margen)",
+              "T '15% extra': =(M*15%)+M (escenario PVP+15%)",
+              "U 'precio full lista': =I*2 (markup 100%)",
+              "V: =U*J; con subtotal V82 y 'Servicio FULL' V83=V82*10%",
+              "Columnas N-S (Monto/Cantidad/Total/0.2/PVP/TOTAL FINAL): escenario proveedor de vino FIRIUS, casi sin usar; Q83 'Precio vino' R83==M48+R48"
+            ]
+          },
+          {
+            "entidad": "Salón / Espacio",
+            "campos": [
+              "Nombre: discoteca La Boite (uso DIARIO), Bar GAVIOTA, ESTAR GENERAL, Antigua Estación, Restaurante Humboldt",
+              "Precio lista (C, catálogo): La Boite 1.000, GAVIOTA 1.500, ESTAR GENERAL 3.000, Restaurante Humboldt #N/A (no está en catálogo)",
+              "Precio cotizado (D): puede ser mayor o menor que lista (La Boite D=2.000; ESTAR GENERAL D=4.500)",
+              "Precio cobrado (G): manual con 'descuento especial' (1.500, 500, 1.637,92, 4.305,99) o 'cortesía' (0)",
+              "Comentario de condición: 'precio especial', 'cortesía', 'montaje (preventivo)'"
+            ]
+          },
+          {
+            "entidad": "Ítem de menú / AyB (catálogo observado)",
+            "campos": [
+              "MENÚ 3 TIEMPOS: PVP $61,30 pp, costo $35,70 (Entrada chupe de pollo, Principal lomito en mantequilla de hierbas con cremoso de papas, Postre ponqué cremoso de chocolate Waraira)",
+              "AGUA MINERAL 330ML: PVP $2,40, costo $1,50",
+              "ESTACION DE CAFÉ (AMERICANO O LATTE): PVP $3,20-4,48, costo $2,00-2,80",
+              "REFRESCOS DE LATA: PVP $3,20, costo $2,00",
+              "Copa de vino: $6,40/copa al cliente; costo $10,50/botella (6 botellas ≈ 60 copas)",
+              "DESCORCHE DE VINOS Y ESPUMANTES: $15/botella (costo ref 7-15)",
+              "DESCORCHE DE OTROS LICORES: $25/botella (costo $20)",
+              "Cócteles con licor del cliente (solo servicio): Mojito tradicional, Whisky and Ginger, Vodka Maracuyá, Tequila Sunrise, Gin Tonic, Vodka Cranberry, Ron Fizz Tropical",
+              "Servicios de coffee break: refrigerios AM/PM, almuerzo ligero, postre, estación de chocolate, pasapalos (3 pp / 1 pp)"
+            ]
+          },
+          {
+            "entidad": "Traslado",
+            "campos": [
+              "Traslado Ida-Vuelta p/persona (teleférico): lista $10, cotizado $0-15; coordinado con VENTEL; nota de horarios de subida/bajada",
+              "Traslado terrestre: $60 por unidad de 9-10 personas",
+              "Tratamiento fiscal: exento de IVA (línea separada en el resumen)"
+            ]
+          },
+          {
+            "entidad": "Personal / staffing interno (bloque K16:L24)",
+            "campos": [
+              "Àrea: àrea p, ayb, cocina, bartender, montaje, prevencion, coordinador",
+              "Cantidad por área: ej. ayb=4, resto 1 (cocina=0 en la cena)",
+              "Total personal: =SUM (10 conferencia, 9 cena)"
+            ]
+          },
+          {
+            "entidad": "Proveedor",
+            "campos": [
+              "Alternativa Gastronómica: catering (costos columna I)",
+              "FIRIUS: proveedor de vino (bloque N-S)",
+              "Evenplus: audiovisuales — sonido/pantalla/micrófonos $1.740 + camión $240; redes eléctricas $360+IVA",
+              "VENTEL: operador del teleférico"
+            ]
+          },
+          {
+            "entidad": "Resumen financiero de cotización",
+            "campos": [
+              "Total Misceláneos (=G34)",
+              "Total AyB (=G82, SIN el 10% servicio)",
+              "Total Salones (=G93)",
+              "Sub Total USD (=suma de los 3)",
+              "Traslado (exento de IVA) (=G40)",
+              "Total 10% de servicio (=G83, solo sobre AyB)",
+              "16% IVA (=SubTotal*16%, no grava servicio ni traslado)",
+              "Total USD (=SubTotal+traslado+servicio+IVA)",
+              "Garantìa 10% (=TotalUSD*10%, depósito reembolsable)",
+              "TOTAL (=TotalUSD+Garantía)"
+            ]
+          },
+          {
+            "entidad": "Abono / Pago (plan de pagos)",
+            "campos": [
+              "Monto del abono: 4 columnas F-I; recibidos: $1.900, $4.995, $5.000, $3.666 (asignado solo 3.231,74)",
+              "Imputación: cada abono se reparte manualmente entre 12 buckets (4 componentes × 3 sub-eventos), ej. abono 2 ($4.995) cubre 1.095 misceláneos conferencia + 420 espacios cena + 3.480 espacios comerciales",
+              "Saldo (J): =Total - abonos; pendiente final J24=$1.514,8631 (las 3 garantías)",
+              "Componente: Misceláneos / Alimentos y bebidas (con % servicio) / Espacios / Garantía",
+              "Pagos en bolívares: Bs 1.622.647,11 + Bs 2.466.882,50 = Bs 4.089.529,61 convertidos a USD a tasa 496,83",
+              "Diferencial cambiario: $30,53 (=35,42/1,16) trasladado al cliente como línea"
+            ]
+          }
+        ],
+        "logica_precios": "MONEDA: todo se cotiza y controla en USD ('Sub Total USD', 'Total USD', plan de pagos 'Ref. en $'). El IVA 16% 'será reflejado al momento de la facturación en Bolívares' y todo pago en moneda extranjera genera 3% de IGTF (impuesto venezolano a grandes transacciones financieras). Los pagos reales llegaron en bolívares y se convirtieron a USD a tasa 496,83 Bs/USD (plan de pagos O9: 4.089.529,61 Bs / 496,83 = $8.231,25); la diferencia de tasa generó un 'Diferencial cambiario' de $30,53 (=35,42 Bs-USD /1,16) que se cobró al cliente como línea de misceláneos. CADENA DE CÁLCULO POR LÍNEA: Sub Total G = Precio Unit. (D) × Cantidad (E). D se alimenta de dos fuentes: (a) precio lista del catálogo externo ([1]Productos, 511 ítems, columna C 'OCULTO' vía VLOOKUP), o (b) en AyB, el PVP calculado M. MOTOR DE COSTEO AyB (oculto, cols I-V): costo proveedor I → margen L = I × 60% (encabezado L43=0.6, pero hay filas con 30% y 70%: el menú 3 tiempos usa 70% en CENA y 30% en 8265,96) → PVP M = I + L → D=M (o tipeado a mano: menú D=61,3 vs M=60,69). Escenarios paralelos: T = M × 1,15 ('15% extra'); U = I × 2 = 'precio full lista del 19/07' con su propio subtotal V82 y 'Servicio FULL' V83 = V82×10%. El bloque K (=I×J) da el costo total de AyB: ej. CENA ingresos $2.223 vs costo $1.134 → margen bruto ~49%; conferencia $576 vs $504. CARGO POR SERVICIO: 10% SOLO sobre el subtotal de Alimentos y Bebidas (G83 = G82×10%); misceláneos, espacios y traslados no llevan servicio. IVA: 16% aplicado a Sub Total USD = Misceláneos + AyB (sin servicio) + Salones (G101 = G98×16%); el 10% de servicio NO entra en la base del IVA, y los TRASLADOS están exentos de IVA (se suman en línea aparte G99). TOTAL USD = SubTotal + Traslado + 10% servicio + IVA. GARANTÍA: 10% del Total USD, sumada al TOTAL final como depósito para gastos adicionales (en las hojas de facturación se fuerza a 0). DESCUENTOS: no hay campo de descuento; se pisa la fórmula G con un valor manual y se anota en comentarios ('descuento especial', 'precio especial', 'cortesía'): La Boite lista 1.000 → cotizada 2.000 → cobrada 1.500; Bar Gaviota lista 1.500 → cobrada 500; personal de servicio D=600 → G=365. REDONDEOS: no hay; los totales arrastran colas de punto flotante (7165.576000000001, 4994.948399999999) y las hojas-monto retro-calculan la base como Total/1,16 (1.637,92; 4.305,99) para cuadrar centavos del nombre de la hoja (1899,99; 4994,95; 8265,96). PRECIO POR PERSONA VS TOTAL: el menú es por persona ($61,30 pp × 30), el café por servicio ($3,20 × 180 servicios = 80 pax × ~2 + extras), el vino se vende por copa ($6,40 × 60) pero se costea por botella ($10,50 × 6) — la conversión copas/botella es mental; espacios y audiovisuales son precio cerrado por evento; teleférico por persona; transporte terrestre por vehículo (9-10 pax). ANTICIPO: 100% del presupuesto, pagado completo 48h antes del evento.",
+        "flujo_trabajo": "El flujo comercial implícito es: (1) SOLICITUD del cliente → (2) COTIZACIÓN: el ejecutivo (K. Jaén) duplica la plantilla por cada sub-evento, fija Fecha Presupuesto (21-ene-2026) y arma las secciones consultando el catálogo externo de productos y los costos de proveedores; la cotización tiene vigencia de 7 días, es 'de carácter informativo' y NO bloquea espacios. (3) NEGOCIACIÓN: se ajustan precios pisando celdas (descuentos especiales, cortesías) y se mantienen escenarios internos de precio (costo+60%, full lista ×2, +15%) para saber hasta dónde ceder; hay ítems 'EN REVISIÓN' (internet dedicado) y fechas 'en revisión' anotadas dentro de la celda de fecha. (4) CONFIRMACIÓN: el cliente contacta al ejecutivo, se verifica disponibilidad del espacio y se emite contrato definitivo — el campo 'Fecha del Acuerdo' (vacío aquí) marcaría esa etapa. (5) COBRANZA: se exige 100% de anticipo pagado 48h antes del evento + 10% de garantía para gastos adicionales; la hoja 'plan de pagos' registra 4 abonos ($1.900, $4.995, $5.000, $3.666) y los imputa manualmente contra 12 buckets (Misceláneos/AyB/Espacios/Garantía × Conferencia/Cena/Espacios comerciales), cada uno con su IVA 16% y, en AyB, su 10% de servicio; el saldo J por fila baja a 0 cuando el bucket queda cubierto; al cierre del archivo solo quedan pendientes las 3 garantías ($1.514,86). Los abonos llegaron en bolívares (Bs 4.089.529,61) y se convirtieron a tasa 496,83, generando un diferencial cambiario de $30,53 que se recargó al cliente. (6) FACTURACIÓN: se crean hojas espejo cuyo nombre es el monto exacto de cada factura/cobro (1899,99 / 4994,95 / 8265,96 — suman $15.160,89, ≈ los $15.126,74 abonados + diferencial), reagrupando los cargos y retro-calculando líneas para cuadrar; el IVA se factura en Bs. (7) OPERACIÓN: el bloque oculto Àrea/Cantidad planifica el personal del evento (área pública, AyB×4, cocina, bartender, montaje, prevención, coordinador) y los comentarios coordinan logística con terceros (VENTEL teleférico con horarios de subida/bajada, Evenplus audiovisuales con camión, Alternativa Gastronómica catering). Responsable visible único: el ejecutivo de ventas que firma cada hoja.",
+        "datos_ejemplo": "CLIENTE: TS Sport, RIF V15.419.123, contacto Antonio Linares, Caracas. EVENTO: Sportbitz, 07-may-2026 (cotizado 21-ene-2026): Conferencia deportiva 80 pax 9:00-13:00; Cena especial 30 pax 18:00-21:00; Evento extra 'circulantes' 18:00-21:00. SALONES (lista → cobrado): discoteca La Boite uso DIARIO ($1.000 lista, $2.000 cotizado, $1.500 y $1.637,92 cobrados), Bar GAVIOTA ($1.500 → $500), ESTAR GENERAL ($3.000 → $3.000 / $4.305,99 sobre D=$4.500), Antigua Estación ($1.000), Restaurante Humboldt ($3.000, siempre en cortesía). MENÚ 3 TIEMPOS $61,30 pp (costo $35,70): chupe de pollo / lomito en mantequilla de hierbas con cremoso de papas / ponqué cremoso de chocolate (Waraira). AyB: agua mineral 330ml $2,40 (costo $1,50), estación de café americano/latte $3,20 (costo $2,00-2,80), refresco de lata $3,20 (costo $2), copa de vino $6,40 (costo botella $10,50), descorche vinos/espumantes $15/botella, otros licores $25/botella; 7 cócteles de servicio con licor del cliente (mojito, whisky & ginger, vodka maracuyá, tequila sunrise, gin tonic, vodka cranberry, ron fizz tropical). MISCELÁNEOS: Protocolo de Maripérez <100 pax $90 (brazaletes), mobiliario mixto 90 pax $300, personal de servicio $540-600, planta eléctrica con operador $800, paquete audiovisual $2.500 (pantalla 4x2m, rack 4 micrófonos Sennheiser, 2 luces móviles, 2 truss, consola; costo Evenplus $1.740 + camión $240), redes eléctricas 12 puntos $720 (Evenplus $360+IVA), internet dedicado 300MB $2.500/día. TRASLADOS: teleférico $10-15 ida/vuelta pp (VENTEL), van terrestre $60 (9-10 pax). TOTALES: Conferencia $7.165,58 / Cena $4.727,12 / Espacios $4.746,72 (con garantías). PAGOS: abonos $1.900 + $4.995 + $5.000 + $3.666; en Bs: 1.622.647,11 + 2.466.882,50 a tasa 496,83 Bs/USD; pendiente $1.514,86 (garantías). PARÁMETROS: IVA 16%, servicio 10% (solo AyB), garantía 10%, IGTF 3%, margen AyB estándar 60% sobre costo, vigencia 7 días, anticipo 100% (48h antes).",
+        "rarezas": "1) DESCUENTOS PISANDO FÓRMULAS: los 'descuentos especiales' y cortesías se aplican sobrescribiendo la celda G (=D*E) con un número a mano (G88=1500, G88=500, G29=365, G27=300, G87=4305,99) — no queda registro del % ni del motivo; la app necesita campo de descuento/cortesía con trazabilidad. 2) HOJAS-FACTURA CON NOMBRE = MONTO: '1899,99', '4994,95' y '8265,96' son clones donde una línea se retro-calcula (Total/1,16) y la garantía se fuerza a 0 para que el TOTAL cuadre con un cobro; es facturación inversa manual que la app debería reemplazar con asignación de pagos a documentos. 3) DATOS FANTASMA DE PLANTILLA: decenas de filas con Ítem='.' conservan cantidades y comentarios de eventos anteriores (140 pasapalos, 96 refrigerios AM, cócteles) con precio 0 en todas las hojas, incluso donde no aplican (coffee breaks en una cena); ruido y riesgo de cobrar/omitir por accidente. 4) MARGEN INCONSISTENTE: el encabezado dice 0.6 (60%) pero las fórmulas L usan 30%, 60% o 70% según fila y copia (el mismo menú: 70% en CENA → PVP 60,69; 30% en 8265,96 → PVP 46,41), y el precio cliente D=61,30 fue tipeado, sin coincidir con ningún PVP calculado. 5) CATÁLOGO EXTERNO FRÁGIL: VLOOKUP a '[1]Productos!$A$1:$C$511' (otro archivo) devuelve #N/A para 'Restaurante Humboldt' y 0 para ítems no catalogados; los enlaces rotos congelan precios viejos. 6) COSTOS INTERNOS EN LA HOJA DEL CLIENTE: la columna C 'OCULTO' y todo el bloque I-V (costos de proveedor, márgenes, escenarios) viven en la misma hoja que se imprime/envía — basta des-ocultar columnas para filtrar los márgenes del hotel. 7) DESALINEACIÓN DE PLANTILLA: la hoja '4994,95' está corrida una fila (secciones en 35/41/85 vs 36/42/86), rompiendo cualquier comparación o consolidación entre hojas. 8) CELDAS SUELTAS SIN ETIQUETA: K86=4,9 / K87=18,2 / K88=6,3 / K93=11,2 / K94=40,6 (CENA y 8265,96), I26=4055, N7/N8 con millones de Bs y P/Q de conversión en 'plan de pagos' — cálculos críticos (tasa de cambio 496,83, diferencial cambiario $30,53) escondidos en celdas anónimas. 9) INCONSISTENCIAS DE GARANTÍA: plan de pagos B20=742,14 vs E20=651,42; B21=445,85 vs garantía real de CENA 429,74; B22=823,6 vs E22=417,6 — valores zombis de versiones anteriores que nadie limpió. 10) DESCUADRE DE ABONOS: encabezado I4=3.666 recibido pero solo 3.231,74 imputado (I24); diferencia 434,26 sin explicar (≈ el 434,2 imputado en H10). 11) CANTIDADES J ≠ E en el costeo: J67=81 vs E67=93, J68=118 vs E68=90, J46=6 botellas vs E46=60 copas — conversiones de unidad y ajustes hechos de memoria. 12) FECHAS Y PAX COMO TEXTO: 'jueves, 07 de mayo de 2026 (fechas en revisión)' y '80 personas, aproximadamente' / 'Circulantes' en campos que deberían ser fecha y número; imposible validar capacidad u ocupación. 13) BASE DE IVA DISCUTIBLE: el 16% se aplica al subtotal pero NO al 10% de servicio, y hay dos 'totales de AyB' distintos (G82 sin servicio en el resumen, G84 con servicio en la sección). 14) SIN FOLIO NI VERSIONES: no hay número de cotización, ni estado, ni historial — las versiones se gestionan duplicando hojas y renombrándolas con montos. 15) ERRATAS arrastradas en el texto al cliente: 'Provedor', 'Proveedo', 'Garantìa', 'general un 3% por IGTF' (por 'genera'), 'debes ser revisadas'. 16) Colas de punto flotante visibles en totales (7165.576000000001) por falta de redondeo a 2 decimales."
+      },
+      {
+        "file": "control-ventas",
+        "proposito": "Es el tracker maestro (pipeline) del departamento comercial de banquetes y eventos del Hotel Humboldt (Caracas, accesible por teleférico). Cada fila es una oportunidad/presupuesto de evento: registra quién la atiende (ejecutivo), de dónde vino el lead (canal), qué tipo de evento es, cuánto se cotizó en dólares de referencia (\"Ref $\"), el desglose interno de Alimentos y Bebidas + 10% de servicio (duplicado = 20%), los costos de proveedores externos, el estado del embudo (enviado → seguimiento → aprobado → realizado/rechazado), las fechas de pago y cierre administrativo, la forma de pago (Bolívares, Zelle, divisas en efectivo, tarjetas, obsequio) y notas libres. Lo usan para: (1) dar seguimiento diario a cotizaciones, (2) registrar el cierre financiero post-evento (adicionales, reintegros, retenciones, diferencia cambiaria), y (3) producir manualmente un resumen mensual de KPIs (presupuestos realizados, facturados, rechazados, sin respuesta) para gerencia. El libro tiene una hoja de catálogos (\"Datos\"), las hojas anuales \"2025\" y \"2026\" (con estructura ligeramente distinta), un \"Resumen 2026\" de KPIs mensuales tecleados a mano, y una \"Hoja 5\" que es el área de trabajo (staging) donde copian las filas del mes para sumarlas y pasar los números al resumen.",
+        "hojas": [
+          {
+            "nombre": "Datos",
+            "rol": "Hoja de catálogos / listas de validación de datos. Define los valores permitidos de los campos categóricos del tracker. No contiene transacciones.",
+            "estructura": "Fila 1 = encabezados que replican las columnas del tracker: A=Fecha, B=Ejecutivo, C=Cliente, D=Tipo Cliente, E=Canal Ingreso, F=Tipo Evento, G=Estado, H=Monto Inicial USD, I=Monto Final USD, J=Fecha Pago, K=Fecha Cierre, L=Motivo Cierre, M=Forma de Pago, N=Observaciones, O=Seguimiento Futuro, P=Motivo de rechazo. Debajo de cada encabezado, la lista de valores: Ejecutivos (B2:B6): Frenecis, Malvis, José, Otro, Kristian. Tipo Cliente (D2:D6): Corporativo, Asociacion, Academico, Institucional, Social (varios con espacio final). Canal Ingreso (E2:E9): CRM, Casa Matriz, Gerente, Director, Contacto directo con el ejecutivo, Caminante, Referido, Correo. Tipo Evento (F2:F23): 22 tipos (Almuerzo, Aniversario, Boda, Cena, Coctel, Congreso, Convención, Cumpleaños, Desayuno, Evento VG, Fiesta de Navidad, Fiesta electronica, Grabaciones TV, HOSPEDAJE, Institucional, Lanzamiento de producto, Propuesta de Matrimonio, Reunión ejecutiva, Rueda de prensa, Sesion de Fotos, Networking, Pijamada). Estado (G2:G18): DOS vocabularios mezclados — el viejo (Presupuesto solicitado, Enviado, Suspendido, Institucional en espera de pago, institucional pagado, Aprobado y realizado, Aprobado y por ejecutar, Seguimiento, Cortesia CM ejecutada, Rechazado) y uno nuevo (Aprobado, Presupuesto enviado, Seguimiento [duplicado], Negociación, Confirmado / Aprobado, Perdido / Rechazado, Evento realizado). Motivo Cierre (L2:L4): Reintegro, Comp. Retenciones, Diferencia cambiaria. Forma de Pago (M2:M7): Zelle, OBSEQUIO, T/D, T/C, Divisas Efectivo, Bolivares. Motivo de rechazo (P2:P7): Teleferico, Capacidad de hospedaje, Variedad de Menu, Capacidad de espacios, Precio, Logistica."
+          },
+          {
+            "nombre": "2025",
+            "rol": "Tracker principal del pipeline 2025 (julio 2025 – feb 2026). ~160 oportunidades en filas 3-162.",
+            "estructura": "A1 combinada A1:V1 con título 'Hotel Humboldt – Control Gestión Ventas'. Fila 2 = encabezados: A=Fecha | B=Ejecutivo | C=Nombre Cliente | D=Tipo Cliente | E=Canal Ingreso | F=Tipo Evento | G=Estado | H=N° de Hab | I=N° de VG | J=Monto Inicial USD | K=Monto Final USD | L=Proveedores | M=AyB | N=10% servcio (sic, typo) | O=TOTAL | P=Fecha Pago | Q=Fecha Cierre | R=Motivo Cierre | S=Forma de Pago | T=Observaciones | U=Seguimiento Futuro | V=Motivo de rechazo. Fórmulas en cada fila: N = M*10%*2 (¡20% de AyB, no 10%!) y O = M+N. K (Monto Final) solo se llena al cerrar: a veces = J + adicionales (K3=J3+1318.83), a veces mayor (K100=30193.30 vs J100=13471.50) o menor por descuento (K122=21730 vs J122=23450). Las últimas filas (157-162, fechas ene-feb 2026) están DUPLICADAS en la hoja 2026."
+          },
+          {
+            "nombre": "2026",
+            "rol": "Tracker del pipeline 2026 con estructura evolucionada: separa la fecha en 'Fecha solicitud' y 'Fecha de envío'. Filas 3-104 (~100 oportunidades, oct 2025 – may 2026), más filas 105-110 con fórmulas pre-arrastradas en cero.",
+            "estructura": "Título combinado B1:W1 'Hotel Humboldt – Control Gestión Ventas'. Fila 2 = encabezados (todo corrido una columna respecto a 2025): A=Fecha solicitud | B=Fecha de envío | C=Ejecutivo | D=Nombre Cliente | E=Tipo Cliente | F=Canal Ingreso | G=Tipo Evento | H=Estado | I=N° de Hab | J=N° de VG | K=Monto Inicial USD | L=Monto Final USD | M=Proveedores | N=AyB | O=10% servcio | P=TOTAL | Q=Fecha Pago | R=Fecha Cierre | S=Motivo Cierre | T=Forma de Pago | U=Observaciones | V=Seguimiento Futuro | W=Motivo de rechazo. Fórmulas: O=N*10%*2, P=N+O. La columna A (Fecha solicitud) está VACÍA en todas las filas — la agregaron pero nunca la usan. B100:B102 = #VALUE! (fórmulas de fecha rotas). Usa más el vocabulario nuevo de estados (Evento realizado, Perdido / Rechazado, institucional pagado). La columna W (Motivo de rechazo) se usa esporádicamente con valor 'Precio'."
+          },
+          {
+            "nombre": "Resumen 2026",
+            "rol": "Dashboard mensual de KPIs para gerencia. Bloques por mes con conteo y monto 'Ref $' por categoría de presupuesto. Casi todo tecleado a mano (no fórmulas).",
+            "estructura": "Bloque marzo 2026 (A2:C8): fecha 2026-03-01, columnas '#' y 'Ref $'. Filas: Presupuestos realizados 24 / $200,183.90; Realizados y facturados el mismo mes 3 / $11,693.50; Facturados (eventos) 9 / $58,162.58; Rechazados 2 / $5,757.00; Sin respuesta del cliente 17 / $174,780.40; Enviados con seguimiento 2 / $7,953.00. Bloque abril 2026 (A11:E18): Presupuestos realizados 25 / $124,713.04 con E12 = C13+C14+C16+C17+C18 (única fórmula de verificación cruzada); Realizados por ejecutar 2 / $11,573.50; Facturados el mismo mes 1 / $3,335.50; Facturados de arrastre 8 / $19,457.260000000002 (artefacto de coma flotante); Rechazados 7 / $29,806.00; Sin respuesta 11 / $54,031.41; Enviados con seguimiento/feedback 4 / $25,966.63. Columna E con notas de facturación: 'Fundacíón Instituto Simón Bolívar para la Paz', 'Sportbitz (2 facturas)', 'Marqués de Cáceres (2 facturas)', 'Ikaika (Bigott - 2 facturas)', 'Agua Grande (1 factura)' — revela que un presupuesto puede generar varias facturas."
+          },
+          {
+            "nombre": "Hoja 5",
+            "rol": "Área de staging/cálculo manual: copia de las ~25 oportunidades de abril 2026 (pegadas en el layout VIEJO de la hoja 2025, columnas A..T) para totalizar el mes y alimentar a mano el 'Resumen 2026'.",
+            "estructura": "Filas 2-26 = duplicado exacto de las filas de abril de la hoja 2026 pero re-mapeadas al esquema 2025 (A=Fecha, B=Ejecutivo, C=Cliente... J=Monto Inicial, L=Proveedores, M=AyB, N=10% servicio, O=TOTAL, T=Observaciones). J27 = SUM(J2:J26) = 124,713.04 (coincide con 'Presupuestos realizados' de abril en el Resumen). 3 filas vacías. J31 = J24+J16 = 11,573.50 (suma manual de dos celdas escogidas a ojo = 'realizados por ejecutar' del Resumen: 15 años Juan Daoud + Marqués de Cáceres). Confirma que los KPIs del Resumen se calculan copiando filas a mano y sumando celdas seleccionadas manualmente."
+          }
+        ],
+        "entidades": [
+          {
+            "entidad": "Oportunidad / Presupuesto de evento (fila del tracker)",
+            "campos": [
+              "Fecha (solicitud): date, ej. 2025-08-12. En hoja 2026 se separó en 'Fecha solicitud' (nunca llenada) y 'Fecha de envío'",
+              "Ejecutivo: catálogo {Frenecis, Malvis, José, Kristian, Otro}",
+              "Nombre Cliente: texto libre, mezcla persona/empresa/evento, ej. 'Boda - Alexandra García', 'Coca Cola', 'Maria Herrera (Banco Plaza)'",
+              "Tipo Cliente: catálogo {Corporativo, Asociacion, Academico, Institucional, Social}",
+              "Canal Ingreso: catálogo {CRM, Casa Matriz, Gerente, Director, Contacto directo con el ejecutivo, Caminante, Referido, Correo}",
+              "Tipo Evento: catálogo de 22 valores (Boda, Fiesta de Navidad, Reunión ejecutiva, Coctel, Lanzamiento de producto, HOSPEDAJE, Sesión de fotos, Convención, Congreso, Cumpleaños, Propuesta de Matrimonio, Networking, Pijamada, Evento VG, etc.) + 'Graduación' usado fuera de catálogo",
+              "Estado: catálogo doble (~17 valores) — pipeline: Presupuesto solicitado/Enviado/Seguimiento/Negociación/Suspendido/Aprobado y por ejecutar/Aprobado y realizado/Evento realizado/Rechazado/Perdido-Rechazado + ramas especiales: Institucional en espera de pago, institucional pagado, Cortesia CM ejecutada",
+              "N° de Hab: número de habitaciones asociadas (0-50), ej. Baker McKenzie=20, Graciela Tovar=25, CNPC=26",
+              "N° de VG: número (0-60) — pasajeros/visitantes (probablemente boletos de teleférico/visitantes generales), ej. Calox=40, Networking Grehilys=60",
+              "Monto Inicial USD: decimal, presupuesto cotizado total en USD referencia, ej. 19687.73, 72198.80",
+              "Monto Final USD: decimal, monto real al cierre (con adicionales o descuentos), solo en cerrados, ej. K3=21006.56 [=J3+1318.83]",
+              "Proveedores: decimal USD, costo de terceros (decoración, talentos, traslados), rango 60–20,000; el valor 250 se repite mucho (tarifa fija recurrente)",
+              "AyB: decimal USD, subtotal de Alimentos y Bebidas, ej. 2477.50, 19434.35",
+              "10% servcio (sic): decimal calculado = AyB*10%*2 (20% real)",
+              "TOTAL: decimal calculado = AyB + servicio (NO incluye proveedores ni habitaciones ni espacios — no es el total del evento)",
+              "Fecha Pago: date, ej. 2025-08-03 (a veces contaminada con texto o montos)",
+              "Fecha Cierre: date del cierre administrativo, ej. 2025-08-06",
+              "Motivo Cierre: catálogo {Reintegro, Comp. Retenciones, Diferencia cambiaria}",
+              "Forma de Pago: catálogo {Bolivares, Zelle, T/D, T/C, Divisas Efectivo, OBSEQUIO}",
+              "Observaciones: texto libre con datos estructurados embebidos (adicionales en $, fecha real del evento, pax, número de facturas)",
+              "Seguimiento Futuro: texto libre, ej. 'Cambio de presupuesto el 12-08'",
+              "Motivo de rechazo: catálogo {Teleferico, Capacidad de hospedaje, Variedad de Menu, Capacidad de espacios, Precio, Logistica} — casi siempre vacío, se usa 'Precio'"
+            ]
+          },
+          {
+            "entidad": "Cliente (implícita, no normalizada)",
+            "campos": [
+              "Nombre: texto libre sin ID — mismo cliente con grafías distintas (Vanessa Luna/Vanessa luna, Dery Pabon x3, Ola Ola Travel x2, Turismo/Turisma Agua Grande)",
+              "Contacto: embebido en el nombre entre paréntesis, ej. 'Sika Venezuela S.A. - Patricia Semeco', 'Corpovex (Frangeli)'",
+              "Tipo Cliente: clasificación inconsistente (Coca Cola=Corporativo pero Pepsico, Huawei, Farmatodo, Bancaribe='Social')",
+              "Cliente final vs intermediario: en notas, ej. agencias Turismo Maso y Ola Ola cotizando para el mismo cliente final 'LA SANTE'"
+            ]
+          },
+          {
+            "entidad": "Ejecutivo de ventas",
+            "campos": [
+              "Nombre: Frenecis, Kristian, José, Malvis, Otro (comodín)",
+              "Frenecis y Kristian concentran ~85% de las filas; Malvis solo aparece en 2026; 'Otro' usado en dic-2025"
+            ]
+          },
+          {
+            "entidad": "Cotización / Versión de presupuesto (implícita)",
+            "campos": [
+              "Versiones múltiples como filas separadas: Federico Rios 2 filas ('buffet y pasapalos' $33,980 vs 'estaciones y pasapalos' $30,345); Vanessa Luna 60 pax $8,125 vs 30 pax $4,232; Luis Semprun $2,227.20 vs $4,454.40",
+              "Versiones en una sola fila vía notas: 'Tiene dos escenarios, cena y desayuno', 'Se enviaron 4 opciones distintas al cliente', 'Tiene dos versiones, buffet y plato servido navideño'",
+              "Modificaciones/descuentos: 'Se han hecho 4 modificaciones y descuentos'"
+            ]
+          },
+          {
+            "entidad": "Pago / Cierre financiero",
+            "campos": [
+              "Fecha Pago: date",
+              "Forma de Pago: Bolivares | Zelle | Divisas Efectivo | T/D | T/C | OBSEQUIO",
+              "Fecha Cierre: date (cierre puede generar 2 facturas separadas: 'evento principal y adicionales')",
+              "Motivo Cierre: Reintegro / Comp. Retenciones (comprobantes de retención IVA/ISLR de corporativos) / Diferencia cambiaria (USD ref vs Bs pagados)",
+              "Adicionales: solo en observaciones, ej. 'ADICIONALES POR 1.318,83 (alimentos y bebidas, traslados y material extra POP)'",
+              "No existen abonos/pagos parciales como campos, pese a estados 'en espera de pago'"
+            ]
+          },
+          {
+            "entidad": "Resumen mensual de KPIs",
+            "campos": [
+              "Mes: date (2026-03-01, 2026-04-01)",
+              "Categoría: Presupuestos realizados / realizados por ejecutar / realizados y facturados el mismo mes / facturados (eventos) [de arrastre] / rechazados / sin respuesta / enviados con seguimiento",
+              "#: conteo manual",
+              "Ref $: monto USD referencia, mayormente tecleado a mano",
+              "Notas de facturas por cliente: 'Sportbitz (2 facturas)', 'Ikaika (Bigott - 2 facturas)'"
+            ]
+          },
+          {
+            "entidad": "Catálogos maestros (hoja Datos)",
+            "campos": [
+              "Ejecutivos (5)",
+              "Tipos de Cliente (5)",
+              "Canales de Ingreso (8)",
+              "Tipos de Evento (22)",
+              "Estados (17, dos vocabularios solapados)",
+              "Motivos de Cierre (3)",
+              "Formas de Pago (6)",
+              "Motivos de Rechazo (6)"
+            ]
+          }
+        ],
+        "logica_precios": "MONEDA: Todo el libro trabaja en USD como moneda de referencia ('Monto Inicial USD', 'Monto Final USD', 'Ref $' en el resumen) — práctica estándar venezolana de cotizar en dólar referencial. Los PAGOS reales llegan en múltiples instrumentos: Bolívares (lo más común en cerrados), Zelle, Divisas Efectivo, T/D (tarjeta de débito), T/C (tarjeta de crédito) y OBSEQUIO (cortesías de Casa Matriz). NO se registra la tasa de cambio ni el monto en Bs en ninguna columna; la brecha cambiaria solo aparece como motivo de cierre 'Diferencia cambiaria' y en una nota de cliente: 'Me hicieron un descuento en la totalidad del evento en divisa'. FÓRMULAS NÚCLEO (idénticas en 2025, 2026 y Hoja 5): (1) Servicio = AyB * 10% * 2 → es decir 20% sobre Alimentos y Bebidas, aunque la columna se llama '10% servcio' (sic). El ×2 es un hack: probablemente 10% de servicio para la casa + 10% para el personal, codificado como duplicación. (2) TOTAL = AyB + Servicio = AyB × 1.20. CRÍTICO: este 'TOTAL' NO es el total del evento — excluye Proveedores, habitaciones, alquiler de espacios y teleférico; es solo el subtotal interno de A&B con servicio. El total cotizado real vive en 'Monto Inicial USD', que se transcribe a mano desde el documento de cotización y NUNCA se reconcilia por fórmula con AyB+Servicio+Proveedores (la diferencia implícita = espacios + hospedaje + teleférico + otros, jamás desglosada). IVA: existe (Venezuela 16%) pero NO está modelado en ninguna columna; solo se menciona en una observación: 'total del desayuno 4.671,43 + servicio + traslados + IVA'. RETENCIONES: clientes corporativos/institucionales entregan comprobantes de retención (Motivo Cierre 'Comp. Retenciones'), tampoco modeladas numéricamente. MONTO FINAL vs INICIAL: el final captura adicionales (K3 = J3 + 1318.83, nota explica 'alimentos y bebidas, traslados y material extra POP'), incrementos grandes (Corporación Vnet: inicial 13,471.50 → final 30,193.30; Banco Plaza 10,349 → 11,941.09) o descuentos (Fiesta electrónica: 23,450 → 21,730). PROVEEDORES es un costo de terceros pass-through (decoración, talento, traslados), rango $60–$20,000, con $250 como tarifa fija recurrente (probable traslado/teleférico básico). CORTESÍAS: eventos de Casa Matriz con Forma de Pago = OBSEQUIO y AyB/Proveedores en 0 ('no se agrega costo de AYB, personal de AYB, y 10%, puesto que la materia prima del buffet se compró directamente por el Sr Gaston Lugo con fondos otorgados desde Casa Matriz'). Eventos 'solo espacio' (sesiones de fotos, propuestas de matrimonio, hospedaje puro) llevan AyB=0 → Servicio=0 → TOTAL=0, y el valor real queda solo en Monto Inicial. ERROR DE FÓRMULA DETECTADO: fila 105 de 2025 (Perfumería Las Villas): O105 = N105*10%*2 = 110.03 en vez de M+N = 3,300.90 — el TOTAL calcula servicio-sobre-servicio por arrastre mal hecho. Otro: P15 (columna Fecha Pago) contiene =N15+O15 = 15,367.80, una fórmula monetaria en columna de fecha. NO hay redondeos sistemáticos: los montos arrastran decimales largos (2890.176, 868.656, 19457.260000000002). No hay precio por persona modelado (los pax solo aparecen en notas: '60 pax', 'mayor aforo'), ni márgenes, ni costos internos vs precio de venta.",
+        "flujo_trabajo": "EMBUDO COMERCIAL implícito: Solicitud (Fecha / lead entra por un Canal: CRM es el dominante, luego Referido, Director, Contacto directo, Correo, Gerente, Casa Matriz, Caminante=walk-in del teleférico) → Elaboración del presupuesto → 'Enviado' (en 2026 con 'Fecha de envío' propia) → 'Seguimiento' / 'Negociación' (visitas a la propiedad, degustaciones, pregiras, ajustes y descuentos: 'Se han hecho 4 modificaciones y descuentos', 'visita a la propiedad el 13-11') → 'Aprobado y por ejecutar' (a menudo con aprobación verbal y 'en espera de pago del salón') → pago (Fecha Pago + Forma de Pago) → 'Aprobado y realizado' / 'Evento realizado' → cierre administrativo (Fecha Cierre + Motivo Cierre: Reintegro, Comp. Retenciones, Diferencia cambiaria; puede generar 2 facturas: evento principal + adicionales). Salidas negativas: 'Rechazado' / 'Perdido / Rechazado' (el estado más frecuente; los motivos formales casi nunca se llenan — viven en Observaciones: precio, teleférico caro, logística de invitados, cambio de locación, cliente no responde) y 'Suspendido'. RAMA INSTITUCIONAL paralela (entes de gobierno: Mintur, Ministerio Alimentación, Casa Militar, Corporación Turismo de Caracas): 'Institucional, en espera de pago' → 'institucional pagado', con eventos que se realizan sin facturar ('Evento Institucional realizado / no facturado'). RAMA CORTESÍAS: 'Cortesia CM ejecutada' (Casa Matriz/inversionistas, Forma de Pago=OBSEQUIO, sin costos cargados). RESPONSABLES: cada fila tiene un ejecutivo dueño (Frenecis y Kristian llevan ~85%; José creció en 2026; Malvis nueva). SEGUIMIENTO: columna 'Seguimiento Futuro' + fechas de recontacto en notas ('Seguimiento el 11 de noviembre'); clientes que piden eventos para 2026 se registran con un año de antelación (bodas nov/dic 2026 cotizadas en oct 2025). REPORTE MENSUAL: a fin de mes copian las filas del mes a 'Hoja 5', suman con SUM, y teclean los resultados en 'Resumen 2026' clasificándolos en: realizados / por ejecutar / facturados el mismo mes / facturados de arrastre (eventos de meses previos que facturan ahora) / rechazados / sin respuesta / en seguimiento. NO hay: fecha del evento como campo (solo la de solicitud — la fecha real del evento vive en notas tipo 'Evento para el 12/12/26'), ni abonos parciales, ni asignación de salón, ni conexión con calendario de disponibilidad.",
+        "datos_ejemplo": "EJECUTIVOS: Frenecis, Kristian, José, Malvis. RANGO DE TICKETS (USD ref): desde $92.80 (Propuesta de Matrimonio Rolando Diaz) y $215.52 (Sesión de fotos / Propuesta de Matrimonio — tarifa repetida, también $344.83 en dic) hasta $72,198.80 (Convención Marilyn Crespo) y $48,735.44 (Convención Agencia Bolivariana para Actividades Espaciales). Tickets típicos: Fiesta de Navidad corporativa $5,000–$36,485 (Lab Sigfried $36,485 con AyB $15,421.40); Bodas $4,384–$47,329 (Boda Angela Lapenta $45,294.96 con AyB $19,434.35; Vanessa Carreño $47,329 con AyB $34,079); Reunión ejecutiva $3,335–$18,031; Sesión de fotos $250–$2,352; HOSPEDAJE puro: Claudia Buscema 50 hab × $290/noche = $14,500; Maria G. Rodriguez 1 hab $290; Eduardo López 20 hab $5,420. CLIENTES REALES: Coca Cola, Pepsico, Nestlé, Huawei, Farmatodo, Bancaribe, BBVA Provincial, Banco Plaza, CINEX, Plumrose, Laboratorios Calox, LETI, Sika, Cashea, Tiendas Daka, Baker McKenzie, CAF, Cruz Roja Internacional, CNPC América, Mintur, Ministerio Alimentación, Casa Militar, colegios (Francia, Yale, Concepción), agencias (Ola Ola Travel, Turismo Maso, Caracas Catering, IKAIKA/Bigott). EVENTOS CERRADOS EJEMPLO: Aerolínea GOL lanzamiento $19,687.73 inicial → $21,006.56 final (adicionales $1,318.83), pagado en Bolívares 03/08, cerrado 06/08; 1WIN $29,800.21 con AyB $8,124.35 + servicio $1,624.87 = $9,749.22, Bolívares; Fiesta electrónica Rossana Rodriguez 50 hab, $23,450 → $21,730, Divisas Efectivo; Casa Militar Navidad cortesía CM $6,690 → $8,440, OBSEQUIO. ESPACIOS mencionados solo en notas: 'el espacio del PH' (penthouse), 'Restaurante Humboldt'. MENÚS solo en notas: 'buffet y pasapalos' $33,980 vs 'estaciones y pasapalos' $30,345 (misma boda, 50 pax), 'buffet vs plato servido navideño', degustaciones previas para bodas. PROVEEDORES: $250 recurrente (mínimo), hasta $20,000 (Tiendas Daka). KPIs marzo 2026: 24 presupuestos / $200,183.90; abril 2026: 25 / $124,713.04, 7 rechazados / $29,806, 11 sin respuesta / $54,031.41.",
+        "rarezas": "1) La columna '10% servcio' (typo incluido) calcula en realidad 20% (=AyB*10%*2) — el ×2 es un hack no documentado; la app debe modelar el cargo de servicio explícito y parametrizable. 2) 'TOTAL' no es el total: solo AyB+servicio; excluye proveedores, espacios, habitaciones y teleférico, y nunca cuadra contra 'Monto Inicial USD' (transcrito a mano desde la cotización) — no existe reconciliación ni desglose completo del presupuesto. 3) Error de fórmula vivo: 2025 fila 105 (Perfumería Las Villas) O105==N105*10%*2 → TOTAL $110.03 en vez de $3,300.90 (servicio sobre servicio). 4) Fórmula monetaria en columna de fecha: P15 (Fecha Pago) = N15+O15 = 15,367.80. 5) Celdas #VALUE! en fechas (2026 B100:B102). 6) Texto en campos numéricos/fecha: H149='1\\nCortesia' (N° Hab), L/M/N149='-', Q122='-', P155='Cortesia CM' (Fecha Pago), O149=4325 hardcodeado sin fórmula. 7) Celda huérfana AF145='//' flotando 16 columnas a la derecha. 8) Duplicación masiva de registros: las filas ene-feb 2026 existen en AMBAS hojas (2025 y 2026) con estados distintos (Boda Alexandra García: 'Aprobado y por ejecutar' en 2025, 'Rechazado' en 2026 — sin saber cuál manda); 'Hoja 5' duplica entero abril 2026. Riesgo real de doble conteo en pipeline. 9) El Resumen mensual es 100% manual: copian filas a Hoja 5, suman con SUM y teclean los números; J31=J24+J16 suma celdas escogidas a ojo; artefacto 19457.260000000002 delata la falta de redondeo/formato. 10) Dos vocabularios de Estado solapados conviviendo (Rechazado vs Perdido/Rechazado, Aprobado y realizado vs Evento realizado, Enviado vs Presupuesto enviado, 'Seguimiento' listado dos veces en el catálogo) + casing inconsistente ('crm' vs 'CRM', 'institucional pagado' en minúscula). 11) Catálogos sucios: espacios finales ('Almuerzo ', 'Academico ', 'Institucional ', 'Asociacion '), variantes 'Sesión de fotos'/'Sesion de Fotos', 'Graduación' usado sin estar en catálogo, 'Institucional' es a la vez Tipo Cliente y Tipo Evento. 12) Tipo Cliente mal clasificado sistemáticamente (Pepsico, Huawei, Farmatodo, Bancaribe, CINEX = 'Social'; Coca Cola = 'Corporativo') — el campo se llena al azar. 13) NO existe campo de FECHA DEL EVENTO ni de SALÓN/ESPACIO ni de N° de PAX: la fecha real del evento ('12/12/26'), el aforo ('60 pax') y el espacio ('PH', 'Restaurante Humboldt') viven enterrados en Observaciones — imposible ver calendario de ocupación o detectar conflictos de salones. 14) Multimoneda sin tasa: montos en USD referencia, pagos en Bolívares/Zelle/efectivo, pero ni la tasa BCV ni el monto en Bs se registran; la 'Diferencia cambiaria' solo existe como motivo de cierre. IVA (16%) y retenciones mencionados en notas pero jamás calculados. 15) Sin versionado de cotizaciones: cada versión es una fila nueva (Federico Rios x2, Vanessa Luna x2, Luis Semprun x2) o una nota ('se enviaron 4 opciones'), inflando los totales del pipeline; dos agencias cotizando para el mismo cliente final (LA SANTE) son filas independientes sin vínculo. 16) Sin registro de abonos/pagos parciales pese a estados 'en espera de pago'; un cierre puede generar 2+ facturas (principal + adicionales) sin estructura. 17) Filas con fórmulas pre-arrastradas mostrando ceros (2026 filas 105-110) que ensucian sumas y conteos. 18) Columna 'Fecha solicitud' agregada en 2026 pero vacía en el 100% de las filas; 'Motivo de rechazo' formal casi nunca se llena (los motivos reales están en texto libre). 19) Clientes sin normalizar: sin ID, grafías múltiples, contacto embebido en el nombre con paréntesis y guiones; nombres con saltos de línea y espacios colgantes ('Comité Internacional de la Cruz Roja\\\\n', 'Lisbeth MAta\\\\nInversiones Kaluka'). Una app debería: normalizar clientes y catálogos, separar evento/cotización/versiones/pagos, modelar fecha y espacio del evento con calendario, calcular servicio/IVA/retenciones/tasa de cambio explícitos, reconciliar desglose vs total, y generar los KPIs mensuales automáticamente."
+      },
+      {
+        "file": "latin-aesthetic",
+        "proposito": "Es el libro Excel de cotización individual de eventos del departamento comercial del Hotel Humboldt (Caracas, cima del Ávila, acceso por teleférico desde Maripérez). Este ejemplar cotiza el \"3er Encuentro Nacional e Internacional de la Estética\" para el cliente Latin Aesthetic Institute (200 personas, 2 días). El equipo comercial lo usa con doble propósito: (1) generar el documento cliente-facing (columnas A–G de Hoja1: datos del cliente, secciones de Misceláneos, Traslados, Alimentos y Bebidas, Espacios, resumen con IVA/servicio/garantía y condiciones legales) y (2) como herramienta interna de costeo y márgenes (columna C \"OCULTO\" con costo de catálogo vía VLOOKUP, y un bloque oculto en columnas I–X que modela costo del proveedor externo de catering, markup 30%, escenarios +15%/+30% y precio \"full\" a 2x costo con 10% de servicio, además de notas de proveedores y un planificador de personal operativo). La hoja \"Productos\" es el catálogo maestro de precios (fechado 27/06/2024) que alimenta los VLOOKUP.",
+        "hojas": [
+          {
+            "nombre": "Hoja1",
+            "rol": "Documento de cotización propiamente dicho: parte visible para el cliente (cols A–G) + motor interno de costeo/márgenes de AyB (cols I–X, ocultas o fuera del área de impresión) + mini-planificador de personal (K16:L24). Es la hoja que se imprime/envía.",
+            "estructura": "(1) Filas 1–5 vacías (espacio para membrete). (2) Bloque de cabecera filas 6–18, formato etiqueta(A)/valor(B, celdas combinadas B7:G7…B18:G18): Cliente, Rif o cédula, Dirección, Contacto, Teléfono, Email, Nombre del Evento, Cantidad de Persona, Hora de Inicio, Hora de culminación, Fecha Presupuesto, Fecha del Acuerdo (vacía), Fecha del Evento (texto libre). (3) Bloque lateral K16:L24 'Àrea/Cantidad': dotación de personal por área (àrea p=1, ayb=5, cocina=0, batender=0, montaje=1, prevencion=1, coordinador=1, Total=9 con =SUM(L17:L23)) — claramente interno, conviviendo junto al texto de cortesía al cliente (A20). (4) Título combinado A22:G22 'COTIZACION DE EVENTO'. (5) Cuatro secciones de ítems con el mismo patrón de columnas: A=Ítem (combinada A:B), C=OCULTO (costo catálogo: =VLOOKUP(A,Productos!$A$1:$C$511,2,FALSE)), D=Precio Unit. (manual), E=Cantidad, F=Comentarios, G=Sub Total (=D*E), y fila 'Sub Total' con SUM: MISCELANEOS (filas 24–33, subtotal G33=6.440), TRASLADOS (35–39, G39=4.000), ALIMENTOS Y BEBIDAS (41–84, G82=4.800 + fila 83 '10% Servicio' G83=480 + fila 84 'Total Alimentos y Bebidas' G84=5.280), ESPACIOS (86–93, G93=9.000). (6) Dentro de AyB, bloque interno columnas I–X (filas 42–84): encabezados I41='Provedor: Alternativa Gastronómica', N41='Proveedo vino FIRIUS', T41='15% extra', U41='10% de servicio al precio full lista del 19/07', X42='30%%'; columnas I=Monto(costo)=C, J=Cantidad=E, K=Total=I*J, L=I*30%, M=PVP=I+L, N/T=(M*15%)+M, U=I*2, V=U*J, X=(M*30%)+M; subtotales K82=3.794 (costo), K83 10% servicio, K84=4.173,4; V82=7.588 'full', V83 'Servicio FULL'; R83='Precio vino' = #REF! (fórmula rota). Filas 43/50/59 son separadores 'Día 1/Día 2/Día 3'; filas 66–81 son filas plantilla vacías con ítem '.'. Notas de costos de proveedor en I31/I32 ('250 $ + IVA--- DJ'; 'Evenplus 800 + IVA para pantalla - traslado en camión $150 a Deysi Oropeza'). (7) Resumen filas 95–104 (etiquetas en F, montos en G): Total Misceláneos=G33; Total AyB=G82 (¡sin servicio!); Total Salones=G93; Sub Total USD=SUM=20.240; Traslados - Exento de IVA=G39=4.000; Total 10% de servicio=480; 16% IVA=+G98*16%=3.238,40; Total USD=SUM(G98:G101)=27.958,40; Garantìa 10%=G102*10%=2.795,84; TOTAL=SUM(G102:G103)=30.754,24. (8) 'CONDICIONES IMPORTANTES' filas 106–116: 11 cláusulas (IVA en Bs., IGTF 3%, vigencia 7 días, anticipo 100% 48h antes, garantía 10%, no bloqueo de espacios, contrato al confirmar). (9) Fila 120: firma 'K. Jaén' (ejecutiva de ventas)."
+          },
+          {
+            "nombre": "Productos",
+            "rol": "Catálogo maestro de precios (lista del 27/06/2024) que alimenta los VLOOKUP de la columna 'OCULTO' de Hoja1. Mezcla productos gastronómicos, bebidas, salones/espacios, mobiliario, traslados, hospedaje, descorche e ítems-placeholder sin precio.",
+            "estructura": "Dos columnas: A=nombre del producto/servicio, B=precio en USD. Fila 1: encabezado 'PRODUCTOS | 2024-06-27' (fecha de la lista en B1). Fila 2: ítem ficticio '.' con precio 0 (truco para que las filas vacías de la cotización resuelvan 0 en vez de #N/A). ~296 filas con datos, agrupadas implícitamente por bloques temáticos (sin encabezados de categoría): sandwiches; buffets con nombre propio (Galipán, Gaviota, Humboldt, Paco, Sabas Nieves, Sanabria: 24–28); mini postres (1–2,4); pasapalos/canapés/sushi (0,55–2,75); buffets/menús 3 tiempos (23,5–27,5) y 4 tiempos (32,5–37); estaciones temáticas (chupe 6, quesos 16, sushi 6,5…); coffee breaks (College, Criollo, Fit, Pérez Jiménez, Tea Time: 11,5–12,5); box lounge (12,5–13); bebidas (aguas 1–2, café 2, jugos 2,15–4, refresco lata 2, tés 1); ESPACIOS/salones (filas 136–142: Bar Mirador PH 3.000, Estar General 3.000, Bar Gaviota 1.500, Salón Redondo 500, Terraza Norte y Sur 1.000; Restaurante Bonpland y Piscina sin precio); mobiliario (silla 5, mesa 10 pers. 50); Protocolo de Maripérez (<100 pax 90, >100 pax 180); Traslado ida-vuelta p/persona 10; Visita Guiada 15; descorche (vinos 15, otros licores 20); paquetes de Hospedaje (Escape en las alturas 250, Romance entre las nubes 336,21, Humboldt Spa 370,69, Experiencia Humboldt 301,72, Experiencia entre las nubes 336,21, Aventura en el Humboldt 293,10); ~20 ítems-placeholder sin precio (Personal de evento, Audiovisuales, Planta eléctrica, Talento, Utilería, Desayuno, Buffet especial, Actividad recreativa…); insumos al costo (caja Pepsi 42, caja agua gasificada 20, limón 1kg/35 pax 4, hielo 3); menús navideños (34/38/17,5); bollería de desayuno (croissants 3–6); y un segundo bloque de pasapalos con nombres terminados en '.' y precios más altos que sus equivalentes del primer bloque (aparenta ser lista PVP nueva conviviendo con la lista de costos vieja); cierra con jugos por jarra y Mocktails 9."
+          }
+        ],
+        "entidades": [
+          {
+            "entidad": "Cliente",
+            "campos": [
+              "Cliente (razón social): texto — 'Latin aesthetic institute'",
+              "Rif o cédula: numérico/texto — 14851588 (sin prefijo V-/J-, sin validación)",
+              "Dirección: texto — 'Caracas'",
+              "Contacto: texto con título — 'Sra. Raquel Díaz Casado'",
+              "Teléfono: texto — '04125900056' (formato local VE, con espacio colgante)",
+              "Email: texto — 'raqueldiazcasado@gmail.com'"
+            ]
+          },
+          {
+            "entidad": "Evento / Cotización",
+            "campos": [
+              "Nombre del Evento: texto — '3 er encuentro nacional e internacional de la estética'",
+              "Cantidad de Persona: texto — '200 personas' (número embebido en texto)",
+              "Hora de Inicio / Hora de culminación: hora — 09:00:00 / 16:00:00",
+              "Fecha Presupuesto: fecha — martes, 05 de mayo de 2026",
+              "Fecha del Acuerdo: fecha — vacía (se llena al confirmar; actúa como estado)",
+              "Fecha del Evento: TEXTO LIBRE — '14 y 15 de novieimbre (sábado y domingo, respectivamente)' (multi-día, sin año, con typo)",
+              "Duración implícita: 2 días (codificada multiplicando cantidades ×2, no como campo)",
+              "Ejecutivo de ventas / preparado por: 'K. Jaén' (celda suelta A120)",
+              "Vigencia: 7 días desde Fecha Presupuesto (solo en texto de condiciones)"
+            ]
+          },
+          {
+            "entidad": "Línea de cotización (ítem)",
+            "campos": [
+              "Ítem: texto, debe coincidir EXACTO con Productos!A para el VLOOKUP; '.' = fila placeholder",
+              "OCULTO (col C): costo/precio de catálogo = VLOOKUP(A,Productos!$A$1:$C$511,2,FALSE)",
+              "Precio Unit. (col D): manual, precio cobrado al cliente (a veces =I, a veces digitado; frecuentemente 2× el catálogo)",
+              "Cantidad (col E): unidades — mezcla pax, pax×días, unidades físicas, días",
+              "Comentarios (col F): descripción larga cliente-facing (menú detallado, medidas de tarima, advertencia '2 días de evento')",
+              "Sub Total (col G): =D*E",
+              "Sección a la que pertenece: MISCELANEOS / TRASLADOS / ALIMENTOS Y BEBIDAS / ESPACIOS",
+              "Día (solo AyB): separadores Día 1 / Día 2 / Día 3"
+            ]
+          },
+          {
+            "entidad": "Línea interna de costeo AyB (cols I–X, solo sección AyB)",
+            "campos": [
+              "Monto (I): costo unitario proveedor = col C",
+              "Cantidad (J): = col E",
+              "Total (K): = I*J (costo total)",
+              "Markup 30% (L): = I*30% (constante visible como '0.3' en L42)",
+              "PVP (M): = I+L (costo +30%)",
+              "PVP+15% (N y/o T): =(M*15%)+M — etiqueta T41 '15% extra'",
+              "Precio full (U): = I*2 — etiqueta U41 '10% de servicio al precio full lista del 19/07'",
+              "Total full (V): = U*J; V83 'Servicio FULL' = V82*10%",
+              "PVP+30% (X): =(M*30%)+M — etiqueta X42 '30%%'",
+              "Precio vino (R83): #REF! (fórmula rota)",
+              "Encabezados Q42=0.2 y O/P (Monto/Cantidad/Total) de un escenario abandonado"
+            ]
+          },
+          {
+            "entidad": "Producto de catálogo (hoja Productos)",
+            "campos": [
+              "Nombre: texto (clave del VLOOKUP, sensible a espacios finales)",
+              "Precio: número USD (puede estar vacío para ítems 'por cotizar'; B2=0 para el ítem '.')",
+              "Fecha de lista: 2024-06-27 (en B1, a nivel de catálogo)",
+              "Categoría: implícita por posición/bloque, no existe como columna",
+              "Metadatos embebidos en el nombre: porciones ('1 KG - 8 PAX'), unidades por persona ('2 UND POR PAX'), mínimos ('A PARTIR DE 30 PAX'), umbrales ('Menos de 100 pers.')"
+            ]
+          },
+          {
+            "entidad": "Salón / Espacio",
+            "campos": [
+              "Nombre: BAR MIRADOR (PH), ESTAR GENERAL, Bar GAVIOTA, SALÓN REDONDO, TERRAZA NORTE Y SUR, Restaurante Bonpland, Piscina",
+              "Tarifa por día (USD): 3000 / 3000 / 1500 / 500 / 1000 / s.p. / s.p.",
+              "Sin campos de capacidad, m2 ni horarios en el catálogo (la media jornada se maneja como comentario: 'media jornada - Horario AM')"
+            ]
+          },
+          {
+            "entidad": "Proveedor externo (solo en notas internas)",
+            "campos": [
+              "Alternativa Gastronómica: catering AyB (I41)",
+              "FIRIUS: proveedor de vino (N41)",
+              "Evenplus: audiovisuales — pantalla 800$+IVA, traslado camión $150 (I32)",
+              "DJ: 250$+IVA (I31)",
+              "Festejos Mar: equipo de cocina externo (comentario F91)",
+              "Contacto logístico: 'Deysi Oropeza' (I32)"
+            ]
+          },
+          {
+            "entidad": "Dotación de personal del evento (K16:L24)",
+            "campos": [
+              "Área: àrea p, ayb, cocina, batender(bartender), montaje, prevencion, coordinador",
+              "Cantidad por área: 1/5/0/0/1/1/1",
+              "Total: 9 =SUM(L17:L23)",
+              "Relacionado con el ítem cobrado 'Personal de evento' 540$/día ×2 días"
+            ]
+          },
+          {
+            "entidad": "Resumen financiero / Pago",
+            "campos": [
+              "Total Misceláneos, Total AyB (sin servicio), Total Salones",
+              "Sub Total USD (base imponible)",
+              "Traslados - Exento de IVA (fuera de base)",
+              "Total 10% de servicio (solo sobre AyB)",
+              "16% IVA (sobre Sub Total USD)",
+              "Total USD",
+              "Garantìa 10% (depósito por extras, = Total×10%)",
+              "TOTAL (Total + garantía)",
+              "Anticipo: 100% del presupuesto, pagado 48h antes del evento (solo texto)",
+              "IGTF 3% sobre pagos en divisa (solo texto, nunca calculado)"
+            ]
+          }
+        ],
+        "logica_precios": "MONEDA: todo el libro está en USD ('Sub Total USD', 'Total USD'); no hay tasa de cambio en ninguna celda. El IVA 16% 'será reflejado al momento de la facturación en Bolívares' (conversión a Bs. ocurre fuera del Excel, a tasa del día de facturación) y todo pago en moneda extranjera 'genera un 3% por IGTF' (impuesto venezolano a transacciones en divisa) que se menciona pero NUNCA se calcula. CADENA DE CÁLCULO CLIENTE: (a) cada línea G=Precio Unit.(D, manual)×Cantidad(E); (b) subtotal por sección =SUM; (c) Sub Total USD G98=Misceláneos(6.440)+AyB sin servicio(4.800)+Espacios(9.000)=20.240; (d) Traslados (teleférico) 4.000 se mantienen FUERA de la base por ser 'Exento de IVA'; (e) 10% Servicio SOLO sobre el subtotal de AyB: G83=G82*10%=480 (no aplica a espacios, misceláneos ni traslados); (f) IVA 16% sobre G98 solamente: 3.238,40 — es decir, el cargo de servicio NO entra en la base de IVA y los traslados tampoco; (g) Total USD = 20.240+4.000+480+3.238,40 = 27.958,40; (h) Garantía 10% del Total = 2.795,84 (depósito para gastos adicionales) que se SUMA al gran TOTAL = 30.754,24. MOTOR INTERNO DE MÁRGENES (AyB, cols I–X): costo unitario I = precio de catálogo (que para AyB es el costo del proveedor externo Alternativa Gastronómica); K=I×J costo total (3.794 para este evento); PVP teórico M = costo×1,30 (markup 30%, constante '0.3' en L42); escenario T/N = PVP×1,15 ('15% extra'); escenario X = PVP×1,30 ('30%%'); escenario 'full' U = costo×2 con 10% de servicio sobre el total V ('10% de servicio al precio full lista del 19/07': V82=7.588, servicio 758,80). En la práctica los precios cobrados (col D) suelen ser ~2× el costo de catálogo: agua 1,5→2; café 2→4; refresco 2→4 (día 3); Protocolo Maripérez 90→180; refrigerio 10→20 en col U. Espacios también se sobre-marcan a mano: Estar General catálogo 3.000 → cobrado 4.500/día. Margen bruto AyB de este evento: cobrado 4.800 vs costo 3.794 ≈ 21%. REDONDEOS: ninguno; quedan flotantes crudos (0,44999999999999996; 2,2424999999999997) y un precio de catálogo con 15 decimales (MINI LUMPIAS 3,50912427552421, claramente resultado de fórmula pegado como valor). MULTI-DÍA: no hay campo de días; se codifica en Cantidad (E=2 'días' para espacios/AV/personal; E=400 = 200 pax × 2 días para traslados/agua/café). VLOOKUP: =VLOOKUP(Ítem,Productos!$A$1:$C$511,2,FALSE) — rango hasta fila 511 aunque el catálogo llega a ~296; índice 2 = columna B (precio); el ítem '.' resuelve a 0 gracias a la fila ficticia Productos!A2.",
+        "flujo_trabajo": "El flujo comercial implícito: (1) SOLICITUD — el cliente contacta y un ejecutivo de ventas (aquí 'K. Jaén', firma en A120) arma la cotización copiando la plantilla, llenando cabecera de cliente/evento y eligiendo ítems del catálogo. (2) COTIZACIÓN EMITIDA — 'Fecha Presupuesto' (05/05/2026) marca la emisión; vigencia de precios de SIETE (7) días; el documento es 'solo de carácter informativo, no implica bloqueo de espacios' y las tarifas 'sujetas a cambio sin previo aviso'. Estado del pipeline rastreado por tres fechas: Fecha Presupuesto (llena) → Fecha del Acuerdo (vacía = aún no confirmado) → Fecha del Evento (texto: 14-15 noviembre, sáb-dom). (3) CONFIRMACIÓN — el cliente debe contactar al ejecutivo para verificar disponibilidad del espacio; si hay disponibilidad se envía 'el contrato definitivo'. (4) PAGO — anticipo del 100% del total del presupuesto, pagado completamente 48 horas antes del evento (no hay esquema de abonos parciales ni registro de pagos en el libro); adicionalmente se retiene una garantía del 10% para cubrir gastos extras del evento; pagos en divisa generan 3% IGTF; el IVA se factura en bolívares al momento de facturación. (5) OPERACIÓN — en paralelo el comercial pre-planifica la dotación de personal por área (bloque K16:L24: 5 de AyB, 1 montaje, 1 prevención, 1 coordinador, 1 área pública = 9 personas, coherente con el ítem 'Personal de evento' a 540$/día) y negocia con proveedores externos (catering Alternativa Gastronómica, vino FIRIUS, pantalla/sonido Evenplus, DJ, cocina de Festejos Mar), cuyos costos anota como comentarios sueltos en el área oculta. No existe en el libro: número de cotización, versionado, historial de cambios, registro de abonos, ni estado formal — todo eso vive en la cabeza del ejecutivo y en el nombre del archivo.",
+        "datos_ejemplo": "SALONES/ESPACIOS (tarifa/día USD): Bar Mirador PH 3.000; Estar General 3.000 (cobrado 4.500 en este evento); Bar Gaviota 1.500; Terraza Norte y Sur 1.000; Salón Redondo 500; Restaurante Bonpland y Piscina sin tarifa fija. MENÚS (catálogo USD/persona): Buffet Galipán 24,50; Buffet Gaviota 28; Buffet Humboldt 28; Buffet Paco 25,50; Buffet Sabas Nieves 24; Buffet Sanabria 24; Buffets 3 tiempos 23,50–27,50; Buffets 4 tiempos 32,50–37; Coffee breaks (College 12, Criollo 11,50, Fit 11,50, Pérez Jiménez 12, Tea Time 12,50); Box Lounge 12,50–13; Menús navideños 34/38/17,50; Refrigerio 10; Estación de café americano 2; agua mineral 330ml 1,50; refresco de lata 2; estación de quesos 16 (mín. 30 pax); estación de sushi 6,50 (6 und/pax); tortas 23–35/kg(8 pax); pasapalos 0,55 (empanaditas) a 2,75 (mini hamburguesa de res); mocktails 9. HOSPEDAJE (paquetes): Escape en las alturas 250; Aventura en el Humboldt 293,10; Experiencia Humboldt 301,72; Romance/Experiencia entre las nubes 336,21; Humboldt Spa 370,69. SERVICIOS: Traslado teleférico ida-vuelta 10/persona; Protocolo de Maripérez 90 (<100 pax) / 180 (>100 pax); visita guiada 15; descorche vino 15 / otros licores 20; mobiliario silla 5, mesa de 10 personas 50; Personal de evento 540/día. EVENTO EJEMPLO: congreso de estética, 200 pax, 2 días (9:00–16:00), Estar General 4.500×2=9.000; mobiliario teatro 200 pax + tarima 4,8×2m a 10/pax×200=2.000; pantalla curva 5×3m + sonido + 2 micrófonos 1.500/día×2=3.000; teleférico 10×400=4.000; agua 2×400=800; café 4×400=1.600 (×2 días); personal 540×2=1.080; protocolo 180×2=360. TOTALES: Sub Total USD 20.240; servicio AyB 480; IVA 16% 3.238,40; traslados exentos 4.000; Total USD 27.958,40; garantía 10% 2.795,84; TOTAL 30.754,24 (≈154 USD/persona). COSTOS PROVEEDOR (internos): costo AyB 3.794 vs cobrado 4.800; pantalla Evenplus 800+IVA +150 transporte; DJ 250+IVA.",
+        "rarezas": "1) INFORMACIÓN CONFIDENCIAL EN LA MISMA HOJA QUE VE EL CLIENTE: la col C se llama literalmente 'OCULTO' y las cols I–X contienen costos de proveedor, márgenes (30%, 15%, 2x) y notas internas ('Evenplus 800 + IVA… a Deysi Oropeza', 'DJ 250$+IVA') — basta des-ocultar columnas o reenviar el xlsx para filtrar todos los márgenes. Una app debe separar tajantemente vista cliente / vista interna. 2) Fórmula rota visible: R83 'Precio vino' = #REF! (celdas borradas); columnas O/P/Q (escenario 0.2) abandonadas a medias; N y T duplican la misma fórmula solo en algunas filas — inconsistencia por arrastre parcial. 3) Hack del ítem '.': fila ficticia Productos!A2='.', B2=0 para que las ~20 filas-plantilla vacías de la cotización no den #N/A en el VLOOKUP. 4) Fechas como texto libre: 'Fecha del Evento' = '14 y 15 de novieimbre (sábado y domingo, respectivamente)' — con typo, sin año, imposible de validar/agendar; 'Cantidad de Persona' = '200 personas' (número dentro de texto). 5) Multi-día codificado en la cantidad (400 = 200 pax × 2 días) sin campo de días ni de asistentes por día — fuente de errores y de comentarios redundantes '(2 días de evento)'. 6) Copy-paste sin corregir: las filas del Día 2 dicen 'día 1' en los comentarios; la fila 53 dice 'Estación de café' en la parte cliente pero su costeo interno tiene valores manuales ajenos (38×8=304, probablemente vino) — el ítem visible y su costeo quedaron desincronizados. 7) Ítems consumidos pero cobrados a 0 (D=0) en Día 2 con costo interno real (K56=300, K57=240, K58=400, K54=550): descuentos/cortesías invisibles que erosionan margen sin registro. 8) Subtotal hardcodeado parcial: G89=0 sin fórmula mientras sus vecinos usan =E*D. 9) La etiqueta 'Total AyB' del resumen (G96) apunta al subtotal SIN servicio (G82=4.800), no al 'Total Alimentos y Bebidas' (G84=5.280) — el servicio viaja por otra línea; confuso y frágil. 10) Lógica fiscal cuestionable cableada a mano: IVA 16% solo sobre G98 (excluye el 10% de servicio y los traslados); IGTF 3% mencionado pero jamás calculado; IVA 'se refleja en Bs.' sin tasa de cambio en el libro. 11) La garantía 10% (depósito reembolsable) se SUMA al TOTAL como si fuera precio. 12) Catálogo sin categorías ni vigencias: agrupación solo por posición; lista de costos 2024 y lista PVP nueva (ítems duplicados con punto final y precio mayor: 'TEQUEÑOS TRADICIONALES…' 1,05 vs 'TEQUEÑO TRADICIONAL…' 2,25) conviven en la misma columna; precio con 15 decimales (MINI LUMPIAS 3,50912427552421); ítems sin precio que devuelven 0 y obligan a digitar el precio a mano; VLOOKUP frágil por coincidencia exacta de texto (nombres con espacios finales como 'ESTACION DE CAFÉ (AMERICANO)  '). 13) Flotantes sin redondear en montos visibles (2,2424999999999997). 14) Datos operativos (dotación de personal K16:L24) y comerciales mezclados en la zona de cabecera del documento del cliente. 15) Sin número de cotización, versión, estado, ni registro de abonos: el 'estado' se infiere de qué fechas están llenas; la ejecutiva firma en una celda suelta (A120). Una app debería: separar roles/vistas, catálogo versionado con categorías y costo vs PVP, días y asistentes como campos estructurados, motor de impuestos (IVA/IGTF) y servicio parametrizado, manejo de cortesías/descuentos explícitos, garantía como depósito (no ingreso), numeración y workflow de estados (borrador→enviada→acordada→contratada→pagada→ejecutada), y registro de proveedores con sus costos por evento."
+      }
+    ],
+    "synthesis": {
+      "modelo_negocio": "OPERACIÓN ACTUAL: departamento comercial de banquetes/eventos del Hotel Humboldt (Caracas, acceso por teleférico desde Maripérez; la operadora aparece como \"OTH\"). Todo corre sobre 3 tipos de Excel: (a) un libro-cotización POR EVENTO (plantilla reciclada por copia: alimentos-mary, jac-motors, sportbitz, latin-aesthetic), (b) un catálogo de precios del caterer externo (menu-eventos, de ALTERNATIVA GASTRONOMICA 2023 C.A.) y (c) un tracker maestro de pipeline (control-ventas). ROLES: 4-5 ejecutivos de venta — Frenecis y Kristian concentran ~85% de las oportunidades, José creció en 2026, Malvis es nueva, \"Otro\" es comodín; \"K. Jaén\" firma las 4 cotizaciones analizadas (presumiblemente Kristian). Diana Sánchez, Luis Torres, Antonio Linares y Raquel Díaz son CONTACTOS DEL CLIENTE (los archivos se nombran \"Cliente - Contacto\"). PROVEEDORES CLAVE: Alternativa Gastronómica (catering, otorga 30% de descuento fijo a OTH), FIRIUS (vinos), Evenplus (audiovisuales: pantalla $1.740 + camión $240, redes $360+IVA), VENTEL (operador del teleférico), freelancers (DJ $250+IVA, Deisy Oropeza senderismo $35+IVA p/p, instructora de yoga $100+IVA, Festejos Mar cocina). FLUJO LEAD→COBRO: (1) lead entra por un canal (CRM dominante; también Referido, Director, Gerente, Contacto directo, Correo, Casa Matriz, Caminante=walk-in del teleférico) y se registra como fila en \"Control Gestión Ventas\"; (2) el ejecutivo duplica la plantilla de cotización, llena cabecera cliente/evento, arma líneas en 4 secciones (Misceláneos/Traslados/AyB/Espacios) tomando precios vía VLOOKUP del catálogo \"Productos\" (fechado 27/06/2024), pide costos a proveedores y corre escenarios de margen en columnas OCULTAS de la misma hoja que ve el cliente; (3) emite cotización en USD con vigencia 7 días, \"de carácter informativo, no bloquea espacios\" (no existe calendario de disponibilidad); (4) negociación: descuentos pisando fórmulas (\"descuento especial\", \"cortesía\"), degustaciones, visitas a la propiedad, versiones como filas nuevas del tracker; (5) confirmación = llenar \"Fecha del Acuerdo\" (vacía = no confirmado) + \"contrato definitivo\"; (6) cobro: cláusula de 100% anticipo pagado 48h antes + garantía 10%, pero en la práctica reciben ABONOS parciales en Bs/Zelle/efectivo que imputan a mano contra buckets (Sportbitz: $1.900+$4.995+$5.000+$3.666); (7) operación con staffing interno planificado en la propia hoja (9-22 personas: ayb, cocina, bartender, montaje, prevención, coordinador, área p); (8) facturación en Bolívares — a veces \"facturación inversa\": hojas clonadas cuyo nombre es el monto a cuadrar (1899,99 / 4994,95 / 8265,96); un presupuesto puede generar 2+ facturas (principal + adicionales); (9) conciliación: pagos Bs + comprobantes de retención IVA/ISLR del cliente vs facturas emitidas, saldo reexpresado a USD a tasa puntual tecleada (482,76 / 496,83 Bs/USD); (10) cierre administrativo (Reintegro / Comp. Retenciones / Diferencia cambiaria) y KPIs mensuales 100% manuales (copian filas a \"Hoja 5\", suman y teclean el \"Resumen 2026\"). RAMAS ESPECIALES: Institucional (Mintur, Casa Militar... \"evento realizado / no facturado\") y Cortesías de Casa Matriz (forma de pago OBSEQUIO, costos en 0). Tickets reales: $92,80 (propuesta de matrimonio) a $72.198,80 (convención); bodas $4.384-$47.329; navidades corporativas $5.000-$36.485.",
+      "entidades_unificadas": [
+        {
+          "entidad": "Cliente",
+          "campos": [
+            "razon_social (ej. IANCARINA C.A., TS Sport, JAC Motors Venezuela)",
+            "marca_comercial (ej. Alimentos Mary)",
+            "rif_cedula (formatos libres: 'J- 085033289', 'V15.419.123', '14851588' sin prefijo — normalizar)",
+            "tipo_cliente (catálogo: Corporativo, Asociacion, Academico, Institucional, Social)",
+            "direccion_fiscal",
+            "es_intermediario/agencia (Ola Ola Travel y Turismo Maso cotizan para cliente final LA SANTE)",
+            "cliente_final_id (nullable, para agencias)",
+            "notas"
+          ],
+          "relaciones": [
+            "1:N ContactoCliente",
+            "1:N Oportunidad",
+            "alias/grafías múltiples deben deduplicarse (Vanessa Luna/luna, Dery Pabon x3, Turismo/Turisma Agua Grande)"
+          ]
+        },
+        {
+          "entidad": "ContactoCliente",
+          "campos": [
+            "nombre + tratamiento (Sra. Diana Sánchez, Sr. Luis Torres, Antonio Linares, Sra. Raquel Díaz Casado)",
+            "telefono (0412-031-4334)",
+            "email (dsanchez@alimentosmary.com)",
+            "cargo"
+          ],
+          "relaciones": [
+            "N:1 Cliente",
+            "contacto principal de Oportunidad/Cotización (hoy embebido en el nombre del archivo y entre paréntesis en el tracker)"
+          ]
+        },
+        {
+          "entidad": "Ejecutivo (usuario)",
+          "campos": [
+            "nombre (Frenecis, Kristian/K. Jaén, José, Malvis)",
+            "rol/permisos (vista interna de costos vs vista cliente)",
+            "activo"
+          ],
+          "relaciones": [
+            "dueño de Oportunidad",
+            "firmante de Cotización",
+            "autor de overrides de precio (hoy sin trazabilidad)"
+          ]
+        },
+        {
+          "entidad": "Oportunidad (fila del pipeline)",
+          "campos": [
+            "fecha_solicitud",
+            "fecha_envio (separadas en hoja 2026)",
+            "canal_ingreso (8: CRM, Casa Matriz, Gerente, Director, Contacto directo, Caminante, Referido, Correo)",
+            "tipo_evento (22 valores: Boda, Fiesta de Navidad, Convención, Coctel, HOSPEDAJE, Sesión de fotos, Pijamada... + 'Graduación' fuera de catálogo)",
+            "estado_pipeline (unificar los 2 vocabularios)",
+            "monto_inicial_usd",
+            "monto_final_usd (con adicionales/descuentos: GOL 19.687,73→21.006,56; Vnet 13.471,50→30.193,30; Fiesta electrónica 23.450→21.730)",
+            "num_habitaciones (0-50)",
+            "num_vg (visitantes/teleférico, 0-60)",
+            "costo_proveedores_usd ($60-$20.000; $250 recurrente)",
+            "motivo_rechazo (Teleferico, Capacidad de hospedaje, Variedad de Menu, Capacidad de espacios, Precio, Logistica)",
+            "motivo_cierre (Reintegro, Comp. Retenciones, Diferencia cambiaria)",
+            "seguimiento_futuro (fecha recontacto)",
+            "observaciones"
+          ],
+          "relaciones": [
+            "N:1 Cliente",
+            "N:1 Ejecutivo",
+            "1:N Evento",
+            "1:N Cotización (versiones — hoy filas duplicadas: Federico Rios x2, Vanessa Luna x2)",
+            "1:N Pago",
+            "1:N Factura"
+          ]
+        },
+        {
+          "entidad": "Evento",
+          "campos": [
+            "nombre (Evento de Navidad, Conferencia deportiva, 3er Encuentro de la Estética)",
+            "fecha_inicio / fecha_fin (HOY texto libre: 'viernes 04 o sábado 05 de diciembre de 2026', '14 y 15 de novieimbre' sin año)",
+            "fechas_alternativas + flag en_revision",
+            "pax (HOY texto: '200 personas, aproximadamente', 'Circulantes' — número + flag aproximado + tipo circulante)",
+            "hora_inicio / hora_fin (puede cruzar medianoche: 15:00-02:00am)",
+            "num_dias / noches (hoy codificado en cantidades ×2)",
+            "parent_evento_id (sub-eventos: Sportbitz = conferencia + cena + espacios)"
+          ],
+          "relaciones": [
+            "N:1 Oportunidad",
+            "1:N ReservaEspacio",
+            "1:N StaffingEvento",
+            "1:N CostoProveedorEvento",
+            "1:N Cotización"
+          ]
+        },
+        {
+          "entidad": "Cotización",
+          "campos": [
+            "folio/numero (NO existe hoy)",
+            "version",
+            "fecha_presupuesto",
+            "fecha_acuerdo (vacía = no confirmada; hoy es el único 'estado')",
+            "vigencia_dias (7)",
+            "moneda (USD)",
+            "estado documento (borrador/enviada/acordada/contratada)",
+            "ejecutivo_firmante (K. Jaén)",
+            "subtotal_base_iva (Misceláneos+AyB sin servicio+Espacios)",
+            "total_traslados_exentos",
+            "total_servicio_10pct (solo AyB)",
+            "monto_iva_16pct",
+            "total_usd",
+            "garantia_10pct (depósito)",
+            "total_con_garantia",
+            "condiciones_legales (10-11 cláusulas plantilla)"
+          ],
+          "relaciones": [
+            "N:1 Evento",
+            "1:N LíneaCotización (agrupadas por sección y día)",
+            "1:N Factura",
+            "1:N ImputaciónPago (vía buckets)"
+          ]
+        },
+        {
+          "entidad": "LíneaCotización",
+          "campos": [
+            "seccion (MISCELANEOS | TRASLADOS | ALIMENTOS Y BEBIDAS | ESPACIOS)",
+            "dia_evento (Día 1/2/3 — hoy filas de texto)",
+            "producto_id (nullable: permitir líneas libres tipo 'Servicio especial')",
+            "descripcion_cliente (comentarios largos: menú, medidas de tarima, condiciones)",
+            "precio_lista_snapshot (col C 'OCULTO' vía VLOOKUP)",
+            "precio_unitario_cobrado (override manual frecuente: menú 17,5→28, refresco 2→4, Estar General 3.000→4.500)",
+            "cantidad + unidad (pax, pax×días, unidad, botella, copa, vehículo 9-10pax, día, evento)",
+            "subtotal",
+            "descuento {tipo: descuento especial|precio especial|cortesía, monto/%, motivo, autorizado_por} (HOY: fórmulas pisadas G88=1500 sin rastro)",
+            "exento_iva (traslados)",
+            "aplica_servicio (solo AyB)",
+            "es_opcional/referencial (hoy cantidad 0)"
+          ],
+          "relaciones": [
+            "N:1 Cotización",
+            "N:1 Producto",
+            "1:1 CosteoLíneaInterno"
+          ]
+        },
+        {
+          "entidad": "CosteoLíneaInterno (vista solo-interna)",
+          "campos": [
+            "proveedor_id",
+            "costo_unitario (col I: menú $35,70, café $2,80, vino $10,50/botella)",
+            "cantidad_costeo (puede diferir de la del cliente: J46=6 botellas vs E46=60 copas, J65=8 vs E65=540)",
+            "costo_total",
+            "markup_pct_aplicado (30/60/70% según hoja — parametrizar)",
+            "pvp_calculado",
+            "escenarios {pvp+15%, pvp+30%, costo×2 'full lista'}",
+            "margen_real_linea"
+          ],
+          "relaciones": [
+            "1:1 LíneaCotización",
+            "N:1 Proveedor",
+            "NUNCA visible en documento cliente (hoy convive en cols I-X de la hoja imprimible)"
+          ]
+        },
+        {
+          "entidad": "Producto (catálogo unificado)",
+          "campos": [
+            "id (HOY la clave es el texto exacto del nombre, con duplicados por punto final: ESFERAS DE CHICHARRON 1,7 vs 'ESFERAS DE CHICHARRON.' 2,8)",
+            "nombre",
+            "categoria (hoy implícita: ~27 secciones entre ambos catálogos)",
+            "tipo (propio | proveedor_AG | espacio | hospedaje | servicio | insumo | comodín_sin_precio)",
+            "unidad_venta (UND | PAX | botella | kg-8pax | caja | evento | día)",
+            "precio_sugerido / precio_lista",
+            "costo_proveedor",
+            "precio_con_descuento_OTH (= sugerido × 0,70)",
+            "min_pax (estación quesos mín. 30) / und_por_pax (sushi 6 und) / tramo_pax (Protocolo <100=$90, >100=$180)",
+            "nota_estado ('Modificado', 'Precio especial')",
+            "contexto_precio (pieza | buffet | emplatado — mismo plato: asado negro $11 buffet vs $26 emplatado)"
+          ],
+          "relaciones": [
+            "N:1 CategoríaProducto",
+            "N:1 Proveedor",
+            "1:N HistorialPrecio",
+            "1:N LíneaCotización",
+            "reglas de composición de paquetes (buffet: máx 3 proteínas, 3 guarniciones, 1 potaje, máx 3 postres, máx 2 jugos; 3 tiempos: 1 entrada + 1 proteína + máx 2 acompañantes + 1 postre; 4 tiempos: + 1 abrebocas)"
+          ]
+        },
+        {
+          "entidad": "HistorialPrecio (lista de precios versionada)",
+          "campos": [
+            "producto_id",
+            "fecha_vigencia (hoy UNA fecha global 27/06/2024 + lista fantasma 'del 19/07')",
+            "precio_sugerido",
+            "costo",
+            "autor / motivo del cambio (hoy: texto 'Modificado' sin fecha ni autor)"
+          ],
+          "relaciones": [
+            "N:1 Producto",
+            "snapshot referenciado por LíneaCotización"
+          ]
+        },
+        {
+          "entidad": "Espacio (salón)",
+          "campos": [
+            "nombre (BAR MIRADOR PH, ESTAR GENERAL, Bar GAVIOTA, SALÓN REDONDO, TERRAZA NORTE Y SUR, Restaurante Bonpland, Restaurante Humboldt, Piscina, discoteca La Boite, Antigua Estación, 'el PH')",
+            "tarifa_lista_dia_usd (3.000 / 3.000 / 1.500 / 500 / 1.000 / s.p. / s.p. / s.p. / 1.000 / 1.000)",
+            "capacidad_pax (NO EXISTE en ningún archivo — levantar con el dueño)",
+            "admite_media_jornada (hoy comentario 'media jornada - Horario AM')",
+            "usos especiales (Salón Redondo como camerino, cortesías de Restaurante Humboldt)"
+          ],
+          "relaciones": [
+            "1:N ReservaEspacio",
+            "1:N LíneaCotización (sección ESPACIOS)"
+          ]
+        },
+        {
+          "entidad": "ReservaEspacio (calendario — NO existe hoy)",
+          "campos": [
+            "espacio_id",
+            "evento_id",
+            "fecha + franja horaria",
+            "estado (tentativa | bloqueada | confirmada)",
+            "detección de conflictos"
+          ],
+          "relaciones": [
+            "N:1 Espacio",
+            "N:1 Evento",
+            "hoy la disponibilidad se verifica 'contactando al ejecutivo' y la cotización 'no implica bloqueo de espacios'"
+          ]
+        },
+        {
+          "entidad": "Proveedor",
+          "campos": [
+            "nombre (Alternativa Gastronómica 2023 C.A., FIRIUS, Evenplus, VENTEL, Deisy Oropeza, Festejos Mar, Gustavo)",
+            "tipo_servicio (catering, vinos, audiovisuales, teleférico, actividades)",
+            "condicion_comercial (A.G.: 30% dcto fijo a OTH)",
+            "aplica_iva (notas '+ IVA')"
+          ],
+          "relaciones": [
+            "1:N Producto (catálogo A.G.)",
+            "1:N CosteoLíneaInterno",
+            "1:N CostoProveedorEvento"
+          ]
+        },
+        {
+          "entidad": "CostoProveedorEvento",
+          "campos": [
+            "evento_id",
+            "proveedor_id",
+            "concepto (sonido/pantalla $1.740 + camión $240; senderismo $35+IVA p/p; yoga $100+IVA + $90 traslados)",
+            "monto + flag mas_iva",
+            "estado_negociación (hoy: texto suelto en columna I)"
+          ],
+          "relaciones": [
+            "N:1 Evento",
+            "N:1 Proveedor"
+          ]
+        },
+        {
+          "entidad": "StaffingEvento",
+          "campos": [
+            "evento_id",
+            "area (área p, ayb, cocina, bartender, montaje, prevención, coordinador)",
+            "cantidad (ej. 22 pax evento 200 personas; 9 para congreso 200)",
+            "costo_cargado_cliente (línea 'Personal de evento' $540/día o $1.320 sin desglose)"
+          ],
+          "relaciones": [
+            "N:1 Evento"
+          ]
+        },
+        {
+          "entidad": "Pago (abono)",
+          "campos": [
+            "oportunidad_id",
+            "fecha_pago",
+            "forma_pago (Bolivares, Zelle, Divisas Efectivo, T/D, T/C, OBSEQUIO)",
+            "moneda_original + monto_original (Bs 1.622.647,11)",
+            "tasa_cambio_id",
+            "monto_usd_equivalente",
+            "tipo (abono | anticipo | garantía | reintegro)"
+          ],
+          "relaciones": [
+            "N:1 Oportunidad/Cotización",
+            "1:N ImputaciónPago",
+            "N:1 TasaCambio"
+          ]
+        },
+        {
+          "entidad": "ImputaciónPago",
+          "campos": [
+            "pago_id",
+            "bucket (componente: Misceláneos | AyB+servicio | Espacios | Garantía × sub-evento)",
+            "monto_imputado (ej. abono $4.995 → 1.095 misc conferencia + 420 espacios cena + 3.480 espacios)",
+            "saldo_resultante"
+          ],
+          "relaciones": [
+            "N:1 Pago",
+            "N:1 Cotización/sección — reemplaza la matriz manual 'plan de pagos' de 12 buckets"
+          ]
+        },
+        {
+          "entidad": "Factura",
+          "campos": [
+            "numero",
+            "fecha",
+            "cotizacion_id",
+            "monto_bs (Factura 1: 2.050.918,96 Bs)",
+            "monto_usd_ref (hojas 1899,99 / 4994,95 / 8265,96)",
+            "tasa_cambio_id",
+            "tipo (principal | adicionales)"
+          ],
+          "relaciones": [
+            "N:1 Cotización (un presupuesto genera VARIAS facturas: 'Sportbitz (2 facturas)', 'Ikaika (Bigott - 2 facturas)')",
+            "1:N ComprobanteRetención"
+          ]
+        },
+        {
+          "entidad": "ComprobanteRetención",
+          "campos": [
+            "factura_id",
+            "tipo (IVA | ISLR)",
+            "monto_bs (Rete IVA 181.440,52 + 11.789; Rete ISLR 36.179,97 + 3.416,49)",
+            "cuenta_como_pago = true (práctica actual)"
+          ],
+          "relaciones": [
+            "N:1 Factura",
+            "entra en la conciliación: pagos+retenciones vs facturado → saldo a devolver (46.240,20 Bs ≈ $95,78)"
+          ]
+        },
+        {
+          "entidad": "TasaCambio",
+          "campos": [
+            "fecha",
+            "valor_bs_usd (observadas: 482,76 'Tasa 22-04'; 496,83)",
+            "fuente (BCV)"
+          ],
+          "relaciones": [
+            "referenciada por Pago, Factura y cálculo de Diferencial Cambiario ($30,53 cobrado al cliente como línea)"
+          ]
+        },
+        {
+          "entidad": "ConfiguraciónComercial (parámetros)",
+          "campos": [
+            "iva_pct = 16%",
+            "servicio_pct sobre AyB (10% en cotizaciones, 20% en tracker — RESOLVER)",
+            "garantia_pct = 10% (¿sobre total con IVA?)",
+            "igtf_pct = 3% (pagos en divisa)",
+            "vigencia_cotizacion_dias = 7",
+            "anticipo (100%, 48h antes)",
+            "markup_estandar_ayb (30%? 60%? ×2?)",
+            "dcto_OTH = 30%",
+            "reglas degustación (precio con dcto por pieza; 50% en buffet)"
+          ],
+          "relaciones": [
+            "consumida por el motor de cálculo de Cotización — hoy todo vive cableado en fórmulas sueltas"
+          ]
+        }
+      ],
+      "logica_precios_unificada": "ESTRUCTURA DE COTIZACIÓN (idéntica en los 4 libros-evento): 4 secciones — MISCELANEOS, TRASLADOS, ALIMENTOS Y BEBIDAS, ESPACIOS — con líneas SubTotal = PrecioUnit × Cantidad y separadores de día en eventos multi-día (la duración NO es campo: se codifica en cantidades, ej. 400 = 200 pax × 2 días). RECARGOS Y TOTALES: (1) Cargo de servicio 10% SOLO sobre el subtotal de AyB (no misceláneos, espacios ni traslados) y FUERA de la base de IVA — CONTRADICCIÓN: el tracker control-ventas calcula AyB×10%×2 = 20% real bajo la etiqueta '10% servcio' (hack ×2 no documentado, ¿10% casa + 10% personal?). (2) IVA 16% sobre SubTotal USD = Misceláneos + AyB(sin servicio) + Espacios; hospedaje SÍ grava (JAC: $25.000 hospedaje con IVA); TRASLADOS explícitamente 'Exento de IVA' (línea aparte). (3) IGTF 3% sobre todo pago en moneda extranjera: solo cláusula legal, JAMÁS calculado en ningún archivo. (4) Garantía 10% del Total USD YA CON IVA (interés compuesto), SUMADA al gran TOTAL como si fuera precio (ej. Total USD 29.607,59 → TOTAL 32.568,35); es depósito reembolsable por extras; en las hojas de facturación inversa se fuerza a 0. Cadena ejemplo Alimentos Mary: Misc 4.939,65 + AyB 12.760 + Espacios 5.000 = SubTotal 22.699,65; + traslados exentos 2.000 + servicio 1.276 + IVA 3.631,94 = Total USD 29.607,59; + garantía 2.960,76 = 32.568,35. MÁRGENES INTERNOS (motor oculto cols I-X, solo AyB tercerizada): costo proveedor A.G. → markup base 30% = PVP; escenarios paralelos precalculados: PVP+15% (=costo×1,495), PVP+30% (=costo×1,69) y costo×2 'precio full lista del 19/07' con su propio 10% de servicio. EL % MUTA entre archivos: 30% (alimentos-mary, latin-aesthetic), 60% encabezado/70% real en sportbitz (mismo menú: PVP 60,69 con 70% en CENA y 46,41 con 30% en hoja 8265,96, cobrado 61,30 tipeado). En la práctica el precio cobrado D es discrecional: ventas AL COSTO (pasapalos Alimentos Mary), +60% (menú navideño 17,5→28), +100% (refresco 2→4, café 2→4), o ~2× catálogo; margen bruto AyB observado: 21% (latin-aesthetic), 30% (alimentos-mary), ~49% (sportbitz CENA). CATÁLOGO A.G. (B2B): precio_con_descuento = precio_sugerido × 0,70 (descuento OTH fijo 30%, implementado en 2 fórmulas frágiles); precios 'NO INCLUYE IVA NI 10% DE SERVICIO'. Degustaciones: por pieza = precio con descuento por persona; buffet = 50% del precio con descuento. Mismo plato ~2,2-2,4× más caro emplatado que en buffet (asado negro $11→$26; pernil $10→$22). DESCUENTOS: NO existe campo en ningún archivo — se pisan fórmulas con valores manuales + comentario ('descuento especial', 'precio especial', 'cortesía'): La Boite lista 1.000→cotizada 2.000→cobrada 1.500; Bar Gaviota 1.500→500; Bar Mirador 3.000→1.000; también SOBREPRECIOS (Estar General 3.000→4.500). Ítems opcionales = cantidad 0 'de referencia'. PLAN DE PAGOS/ABONOS: cláusula formal = 100% anticipo pagado completo 48h antes + garantía 10%; práctica real (sportbitz) = 4 abonos parciales ($1.900, $4.995, $5.000, $3.666) imputados A MANO contra 12 buckets (Misceláneos/AyB/Espacios/Garantía × 3 sub-eventos), cada bucket con su IVA y servicio; saldo final = las 3 garantías ($1.514,86). Formas de pago: Bolívares (dominante), Zelle, Divisas Efectivo, T/D, T/C, OBSEQUIO (cortesías Casa Matriz). MONEDAS Y TASAS: TODO se cotiza y referencia en USD; factura legal e IVA en BOLÍVARES a tasa del día de facturación; ninguna celda de tasa estructurada — tasas tecleadas a mano: 482,76 ('Tasa 22-04', alimentos-mary Hoja2) y 496,83 (sportbitz); diferencial cambiario se traslada al cliente como línea de misceláneos ($30,53 = 35,42/1,16); retenciones IVA e ISLR de clientes contribuyentes especiales se SUMAN como pagos en la conciliación (pagos 2.283.702,46 Bs vs facturado 2.237.462,26 → devolver 46.240,20 Bs ≈ $95,78). FACTURACIÓN INVERSA: para cuadrar cobros se clonan hojas con el monto como nombre y se retro-calcula la base = Total/1,16 (1.637,92; 4.305,99). REDONDEO: INEXISTENTE en los 6 archivos — colas de punto flotante llegan al cliente (32.568,3534; 7165.576000000001; 19457.260000000002). VIGENCIA: 7 días; tarifas 'sujetas a cambio sin previo aviso'. La app debe: parametrizar IVA/servicio/garantía/IGTF/markup, campo de descuento con motivo y autor, tasa BCV por fecha, motor de abonos e imputación, redondeo a 2 decimales, y separar garantía del precio.",
+      "catalogo_detectado": "MENÚS Y AyB (USD): Buffets nombrados por rutas del Ávila p/p: Sabas Nieves y Sanabria $24, Galipán $24,50, Paco $25,50, Gaviota y Humboldt $28. Buffets/menús 3 tiempos I-IX $23,50-27,50; 4 tiempos I-VI $32,50-37. Menús navideños: plateado $17,50 (cobrado $28), menú 1 $34, menú 2 $38. Menú 3 tiempos premium cotizado $61,30 p/p (costo A.G. $35,70). Coffee breaks p/p: Criollo y Fit $11,50, College y Pérez Jiménez $12, Tea Time $12,50; Box Lounge $12,50-13; Refrigerio $10 (cobrado $20). Estaciones: chupe $6, sushi $6,50 (6 und/pax), frutas importadas $9,50, quesos $16 (mín. 30 pax), café americano $2-4, SALAD BAR $17, panes $1,50, jugos $6-8. Pasapalos por unidad: $0,55 (empanaditas) a $6,90 (mini brochetas de lomito); duplicados sospechosos lista vieja/nueva: tequeño tradicional $1,05 vs $2,25, esferas de chicharrón $1,70 vs $2,80. Catálogo A.G. (precio sugerido / con 30% dcto OTH): croissant $3/$2,10, golfeado $4/$2,80, sushi roll California $2,50/$1,75, Club House $19/$13,30, mini hamburguesa $7,50/$5,25. BUFFET A.G. p/p: asado negro $11/$7,70, pernil $10/$7, churrasco de salmón $14/$9,80, escalopas trufadas $15/$10,50. EMPLATADO 3-4 tiempos p/p: asado negro $26, Lomito Wellington $28, salmón al grill $33, escalopas trufadas $38 (tope), ensalada César $9, ensalada Humboldt $13, postres Waraira $16, Ópera $9. BEBIDAS: agua Minalba 330ml $1,50-2 (A.G. $2/$1,40), refresco lata $2-4, jugos $2,15-8, limonada $6, mocktails $9-10, cocteles $11,50, cerveza nacional $5/$3,50, copa de vino $6,40 (costo botella $10,50). Descorche: vinos/espumantes $15, otros licores $20-25; mezcladores sin alcohol $1,90-4,30 (cliente trae licor). Tortas $23-35/kg (8 pax). ESPACIOS (tarifa alquiler/día USD, SIN capacidades registradas): BAR MIRADOR (PH) $3.000, ESTAR GENERAL $3.000 (cobrado $4.500), Bar GAVIOTA $1.500, TERRAZA NORTE Y SUR $1.000, SALÓN REDONDO $500 (usado como camerino), discoteca La Boite $1.000 lista/$2.000 cotizada (uso diario), Antigua Estación $1.000, Restaurante Bonpland, Restaurante Humboldt y Piscina SIN tarifa publicada (Humboldt siempre en cortesía). HOSPEDAJE (paquetes USD p/p/noche): Escape en las alturas $250, Aventura en el Humboldt $293,10, Experiencia Humboldt $301,72, Romance entre las nubes y Experiencia entre las nubes $336,21, Humboldt Spa $370,69; habitación suelta ~$290/noche (tracker: 50 hab × $290 = $14.500). SERVICIOS Y EXTRAS: traslado teleférico ida-vuelta $10-15 p/p ANTES de 6pm, $0 después (operado por VENTEL, exento de IVA); traslado terrestre $60/van (9-10 pax); Protocolo de Maripérez $90 (<100 pax) / $180 (>100 pax, brazaletes); visita guiada $15; silla $5, mesa 10 pax $50; mobiliario mixto $300-600; planta eléctrica con operador $800; paquete audiovisual $2.500 (costo Evenplus $1.740+camión $240); redes eléctricas 12 puntos $720 (costo $360+IVA); internet dedicado 300MB $2.500/día; DJ hasta 8h $350 (costo $250+IVA); personal de evento $540/día-$1.320; senderismo Picacho de Galipán $55 p/p (costo $35+IVA), yoga $25 p/p, tour Galipán con cata $70 p/p. INSUMOS: caja Pepsi $42, caja agua Minalba $20, hielo $3, kg limón $4. COMODINES SIN PRECIO (precio se teclea a mano): Talento, Audiovisuales, Mobiliario, Planta eléctrica, Utilería, Servicio especial, Actividad recreativa. Reglas de armado: buffet = máx 3 proteínas + 3 guarniciones + 1 potaje + salad bar + 1 pan + máx 3 postres + máx 2 jugos; 3 tiempos = 1 entrada + (1 proteína + máx 2 acompañantes) + 1 postre; 4 tiempos = + 1 abrebocas; 'cada menú es personalizado' (sin precio de paquete fijo).",
+      "pipeline_detectado": "TRACKER 'Hotel Humboldt – Control Gestión Ventas' (hojas anuales 2025: ~160 filas jul/25-feb/26; 2026: ~100 filas con esquema evolucionado). COLUMNAS: Fecha solicitud (agregada en 2026 pero VACÍA al 100%) | Fecha de envío | Ejecutivo | Nombre Cliente | Tipo Cliente | Canal Ingreso | Tipo Evento | Estado | N° de Hab | N° de VG | Monto Inicial USD | Monto Final USD | Proveedores | AyB | '10% servcio' (=AyB×10%×2, o sea 20%) | TOTAL (=AyB+servicio — NO es el total del evento: excluye espacios, hospedaje, proveedores y teleférico) | Fecha Pago | Fecha Cierre | Motivo Cierre | Forma de Pago | Observaciones | Seguimiento Futuro | Motivo de rechazo. ESTADOS (17 valores, DOS vocabularios solapados): viejo = Presupuesto solicitado → Enviado → Seguimiento → Suspendido / Aprobado y por ejecutar → Aprobado y realizado / Rechazado + ramas Institucional en espera de pago → institucional pagado, y Cortesia CM ejecutada; nuevo = Presupuesto enviado → Seguimiento → Negociación → Confirmado/Aprobado → Evento realizado / Perdido-Rechazado. Flujo real: lead (canal) → presupuesto → enviado → seguimiento/negociación (degustaciones, visitas, hasta '4 modificaciones y descuentos') → aprobado (a menudo verbal, 'en espera de pago del salón') → pago → realizado → cierre administrativo (Reintegro / Comp. Retenciones / Diferencia cambiaria; puede emitir 2 facturas: principal + adicionales). CANALES: CRM (dominante), Referido, Director, Contacto directo con el ejecutivo, Correo, Gerente, Casa Matriz, Caminante. MOTIVOS DE RECHAZO formales (casi nunca llenados; el real vive en Observaciones): Teleferico, Capacidad de hospedaje, Variedad de Menu, Capacidad de espacios, Precio, Logistica — solo 'Precio' se usa. KPIs MENSUALES (Resumen 2026, 100% tecleados a mano vía staging en Hoja 5): por mes — Presupuestos realizados (marzo: 24 / $200.183,90; abril: 25 / $124.713,04), Realizados por ejecutar (2 / $11.573,50), Realizados y facturados el mismo mes (marzo 3 / $11.693,50; abril 1 / $3.335,50), Facturados de arrastre (marzo 9 / $58.162,58; abril 8 / $19.457,26), Rechazados (marzo 2 / $5.757; abril 7 / $29.806), Sin respuesta del cliente (marzo 17 / $174.780,40; abril 11 / $54.031,41), Enviados con seguimiento (marzo 2 / $7.953; abril 4 / $25.966,63). En el documento de cotización el estado vive en fechas: Fecha Presupuesto llena + Fecha del Acuerdo vacía = cotizado no confirmado; vigencia 7 días; 'no bloquea espacios'. AUSENCIAS CRÍTICAS del pipeline actual: NO hay fecha del evento como campo (vive en notas '12/12/26'), NO hay salón asignado, NO hay pax, NO hay abonos parciales, NO hay número de cotización ni versionado (versiones = filas duplicadas que inflan el pipeline), NO hay tasa de cambio ni monto en Bs, NO hay conexión con calendario de disponibilidad. KPIs que la app debe automatizar: conversión por etapa/ejecutivo/canal, pipeline por mes de evento (no solo de solicitud), facturación mismo-mes vs arrastre, motivos de pérdida, ocupación de espacios.",
+      "preguntas_criticas": [
+        "¿El cargo de servicio sobre AyB es 10% o 20%? Las 4 cotizaciones aplican 10% (G83=G82×10%) pero el tracker calcula AyB×10%×2=20% bajo la etiqueta '10% servcio'. ¿Es 10% casa + 10% personal? Esto define el motor de cálculo y la base de comisiones/reportes — hoy los dos sistemas se contradicen en cada evento.",
+        "¿Una cotización aprobada/contratada debe BLOQUEAR espacios en un calendario con detección de conflictos, y cuáles son las capacidades reales (pax) de cada espacio (Estar General, Bar Mirador PH, Gaviota, Salón Redondo, Terrazas, La Boite, Bonpland, Piscina, Antigua Estación)? Ningún archivo tiene capacidades ni disponibilidad — es el módulo nuevo más estructural y no se puede inferir.",
+        "¿La garantía del 10% debe seguir SUMÁNDOSE al TOTAL cobrado (práctica actual: TOTAL=Total USD×1,10, calculada sobre base CON IVA) o modelarse como depósito reembolsable aparte? ¿Cuándo/cómo se devuelve o se aplica contra adicionales? Cambia el esquema de totales, facturas y conciliación.",
+        "¿Cuál es la política oficial de margen sobre el costo de Alternativa Gastronómica y quién autoriza vender por debajo? Los archivos muestran 30%, 60%, 70%, costo×2 e incluso ventas AL COSTO en el mismo periodo. ¿Debe la app imponer margen mínimo/aprobación de descuentos por rol, o solo registrar el override con autor y motivo?",
+        "¿Cómo es realmente la relación con Alternativa Gastronómica: el hotel compra con 30% de descuento y revende (principal) o A.G. factura directo al cliente (pass-through)? ¿Y el catálogo 'Productos' del hotel guarda COSTOS o PVP (existen duplicados con punto final a precios distintos)? Define si hay un catálogo con costo+precio por ítem o dos listas separadas, y cómo se calcula el margen.",
+        "¿Se acepta oficialmente el pago en abonos parciales (como Sportbitz: 4 abonos) pese a la cláusula de '100% de anticipo 48h antes'? Si sí, ¿hay plan de pagos estándar (% reserva / % a X días / saldo 48h antes) que la app deba generar y controlar con vencimientos?",
+        "Facturación: ¿la app debe generar las facturas (¿desde qué sistema fiscal venezolano se emiten hoy las facturas en Bs?) o solo registrarlas? ¿Se mantiene la práctica de dividir un evento en varias facturas cuadradas a montos cobrados ('facturación inversa' 1899,99/4994,95/8265,96) o se factura desde la cotización aprobada?",
+        "¿Qué tasa Bs/USD es la oficial para cada operación (BCV del día de pago, del día de factura, o pactada) y el 'diferencial cambiario' se traslada SIEMPRE al cliente como línea cobrada (como los $30,53 de Sportbitz)? ¿El IGTF 3% debe calcularse y mostrarse en la cotización o solo en la factura?",
+        "¿Cómo deben tratarse las ramas Institucional (eventos de gobierno 'realizados / no facturados') y Cortesías de Casa Matriz (OBSEQUIO, costos en 0)? ¿Entran al pipeline, a los KPIs de ventas y al calendario igual que un evento comercial, o son flujos separados con aprobación distinta?",
+        "Cuando hay varias VERSIONES de presupuesto para el mismo evento (Federico Rios: buffet $33.980 vs estaciones $30.345; 'se enviaron 4 opciones') o dos agencias cotizando para el mismo cliente final (LA SANTE vía Ola Ola y Turismo Maso): ¿qué monto debe contar el pipeline para no inflar KPIs — la versión más probable, la última, o un campo de 'monto esperado' por oportunidad?"
+      ],
+      "riesgos": "CONTRADICCIONES ENTRE ARCHIVOS (resolver ANTES de modelar): (1) % DE SERVICIO: 10% solo sobre AyB en las 4 cotizaciones vs 20% real (AyB×10%×2) en control-ventas — el dato financiero núcleo difiere entre el documento al cliente y el reporte a gerencia. (2) MÁRGENES SIN POLÍTICA: markup 30% (alimentos-mary, latin-aesthetic) vs 60%/70% (sportbitz, mutando entre copias de la misma hoja) vs ventas al costo vs costo×2; el precio final D siempre es discrecional y sin trazabilidad. (3) DOS LISTAS DE PRECIOS CONVIVIENDO: el catálogo 'Productos' del hotel mezcla ítems propios y duplicados del proveedor diferenciados solo por un PUNTO FINAL en el nombre (ESFERAS DE CHICHARRON 1,70 vs 2,80; tequeño 1,05 vs 2,25) — ¿costo vs PVP o lista vieja vs nueva? Nadie lo sabe; además el catálogo está fechado 27/06/2024 y se usa para eventos de 2026, con referencias a otra lista fantasma 'del 19/07'. (4) DUPLICACIÓN DE REGISTROS CON ESTADOS OPUESTOS: filas ene-feb 2026 existen en las hojas 2025 Y 2026 — Boda Alexandra García figura 'Aprobado y por ejecutar' en una y 'Rechazado' en otra; doble conteo real del pipeline. (5) DOS VOCABULARIOS DE ESTADO solapados (Rechazado vs Perdido/Rechazado; Aprobado y realizado vs Evento realizado; 'Seguimiento' duplicado en el catálogo) + Tipo Cliente asignado al azar (Pepsico, Huawei, Farmatodo, Bancaribe = 'Social'). (6) 'TOTAL' DEL TRACKER NO ES EL TOTAL: solo AyB+servicio; nunca reconcilia con 'Monto Inicial USD' (transcrito a mano desde la cotización) — espacios, hospedaje y teleférico quedan sin desglosar. (7) GARANTÍA INCONSISTENTE: sumada al TOTAL en cotizaciones, forzada a 0 en hojas-factura, y con valores zombis contradictorios en plan de pagos (B20=742,14 vs E20=651,42); descuadre de abono sin explicar (I4=$3.666 recibido vs $3.231,74 imputado). (8) ANTICIPO 100%/48h (cláusula en todas las cotizaciones) vs abonos parciales reales (Sportbitz) y estados 'en espera de pago' — la regla escrita no es la práctica. (9) FUGA DE COSTOS: columnas 'OCULTO' e I-X con costos de proveedor, márgenes y notas de negociación ('$35+IVA a Deisy Oropeza') viven en LA MISMA hoja que se envía al cliente — la app debe separar vista cliente/interna por permisos desde el día 1. (10) FECHAS Y PAX COMO TEXTO LIBRE con estados embebidos ('viernes 04 o sábado 05 de diciembre', '14 y 15 de novieimbre' sin año, '200 personas, aproximadamente', 'Circulantes', '(fechas en revisión)') — migración requerirá limpieza manual y campos de fechas alternativas + flags. (11) IDENTIDAD: archivos nombrados por el CONTACTO DEL CLIENTE (Diana Sánchez, Luis Torres) y no por el vendedor; clientes sin ID con grafías múltiples (Dery Pabon ×3, Turismo/Turisma Agua Grande); claves de producto = texto exacto con espacios finales y typos (VLOOKUP frágil, refs a libro externo [1]Productos rotas, #N/A y #REF! vivos). (12) FÓRMULAS ERRADAS EN PRODUCCIÓN que invalidan datos históricos: subtotal que excluye una fila (G106 omite Terraza), TOTAL=servicio-sobre-servicio (Perfumería Las Villas $110,03 en vez de $3.300,90), fórmula monetaria en columna de fecha (P15=15.367,80), cantidades divergentes cliente vs costeo (540 aguas vs 8), buffet publicado a $0 (escalopas), doble descuento por referencia errada en abrebocas A.G. (-51%). (13) MONEDA SIN TASA: pagos en Bs/Zelle/efectivo contra montos USD sin registrar tasa ni monto Bs en el tracker; las tasas existen solo tecleadas (482,76; 496,83); retenciones IVA/ISLR sumadas a mano como pagos. (14) SIN REDONDEO en los 6 archivos: montos al cliente con colas de punto flotante. (15) KPIs manuales con sumas 'a ojo' (J31=J24+J16) no reproducibles. IMPLICACIÓN: antes de la migración hay que definir la fuente de verdad por entidad (tracker vs libro-evento), unificar estados y % de servicio, deduplicar clientes/productos, y validar con el dueño cada regla que hoy solo existe como hábito."
+    }
+  }
+}

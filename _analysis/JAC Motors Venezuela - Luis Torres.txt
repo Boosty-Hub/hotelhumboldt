@@ -1,0 +1,428 @@
+WORKBOOK: JAC Motors Venezuela - Luis Torres.xlsx
+
+======================================================================
+SHEET: Hoja1
+MERGED: A64:B64, A126:G126, A73:B73, A51:B51, A22:G22, B8:G8, A88:B88, A70:B70, A54:B54, B10:G10, A90:B90, A99:B99, I32:M32, A48:G48, A74:B74, A56:B56, A27:B27, A101:B101, A76:B76, A33:B33, A85:B85, I33:M33, A128:G128, A53:B53, A35:B35, A62:B62, A68:B68, A28:B28, A26:G26, B12:G12, A129:G129, A39:B39, A23:G23, A30:B30, A59:B59, B14:G14, A103:B103, A45:B45, I36:M36, B13:G13, A79:B79, A61:B61, A87:B87, A37:B37, A89:B89, I37:M37, A105:B105, A119:G119, A71:B71, A91:B91, A100:B100, A52:B52, A120:G120, A63:B63, A93:B93, A102:B102, A77:B77, B11:G11, A34:B34, A83:B83, A92:B92, A49:B49, A36:B36, A69:B69, A78:B78, A65:B65, A75:B75, A24:G24, A80:B80, B15:G15, A55:B55, A123:G123, A104:B104, A57:B57, A124:G124, A32:B32, I39:M39, B7:G7, I48:M48, B16:G16...
+----------------------------------------------------------------------
+  ... (5 filas vacías)
+  A6=Cliente: | B6=JAC Motors Venezuela 
+  A7=Rif o cédula:  | B7=J309046578
+  A8=Dirección: | B8=Caracas
+  A9=Contacto: | B9=Sr. Luis Torres
+  A10=Teléfono: | B10=0414-3501196
+  A11=Email: | B11=luis.torres@bel.com.ve
+  A12=Nombre del Evento: | B12=Por definir
+  A13=Cantidad de Persona: | B13=50 huéspedes
+  A14=Hora de Inicio: | B14=08:00:00
+  A15=Hora de culminacion: | B15=18:00:00
+  A16=Fecha Presupuesto: | B16=lunes, 04 de mayo de 2026 | K16=Àrea | L16=Cantidad
+  A17=Fecha del Acuerdo: | K17=àrea p | L17=1
+  A18=Fecha del Evento: | B18=viernes 17 y sábado 18 de julio (salida el 19) de 2026 | K18=ayb | L18=11
+  K19=cocina | L19=2
+  A20=Gracias por preferir al Hotel Humboldt para realizar su evento. Según su solicitud le presentamos la siguiente propuesta. | K20=batender | L20=3
+  K21=montaje | L21=1
+  A22=COTIZACION DE EVENTO | K22=prevencion | L22=1
+  K23=coordinador | L23=1
+  A24=MISCELANEOS | K24=Total | L24=20 [=SUM(L17:L23)]
+  A25=Ítem | C25=OCULTO | D25=Precio Unit. | E25=Cantidad | F25=Comentarios
+  A26=Dia viernes 17 de julio, día 1er de evento - llegada
+  A27=Hospedaje - Escape en las alturas | C27=250 [=VLOOKUP(A27,[1]Productos!$A$1:$C$510,2,FALSE)] | D27=250 | E27=50 | F27=Estadía en habitación tipo suite. Desayuno. Traslado vía teleférico - horario a convenir . Mini bar en la habitación (sin bebidas alcohólicas). ️Acceso a todas las instalaciones (piscina, sauna y gimn | G27=12500 [=D27*E27]
+  A28=Servicio especial | C28=0 [=VLOOKUP(A28,Productos!$A$1:$C$511,2,FALSE)] | D28=0 | E28=0 | F28=Servicio especial por definir | G28=0 [=D28*E28]
+  A29=Dia sábado 18 de julio, día 2do de evento 
+  A30=Hospedaje - Escape en las alturas | C30=250 [=VLOOKUP(A30,[1]Productos!$A$1:$C$510,2,FALSE)] | D30=250 | E30=50 | F30=Estadía en habitación tipo suite. Desayuno. Traslado vía teleférico - horario a convenir . Mini bar en la habitación (sin bebidas alcohólicas). ️Acceso a todas las instalaciones (piscina, sauna y gimn | G30=12500 [=D30*E30]
+  A31=Servicio especial | C31=0 [=VLOOKUP(A31,Productos!$A$1:$C$511,2,FALSE)] | D31=0 | E31=0 | F31=Visita guiada en el Hotel Humboldt - Servicio incluido en el hospedaje de todos los huéspedes. Se puede organizar de acuerdo a los horarios de otras actividades del segundo día (recorrido de una hora) | G31=0 [=D31*E31]
+  A32=Servicio | D32=55 | E32=0 | F32=Senderismo guiado al Picacho de Galipán
+ •  Traslado ida y vuelta desde el Hotel Humboldt hasta Boca de Tigre
+ •  Senderismo guiado al Picacho de Galipán (1.978 msnm)
+ •  Hidratación durante la activi | G32=0 [=D32*E32] | I32=Cada persona en $35 más iva a Deisy Oropeza
+  A33=Servicio | C33=0 [=VLOOKUP(A33,[1]Productos!$A$1:$C$510,2,FALSE)] | D33=25 | E33=0 | F33=Sesión de Yoga para 15 personas (desde las 08:00 am am a 9:00 am) se sugiere durante la mañana - Valor por persona | G33=0 [=D33*E33] | I33=Instructora de Yoga en 100  + iva  y traslados en 90$
+  A34=Servicio | C34=#N/A [=VLOOKUP(A34,Productos!$A$1:$C$511,2,FALSE)] | D34=70 | E34=0 | F34=Tour aventura Humboldt
+Traslado y paseo por el pueblo de Galipán. Incluye: traslado ida y vuelta desde el Hotel, guiatura y acompañamient, cata de licores artesanales.
+Duracción aproximada de 3 horas  | G34=0 [=D34*E34]
+  A35=Servicio especial | C35=0 [=VLOOKUP(A35,Productos!$A$1:$C$511,2,FALSE)] | D35=0 | E35=0 | F35=Servicio especial por definir / agrupación o presentación musical | G35=0 [=D35*E35]
+  A36=Servicio especial | C36=0 [=VLOOKUP(A36,Productos!$A$1:$C$511,2,FALSE)] | D36=0 | E36=0 | G36=0 [=D36*E36] | I36=evenplus180$ + Transporte 100 a Gustavo /// sonido del Hotel
+  A37=Servicio especial | C37=0 [=VLOOKUP(A37,Productos!$A$1:$C$511,2,FALSE)] | D37=0 | E37=0 | G37=0 [=D37*E37] | I37=450
+  A38=Servicio especial | C38=0 [=VLOOKUP(A38,Productos!$A$1:$C$511,2,FALSE)] | D38=0 | E38=0 | G38=0 [=D38*E38] | I38=800$ + IVA
+  A39=Servicio especial | C39=0 [=VLOOKUP(A39,Productos!$A$1:$C$511,2,FALSE)] | D39=0 | E39=0 | G39=0 [=D39*E39]
+  F40=Sub Total | G40=25000 [=SUM(G27:G39)]
+  A42=TRASLADOS
+  A43=Ítem | C43=OCULTO | D43=Precio Unit. | E43=Cantidad | F43=Comentarios
+  A44=Traslado Ida-Vuelta p/persona | C44=10 [=VLOOKUP(A44,Productos!$A$1:$C$511,2,FALSE)] | D44=10 | E44=0 | F44=Precio de referencia por persona - cantidades por definir. | G44=0 [=D44*E44]
+  A45=. | C45=0 [=VLOOKUP(A45,Productos!$A$1:$C$511,2,FALSE)] | D45=0 | E45=40 | F45=Traslado en teleférico, subida y bajada (después de las 6:00 pm) | G45=0 [=D45*E45]
+  F46=Sub Total | G46=0 [=SUM(G44:G45)]
+  A48=ALIMENTOS Y BEBIDAS | I48=Provedor: Alternativa Gastronómica | N48=Proveedo vino FIRIUS | T48=15% extra | U48=10% de servicio al precio full lista del 19/07
+  A49=Ítem | C49=OCULTO | D49=Precio Unit. | E49=Cantidad | F49=Comentarios | G49=Sub Total | I49=Monto  | J49=Cantidad  | K49=Total  | L49=0.3 | M49=PVP | N49=Monto | O49=Cantidad  | P49=Total  | Q49=0.2 | R49=PVP | S49=TOTAL FINAL | X49=30%%
+  A50=Servicio especial | C50=0 [=VLOOKUP(A50,Productos!$A$1:$C$511,2,FALSE)] | D50=0 | E50=50 | F50=Servicio especial por definir con el grupo | G50=0 [=E50*D50] | I50=0 [=C50] | J50=50 [=E50] | K50=0 [=I50*J50] | L50=0 [=I50*30%] | M50=0 [=I50+L50] | T50=0 [=(M50*15%)+M50] | U50=0 [=I50*2] | V50=0 [=U50*J50] | X50=0 [=(M50*30%)+M50]
+  A51=. | C51=0 [=VLOOKUP(A51,Productos!$A$1:$C$511,2,FALSE)] | D51=0 | E51=180 | F51=Menú buffet para evento
+1 entrada (sopa)
+2 proteinas (carne y pollo)
+2 acompañentes
+2 mini postres | G51=0 [=E51*D51] | I51=0 [=C51] | J51=180 [=E51] | K51=0 [=I51*J51] | L51=0 [=I51*30%] | M51=0 [=I51+L51] | T51=0 [=(M51*15%)+M51] | U51=0 [=I51*2] | V51=0 [=U51*J51] | X51=0 [=(M51*30%)+M51]
+  A52=. | C52=0 [=VLOOKUP(A52,Productos!$A$1:$C$511,2,FALSE)] | D52=0 [=I52] | E52=120 | F52=Agua para el evento | G52=0 [=E52*D52] | I52=0 [=C52] | J52=120 [=E52] | K52=0 [=I52*J52] | L52=0 [=I52*30%] | M52=0 [=I52+L52] | T52=0 [=(M52*15%)+M52] | U52=0 [=I52*2] | V52=0 [=U52*J52] | X52=0 [=(M52*30%)+M52]
+  A53=. | C53=0 [=VLOOKUP(A53,Productos!$A$1:$C$511,2,FALSE)] | D53=0 [=I53] | E53=40 | F53=1 por persona, aproximadamente (Cóctel - tentativo) | G53=0 [=E53*D53] | I53=0 [=C53] | J53=40 [=E53] | K53=0 [=I53*J53] | L53=0 [=I53*30%] | M53=0 [=I53+L53] | T53=0 [=(M53*15%)+M53] | U53=0 [=I53*2] | V53=0 [=U53*J53] | X53=0 [=(M53*30%)+M53]
+  A54=. | C54=0 [=VLOOKUP(A54,Productos!$A$1:$C$511,2,FALSE)] | D54=0 [=I54] | E54=200 | F54=Pasapalo para compartir | G54=0 [=E54*D54] | I54=0 [=C54] | J54=200 [=E54] | K54=0 [=I54*J54] | L54=0 [=I54*30%] | M54=0 [=I54+L54] | T54=0 [=(M54*15%)+M54] | U54=0 [=I54*2] | V54=0 [=U54*J54] | X54=0 [=(M54*30%)+M54]
+  A55=. | C55=0 [=VLOOKUP(A55,Productos!$A$1:$C$511,2,FALSE)] | D55=0 [=I55] | E55=200 | F55=Pasapalo para compartir | G55=0 [=E55*D55] | I55=0 [=C55] | J55=200 [=E55] | K55=0 [=I55*J55] | L55=0 [=I55*30%] | M55=0 [=I55+L55] | T55=0 [=(M55*15%)+M55] | U55=0 [=I55*2] | V55=0 [=U55*J55] | X55=0 [=(M55*30%)+M55]
+  A56=. | C56=0 [=VLOOKUP(A56,Productos!$A$1:$C$511,2,FALSE)] | D56=0 [=I56] | E56=220 | F56=Pasapalo para compartir | G56=0 [=E56*D56] | I56=0 [=C56] | J56=220 [=E56] | K56=0 [=I56*J56] | L56=0 [=I56*30%] | M56=0 [=I56+L56] | T56=0 [=(M56*15%)+M56] | U56=0 [=I56*2] | V56=0 [=U56*J56] | X56=0 [=(M56*30%)+M56]
+  A57=. | C57=0 [=VLOOKUP(A57,Productos!$A$1:$C$511,2,FALSE)] | D57=0 [=I57] | E57=220 | F57=Pasapalo para compartir | G57=0 [=E57*D57] | I57=0 [=C57] | J57=220 [=E57] | K57=0 [=I57*J57] | L57=0 [=I57*30%] | M57=0 [=I57+L57] | T57=0 [=(M57*15%)+M57] | U57=0 [=I57*2] | V57=0 [=U57*J57] | X57=0 [=(M57*30%)+M57]
+  A58=. | C58=0 [=VLOOKUP(A58,Productos!$A$1:$C$511,2,FALSE)] | D58=0 [=I58] | E58=200 | F58=Pasapalo para compartir | G58=0 [=E58*D58] | I58=0 [=C58] | J58=200 [=E58] | K58=0 [=I58*J58] | L58=0 [=I58*30%] | M58=0 [=I58+L58] | T58=0 [=(M58*15%)+M58] | U58=0 [=I58*2] | V58=0 [=U58*J58] | X58=0 [=(M58*30%)+M58]
+  A59=. | C59=0 [=VLOOKUP(A59,Productos!$A$1:$C$511,2,FALSE)] | D59=0 [=I59] | E59=200 | F59=Pasapalo para compartir | G59=0 [=E59*D59] | I59=0 [=C59] | J59=200 [=E59] | K59=0 [=I59*J59] | L59=0 [=I59*30%] | M59=0 [=I59+L59] | T59=0 [=(M59*15%)+M59] | U59=0 [=I59*2] | V59=0 [=U59*J59] | X59=0 [=(M59*30%)+M59]
+  A60=. | C60=0 [=VLOOKUP(A60,Productos!$A$1:$C$511,2,FALSE)] | D60=0 [=I60] | E60=70 | F60=Mesa de postres | G60=0 [=E60*D60] | I60=0 [=C60] | J60=70 [=E60] | K60=0 [=I60*J60] | L60=0 [=I60*30%] | M60=0 [=I60+L60] | T60=0 [=(M60*15%)+M60] | U60=0 [=I60*2] | V60=0 [=U60*J60] | X60=0 [=(M60*30%)+M60]
+  A61=. | C61=0 [=VLOOKUP(A61,Productos!$A$1:$C$511,2,FALSE)] | D61=0 [=I61] | E61=70 | F61=Mesa de postres | G61=0 [=E61*D61] | I61=0 [=C61] | J61=70 [=E61] | K61=0 [=I61*J61] | L61=0 [=I61*30%] | M61=0 [=I61+L61] | T61=0 [=(M61*15%)+M61] | U61=0 [=I61*2] | V61=0 [=U61*J61] | X61=0 [=(M61*30%)+M61]
+  A62=. | C62=0 [=VLOOKUP(A62,Productos!$A$1:$C$511,2,FALSE)] | D62=0 [=I62] | E62=80 | F62=Mesa de postres | G62=0 [=E62*D62] | I62=0 [=C62] | J62=80 [=E62] | K62=0 [=I62*J62] | L62=0 [=I62*30%] | M62=0 [=I62+L62] | T62=0 [=(M62*15%)+M62] | U62=0 [=I62*2] | V62=0 [=U62*J62] | X62=0 [=(M62*30%)+M62]
+  A63=. | C63=0 [=VLOOKUP(A63,Productos!$A$1:$C$511,2,FALSE)] | D63=0 [=I63] | E63=70 | F63=Mesa de postres | G63=0 [=E63*D63] | I63=0 [=C63] | J63=70 [=E63] | K63=0 [=I63*J63] | L63=0 [=I63*30%] | M63=0 [=I63+L63] | T63=0 [=(M63*15%)+M63] | U63=0 [=I63*2] | V63=0 [=U63*J63] | X63=0 [=(M63*30%)+M63]
+  A64=. | C64=0 [=VLOOKUP(A64,Productos!$A$1:$C$511,2,FALSE)] | D64=0 [=I64] | E64=80 | F64=Mesa de postres | G64=0 [=E64*D64] | I64=0 [=C64] | J64=80 [=E64] | K64=0 [=I64*J64] | L64=0 [=I64*30%] | M64=0 [=I64+L64] | N64=0 [=(M64*15%)+M64] | T64=0 [=(M64*15%)+M64] | U64=0 [=I64*2] | V64=0 [=U64*J64] | X64=0 [=(M64*30%)+M64]
+  A65=. | C65=0 [=VLOOKUP(A65,Productos!$A$1:$C$511,2,FALSE)] | D65=0 [=I65] | E65=540 | F65=Agua para el evento | G65=0 [=E65*D65] | I65=0 [=C65] | J65=8 | K65=0 [=I65*J65] | L65=0 [=I65*30%] | M65=0 [=I65+L65] | N65=0 [=(M65*15%)+M65] | T65=0 [=(M65*15%)+M65] | U65=0 [=I65*2] | V65=0 [=U65*J65] | X65=0 [=(M65*30%)+M65]
+  A66=. | C66=0 [=VLOOKUP(A66,Productos!$A$1:$C$511,2,FALSE)] | D66=0 [=I66] | E66=360 | F66=Refrescos para el evento | G66=0 [=E66*D66] | I66=0 [=C66] | J66=360 [=E66] | K66=0 [=I66*J66] | L66=0 [=I66*30%] | M66=0 [=I66+L66] | N66=0 [=(M66*15%)+M66] | T66=0 [=(M66*15%)+M66] | U66=0 [=I66*2] | V66=0 [=U66*J66] | X66=0 [=(M66*30%)+M66]
+  A67=. | C67=0 [=VLOOKUP(A67,Productos!$A$1:$C$511,2,FALSE)] | D67=0 [=I67] | E67=0 | F67=Precios de referencia, cantidades a definir con el cliente | G67=0 [=E67*D67] | I67=0 [=C67] | J67=0 [=E67] | K67=0 [=I67*J67] | L67=0 [=I67*30%] | M67=0 [=I67+L67] | N67=0 [=(M67*15%)+M67] | T67=0 [=(M67*15%)+M67] | U67=0 [=I67*2] | V67=0 [=U67*J67] | X67=0 [=(M67*30%)+M67]
+  A68=. | C68=0 [=VLOOKUP(A68,Productos!$A$1:$C$511,2,FALSE)] | D68=0 [=I68] | E68=0 | F68=Precios de referencia, cantidades a definir con el cliente | G68=0 [=E68*D68] | I68=0 [=C68] | J68=0 [=E68] | K68=0 [=I68*J68] | L68=0 [=I68*30%] | M68=0 [=I68+L68] | N68=0 [=(M68*15%)+M68] | T68=0 [=(M68*15%)+M68] | U68=0 [=I68*2] | V68=0 [=U68*J68] | X68=0 [=(M68*30%)+M68]
+  A69=. | C69=0 [=VLOOKUP(A69,Productos!$A$1:$C$511,2,FALSE)] | D69=0 [=I69] | E69=180 | F69=Cóctel de bienvenida | G69=0 [=E69*D69] | I69=0 [=C69] | J69=180 [=E69] | K69=0 [=I69*J69] | L69=0 [=I69*30%] | M69=0 [=I69+L69] | N69=0 [=(M69*15%)+M69] | T69=0 [=(M69*15%)+M69] | U69=0 [=I69*2] | V69=0 [=U69*J69] | X69=0 [=(M69*30%)+M69]
+  A70=. | C70=0 [=VLOOKUP(A70,Productos!$A$1:$C$511,2,FALSE)] | D70=0 [=I70] | E70=0 | G70=0 [=E70*D70] | I70=0 [=C70] | J70=0 [=E70] | K70=0 [=I70*J70] | L70=0 [=I70*30%] | M70=0 [=I70+L70] | T70=0 [=(M70*15%)+M70] | U70=0 [=I70*2] | V70=0 [=U70*J70] | X70=0 [=(M70*30%)+M70]
+  A71=. | C71=0 [=VLOOKUP(A71,Productos!$A$1:$C$511,2,FALSE)] | D71=0 [=I71] | E71=0 | G71=0 [=E71*D71] | I71=0 [=C71] | J71=0 [=E71] | K71=0 [=I71*J71] | L71=0 [=I71*30%] | M71=0 [=I71+L71] | T71=0 [=(M71*15%)+M71] | U71=0 [=I71*2] | V71=0 [=U71*J71] | X71=0 [=(M71*30%)+M71]
+  A72=. | C72=0 [=VLOOKUP(A72,Productos!$A$1:$C$511,2,FALSE)] | D72=0 [=I72] | E72=0 | G72=0 [=E72*D72] | I72=0 [=C72] | J72=0 [=E72] | K72=0 [=I72*J72] | L72=0 [=I72*30%] | M72=0 [=I72+L72] | T72=0 [=(M72*15%)+M72] | U72=0 [=I72*2] | V72=0 [=U72*J72]
+  A73=. | C73=0 [=VLOOKUP(A73,Productos!$A$1:$C$511,2,FALSE)] | D73=0 [=I73] | E73=0 | G73=0 [=E73*D73] | I73=0 [=C73] | J73=0 [=E73] | K73=0 [=I73*J73] | L73=0 [=I73*30%] | M73=0 [=I73+L73] | T73=0 [=(M73*15%)+M73] | U73=0 [=I73*2] | V73=0 [=U73*J73]
+  A74=. | C74=0 [=VLOOKUP(A74,Productos!$A$1:$C$511,2,FALSE)] | D74=0 [=I74] | E74=0 | G74=0 [=E74*D74] | I74=0 [=C74] | J74=0 [=E74] | K74=0 [=I74*J74] | L74=0 [=I74*30%] | M74=0 [=I74+L74] | T74=0 [=(M74*15%)+M74] | U74=0 [=I74*2] | V74=0 [=U74*J74]
+  A75=. | C75=0 [=VLOOKUP(A75,Productos!$A$1:$C$511,2,FALSE)] | D75=0 [=I75] | E75=0 | G75=0 [=E75*D75] | I75=0 [=C75] | J75=0 [=E75] | K75=0 [=I75*J75] | L75=0 [=I75*30%] | M75=0 [=I75+L75] | T75=0 [=(M75*15%)+M75] | U75=0 [=I75*2] | V75=0 [=U75*J75]
+  A76=. | C76=0 [=VLOOKUP(A76,Productos!$A$1:$C$511,2,FALSE)] | D76=0 [=I76] | E76=0 | G76=0 [=E76*D76] | I76=0 [=C76] | J76=0 [=E76] | K76=0 [=I76*J76] | L76=0 [=I76*30%] | M76=0 [=I76+L76] | T76=0 [=(M76*15%)+M76] | U76=0 [=I76*2] | V76=0 [=U76*J76]
+  A77=. | C77=0 [=VLOOKUP(A77,Productos!$A$1:$C$511,2,FALSE)] | D77=0 [=I77] | E77=0 | G77=0 [=E77*D77] | I77=0 [=C77] | J77=0 [=E77] | K77=0 [=I77*J77] | L77=0 [=I77*30%] | M77=0 [=I77+L77] | T77=0 [=(M77*15%)+M77] | U77=0 [=I77*2] | V77=0 [=U77*J77]
+  A78=. | C78=0 [=VLOOKUP(A78,Productos!$A$1:$C$511,2,FALSE)] | D78=0 [=I78] | E78=0 | G78=0 [=E78*D78] | I78=0 [=C78] | J78=0 [=E78] | K78=0 [=I78*J78] | L78=0 [=I78*30%] | M78=0 [=I78+L78] | T78=0 [=(M78*15%)+M78] | U78=0 [=I78*2] | V78=0 [=U78*J78]
+  A79=. | C79=0 [=VLOOKUP(A79,Productos!$A$1:$C$511,2,FALSE)] | D79=0 [=I79] | E79=0 | G79=0 [=E79*D79] | I79=0 [=C79] | J79=0 [=E79] | K79=0 [=I79*J79] | L79=0 [=I79*30%] | M79=0 [=I79+L79] | T79=0 [=(M79*15%)+M79] | U79=0 [=I79*2] | V79=0 [=U79*J79]
+  A80=. | C80=0 [=VLOOKUP(A80,Productos!$A$1:$C$511,2,FALSE)] | D80=0 [=I80] | E80=0 | G80=0 [=E80*D80] | I80=0 [=C80] | J80=0 [=E80] | K80=0 [=I80*J80] | L80=0 [=I80*30%] | M80=0 [=I80+L80] | T80=0 [=(M80*15%)+M80] | U80=0 [=I80*2] | V80=0 [=U80*J80]
+  A81=. | C81=0 [=VLOOKUP(A81,Productos!$A$1:$C$511,2,FALSE)] | D81=0 [=I81] | E81=0 | G81=0 [=E81*D81] | I81=0 [=C81] | J81=0 [=E81] | K81=0 [=I81*J81] | L81=0 [=I81*30%] | M81=0 [=I81+L81] | T81=0 [=(M81*15%)+M81] | U81=0 [=I81*2] | V81=0 [=U81*J81]
+  A82=. | C82=0 [=VLOOKUP(A82,Productos!$A$1:$C$511,2,FALSE)] | D82=0 [=I82] | E82=0 | G82=0 [=E82*D82] | I82=0 [=C82] | J82=0 [=E82] | K82=0 [=I82*J82] | L82=0 [=I82*30%] | M82=0 [=I82+L82] | T82=0 [=(M82*15%)+M82] | U82=0 [=I82*2] | V82=0 [=U82*J82]
+  A83=. | C83=0 [=VLOOKUP(A83,Productos!$A$1:$C$511,2,FALSE)] | D83=0 [=I83] | E83=0 | G83=0 [=E83*D83] | I83=0 [=C83] | J83=0 [=E83] | K83=0 [=I83*J83] | L83=0 [=I83*30%] | M83=0 [=I83+L83] | T83=0 [=(M83*15%)+M83] | U83=0 [=I83*2] | V83=0 [=U83*J83]
+  A84=. | C84=0 [=VLOOKUP(A84,Productos!$A$1:$C$511,2,FALSE)] | D84=0 [=I84] | E84=0 | G84=0 [=E84*D84] | I84=0 [=C84] | J84=0 [=E84] | K84=0 [=I84*J84] | L84=0 [=I84*30%] | M84=0 [=I84+L84] | T84=0 [=(M84*15%)+M84] | U84=0 [=I84*2] | V84=0 [=U84*J84]
+  A85=. | C85=0 [=VLOOKUP(A85,Productos!$A$1:$C$511,2,FALSE)] | D85=0 [=I85] | E85=0 | G85=0 [=E85*D85] | I85=0 [=C85] | J85=0 [=E85] | K85=0 [=I85*J85] | L85=0 [=I85*30%] | M85=0 [=I85+L85] | T85=0 [=(M85*15%)+M85] | U85=0 [=I85*2] | V85=0 [=U85*J85]
+  A86=. | C86=0 [=VLOOKUP(A86,Productos!$A$1:$C$511,2,FALSE)] | D86=0 [=I86] | E86=0 | G86=0 [=E86*D86] | I86=0 [=C86] | J86=0 [=E86] | K86=0 [=I86*J86] | L86=0 [=I86*30%] | M86=0 [=I86+L86] | T86=0 [=(M86*15%)+M86] | U86=0 [=I86*2] | V86=0 [=U86*J86]
+  A87=. | C87=0 [=VLOOKUP(A87,Productos!$A$1:$C$511,2,FALSE)] | D87=0 [=I87] | E87=0 | G87=0 [=E87*D87] | I87=0 [=C87] | J87=0 [=E87] | K87=0 [=I87*J87] | L87=0 [=I87*30%] | M87=0 [=I87+L87] | T87=0 [=(M87*15%)+M87] | U87=0 [=I87*2] | V87=0 [=U87*J87]
+  A88=. | C88=0 [=VLOOKUP(A88,Productos!$A$1:$C$511,2,FALSE)] | D88=0 [=I88] | E88=0 | G88=0 [=E88*D88] | I88=0 [=C88] | J88=0 [=E88] | K88=0 [=I88*J88] | L88=0 [=I88*30%] | M88=0 [=I88+L88] | T88=0 [=(M88*15%)+M88] | U88=0 [=I88*2] | V88=0 [=U88*J88]
+  A89=. | C89=0 [=VLOOKUP(A89,Productos!$A$1:$C$511,2,FALSE)] | D89=0 [=I89] | E89=0 | G89=0 [=E89*D89] | I89=0 [=C89] | J89=0 [=E89] | K89=0 [=I89*J89] | L89=0 [=I89*30%] | M89=0 [=I89+L89] | U89=0 [=I89*2] | V89=0 [=U89*J89]
+  A90=. | C90=0 [=VLOOKUP(A90,Productos!$A$1:$C$511,2,FALSE)] | D90=0 [=I90] | E90=0 | G90=0 [=E90*D90] | I90=0 [=C90] | J90=0 [=E90] | K90=0 [=I90*J90] | L90=0 [=I90*30%] | M90=0 [=I90+L90]
+  A91=. | C91=0 [=VLOOKUP(A91,Productos!$A$1:$C$511,2,FALSE)] | D91=0 [=I91] | E91=0 | G91=0 [=E91*D91] | I91=0 [=C91] | J91=0 [=E91] | K91=0 [=I91*J91] | L91=0 [=I91*30%] | M91=0 [=I91+L91]
+  A92=. | C92=0 [=VLOOKUP(A92,Productos!$A$1:$C$511,2,FALSE)] | D92=0 [=I92] | E92=0 | G92=0 [=E92*D92] | I92=0 [=C92] | J92=0 [=E92] | K92=0 [=I92*J92] | L92=0 [=I92*30%] | M92=0 [=I92+L92]
+  A93=. | C93=0 [=VLOOKUP(A93,Productos!$A$1:$C$511,2,FALSE)] | D93=0 [=I93] | E93=0 | G93=0 [=E93*D93] | I93=0 [=C93] | J93=0 [=E93] | K93=0 [=I93*J93] | L93=0 [=I93*30%] | M93=0 [=I93+L93]
+  F94=Sub Total  | G94=0 [=SUM(G50:G93)] | I94=Sub Total | K94=0 [=SUM(K50:K93)] | U94=Sub Total | V94=0 [=SUM(V50:V89)]
+  F95=10% Servicio | G95=0 [=G94*10%] | I95=10% Servicio | K95=0 [=K94*10%] | Q95=Precio vino | R95=0 [=M54+R54] | U95=Servicio FULL | V95=0 [=V94*10%]
+  F96=Total Alimentos y Bebidas | G96=0 [=SUM(G94:G95)] | I96=Total  | K96=0 [=SUM(K94:K95)]
+  A98=ESPACIOS
+  A99=Ítem | C99=OCULTO | D99=Precio Unit. | E99=Cantidad | F99=Comentarios | G99=Sub Total
+  A100=ESTAR GENERAL | C100=3000 [=VLOOKUP(A100,Productos!$A$1:$C$511,2,FALSE)] | D100=0 | E100=1 | F100=Espacios por definir de acuerdo a actividades | G100=0 [=E100*D100]
+  A101=Bar GAVIOTA | C101=1500 [=VLOOKUP(A101,Productos!$A$1:$C$511,2,FALSE)] | D101=0 | E101=1 | F101=Espacios por definir de acuerdo a actividades | G101=0 [=E101*D101]
+  A102=SALÓN REDONDO | C102=500 [=VLOOKUP(A102,Productos!$A$1:$C$511,2,FALSE)] | D102=0 | E102=1 | F102=Espacios por definir de acuerdo a actividades | G102=0 [=E102*D102]
+  A103=Restaurante Bonpland | C103=0 [=VLOOKUP(A103,Productos!$A$1:$C$511,2,FALSE)] | D103=0 | E103=1 | F103=Espacios por definir de acuerdo a actividades | G103=0 [=E103*D103]
+  A104=BAR MIRADOR (PH) | C104=3000 [=VLOOKUP(A104,Productos!$A$1:$C$511,2,FALSE)] | D104=1500 | E104=1 | F104=Espacios por definir de acuerdo a actividades (descuento especial) | G104=1000
+  A105=TERRAZA NORTE Y SUR | C105=1000 [=VLOOKUP(A105,Productos!$A$1:$C$511,2,FALSE)] | D105=0 | E105=1 | F105=Espacios por definir de acuerdo a actividades | G105=0
+  F106=Sub Total | G106=1000 [=SUM(G100:G104)]
+  F108=Total Misceláneos  | G108=25000 [=G40]
+  F109=Total AyB | G109=0 [=G94]
+  F110=Total Salones  | G110=1000 [=G106]
+  F111=Sub Total USD | G111=26000 [=SUM(G108:G110)]
+  F112=Traslados - Exento de IVA | G112=0 [=G46]
+  F113=Total 10% de servicio  | G113=0 [=G95]
+  F114=16% IVA | G114=4160 [=+G111*16%]
+  F115=Total USD | G115=30160 [=SUM(G111:G114)]
+  F116=Garantìa 10% | G116=3016 [=G115*10%]
+  F117=TOTAL  | G117=33176 [=SUM(G115:G116)]
+  A119=CONDICIONES IMPORTANTES 
+  A120=El 16% de IVA será reflejado al momento de la facturación en Bolívares. 
+  A121=Todo pago realizado en moneda extranjera, general un 3% por IGTF.
+  A122=Las tarifas mencionadas en este presupuesto están sujetas a cambios sin previo aviso. Las mismas debes ser revisadas al momento de la conformación de su evento.
+  A123=En caso de confirmar su evento, debe contactar a su ejecutivo de ventas para verificar la disponibilidad del espacio.
+  A124=Al momento de la conformación de su evento solicitamos un 100% de anticipo del total del presupuesto el cual debe estar pago completamente 48 horas antes de la ejecución del evento.
+  A125=Se solicitara un 10% de garantia para cubrir lo gastos adicionales que se puedan generar en el evento.
+  A126=Agradecemos su interés en nuestras instalaciones y servicios, esperamos por su información para afinar los detalles de su evento. 
+  A127=El presente documento es solo una cotización de carácter informativo, no implica un bloqueo de los espacios.  
+  A128=Los precios contemplados en esta propuesta tendrán una vigencia de siete (7) dias a partir de la fecha de este presupuesto. Estos precios están sujetos a modificación.
+  A129=Al momento de confirmar su evento, si contamos con la disponibilidad de los espacios, le haremos llegar el contrato definitivo.
+  ... (3 filas vacías)
+  A133=K. Jaén
+
+======================================================================
+SHEET: Productos
+----------------------------------------------------------------------
+  A1=PRODUCTOS | B1=2024-06-27 00:00:00
+  A2=. | B2=0
+  A3=SANDWICH DE PERNIL (CON PAPAS FRITAS) | B3=9.3
+  A4=SANDWICH DE PERNIL (SIN PAPAS)  | B4=7.15
+  A5=BUFFET  GALIPAN  | B5=24.5
+  A6=BUFFET GAVIOTA | B6=28
+  A7=BUFFET HUMBOLDT | B7=28
+  A8=BUFFET PACO | B8=25.5
+  A9=BUFFET SABAS NIEVES | B9=24
+  A10=BUFFET SANABRIA  | B10=24
+  A11=MINI BROWNIE | B11=1.255
+  A12=MINI CHEESSE CAKE | B12=2.4
+  A13=MINI CREAM CARAMEL (QUESILLO TRADICIONAL) | B13=1
+  A14=MINI MIL HOJAS DE AREQUIPE | B14=1.3
+  A15=MINI OPERA | B15=2.35
+  A16=MINI PANACOTTA DE FRUTOS ROJOS  | B16=1.4
+  A17=MINI PANACOTTA DE MANGO  | B17=1.35
+  A18=MINI PIE DE LIMON | B18=1.35
+  A19=MINI PIE DE PARCHITA | B19=1.3
+  A20=MINI PROFITEROL | B20=1
+  A21=MINI SELVA NEGRA | B21=1.15
+  A22=SHOT DE BIEN MESABE | B22=1
+  A23=SHOT DE MOUSSE DE CHOCOLATE | B23=2
+  A24=SHOT DE MOUSSE DE PARCHITA | B24=1
+  A25=SHOT DE PIE DE LIMON | B25=1
+  A26=SHOT DE TRES LECHES | B26=1
+  A27=MINI ALFAJOR | B27=1.175
+  A28=MINI FRESIER | B28=1.25
+  A29=MINI MOUSSE ESPECIADO  | B29=1
+  A30=MINI PAVLOVA DE LIMON  | B30=1
+  A31=MINI PIE DE FRESAS | B31=1.25
+  A32=MINI TARTALETAS DE FRESA CON AREQUIPE  | B32=1
+  A33=SHOT DE FRESIER | B33=2.1
+  A34=TORTA CON BUTTER CREAM (1 KG - 8 PAX) | B34=25
+  A35=TORTA CON FONDANT (1 KG - 8 PAX ) | B35=23
+  A36=TORTA DE RESTAURANTE (CHOCOLATE O RED VELVET) (1 KG - 8 PAX) | B36=35
+  A37=BUROKKU CON KANI Y MASAGO | B37=1.25
+  A38=BUROKKU CON PASTA DINAMITA | B38=1
+  A39=BUROKKU CON TARTAR DE ATUN  | B39=1.35
+  A40=BUROKKU CON TARTAR DE CARNE EN VARA  | B40=1
+  A41=BUROKKU DE SALMON  | B41=1.4
+  A42=CAMARONES SALTADOS EN CESTAS DE TOSTON | B42=1.5
+  A43=CANAPE CON QUESO DE CABRA Y CHUTNEY DE AJI | B43=1.25
+  A44=CESTAS DE REINA PEPIADA | B44=1
+  A45=CEVICHE CLÁSICO (MINI COPAS) | B45=1.5
+  A46=MINI BRUQUETAS DE CAPRESSA  | B46=1.5
+  A47=MINI BRUSQUETAS CON BOCONCCINI | B47=1.1
+  A48=MONTADITO DE JAMON CURADO  | B48=1.4
+  A49=ROLL CALIFORNIA  | B49=0.95
+  A50=ROLL CHICKEN TERIYAKI | B50=0.95
+  A51=ROLL DINAMITA | B51=0.9
+  A52=ROLL FUJI | B52=1.5
+  A53=ROLL KANIKAMA  | B53=0.95
+  A54=TARTAR DE ATÚN EN NORI | B54=2.4
+  A55=VOULEVANT CON CARNE EN VARA  | B55=1.81
+  A56=VOULEVANT CON MOUSSE DE PESCA BLANCA | B56=1.7
+  A57=VOULEVANT DE SALMON  | B57=1.75
+  A58=VOULEVANT FUNGHI GRATINADO | B58=1.9
+  A59=CROQUETAS CREMOSAS DE PESCADO Y SALSA DE HUMBOLDT | B59=1.15
+  A60=CROQUETAS DE POLLO | B60=1.1
+  A61=DADOS DE CACHAPA CON COCHINO FRITO  | B61=1.25
+  A62=EMPANADITAS VARIADAS | B62=0.55
+  A63=ESFERAS DE CHICHARRON | B63=1.7
+  A64=ESFERAS DE PLÁTANO RELLENAS DE QUESO GUAYANÉS | B64=1.25
+  A65=LANGOSTINO CROCANTE CON SALSA DE CURRY  | B65=1.5
+  A66=LUMPIAS MEDIANAS (DE VEGETALES) | B66=1.8
+  A67=MINI BOLLITOS PELONES  | B67=1
+  A68=MINI BROCHETAS DE POLLO | B68=1.8
+  A69=MINI BROCHETAS DE RES  | B69=2
+  A70=MINI CORDON BLUE CON SALSA DE QUESO  | B70=2.3
+  A71=MINI FILET MIGNON CON REDUCCION DE VINOTINTO | B71=2.65
+  A72=MINI FILET MIGNON DE POLLO CON REDUCCION DE VINOTINTO | B72=2.35
+  A73=MINI HAMBURGUESA DE PERNIL  | B73=1.5
+  A74=MINI HAMBURGUESA DE RES | B74=2.75
+  A75=NUGGETS CON SALSA BBQ  | B75=1.475
+  A76=PASTELITOS ANDINO CON SALSA HUMBOLDT  | B76=1.35
+  A77=SATAY DE CERDO EN TERIYAKI DE TAMARINDO | B77=1.25
+  A78=SATAY DE POLLO  | B78=1.105
+  A79=TEQUEÑOS DE CHISTORRA CON SALSA HUMBOLDT | B79=1.45
+  A80=TEQUEÑOS TRADICIONALES CON SALSA HUMBOLDT | B80=1.05
+  A81=BUFFET 3 TIEMPOS I | B81=23.5
+  A82=BUFFET 3 TIEMPOS II | B82=23.5
+  A83=BUFFET 3 TIEMPOS III | B83=27.5
+  A84=MENÚ 3 TIEMPOS  | B84=25.5
+  A85=BUFFET 3 TIEMPOS V | B85=25
+  A86=BUFFET 3 TIEMPOS VI | B86=24
+  A87=MENÚ 3 TIEMPOS VII | B87=23.5
+  A88=MENÚ 3 TIEMPOS VIII | B88=24.5
+  A89=MENÚ 3 TIEMPOS IX | B89=23.5
+  A90=BUFFET 4 TIEMPOS I | B90=32.5
+  A91=BUFFET 4 TIEMPOS II | B91=36.5
+  A92=BUFFET 4 TIEMPOS III | B92=37
+  A93=BUFFET 4 TIEMPOS IV | B93=36
+  A94=BUFFET 4 TIEMPOS V | B94=37
+  A95=BUFFET 4 TIEMPOS VI | B95=32.5
+  A96=ESTACION DE CHUPE  | B96=6
+  A97=ESTACION DE EMPANADAS MEDIANAS CON SALSAS (2 UND POR PERSONA) | B97=2.5
+  A98=ESTACION DE FRUTAS (IMPORTADAS)  | B98=9.5
+  A99=ESTACION DE GALLETAS (DE AVENA O CHOCO CHIPS) 20 UND  | B99=8
+  A100=ESTACION DE MINI AREPITAS (3 POR PERSONA)  | B100=6.5
+  A101=ESTACION DE MINI AREPITAS DE ANIS DULCE CON QUESO NACIONAL (2UND POR PAX) | B101=2
+  A102=ESTACION DE MINI HAMBURGUESITAS  | B102=3.5
+  A103=ESTACION DE MINI HOT DOG  | B103=2
+  A104=ESTACION DE PANES  | B104=2.5
+  A105=ESTACION DE QUESOS (A PARTIR DE 30 PAX EN ADELANTE) | B105=16
+  A106=ESTACION DE SUSHI (6 UND X PERSONA)  | B106=6.5
+  A107=MINI SANDWICH DE PERNIL  | B107=2.5
+  A108=COFFE BREAK COLLEGE  | B108=12
+  A109=COFFE BREAK CRIOLLO  | B109=11.5
+  A110=COFFE BREAK FIT  | B110=11.5
+  A111=COFFE BREAK PEREZ JIMENEZ  | B111=12
+  A112=COFFE BREAK TEA TIME  | B112=12.5
+  A113=BOX LOUNGE INTEGRAL I | B113=13
+  A114=BOX LOUNGE INTEGRAL II | B114=12.5
+  A115=BOX LOUNGE INTEGRAL III | B115=12.5
+  A116=BOX LOUNGE INTEGRAL IV | B116=12.5
+  A117=AGUA FONTANA  (500 ML) | B117=1
+  A118=AGUA FONTANA  (750 ML) | B118=1.5
+  A119=AGUA MINERAL (BOTELLA 330 ML) | B119=1.5
+  A120=AGUA SPARKLIN | B120=2
+  A121=ESTACION DE CAFÉ (AMERICANO)  | B121=2
+  A122=ESTACION DE CHOCOLATE CALIENTE | B122=4.25
+  A123=ESTACION DE JUGO DE MELON  | B123=2.15
+  A124=ESTACION DE JUGO DE NARANJA | B124=4
+  A125=ESTACION DE JUGO DE PATILLA | B125=2.15
+  A126=ESTACION DE PIÑA | B126=2.15
+  A127=JUGO DE FRESA | B127=2.15
+  A128=JUGO DE LECHOZA  | B128=2.15
+  A129=JUGO DE PARCHITA  | B129=4
+  A130=LECHE LIQUIDA (JARRA DE 1 LT) | B130=4.33
+  A131=REFRESCOS DE LATA  | B131=2
+  A132=SODA | B132=2
+  A133=TE DE JAMAICA  | B133=1
+  A134=TE NEGRO  | B134=1
+  A135=TE VERDE  | B135=1
+  A136=BAR MIRADOR (PH) | B136=3000
+  A137=ESTAR GENERAL | B137=3000
+  A138=Bar GAVIOTA | B138=1500
+  A139=SALÓN REDONDO | B139=500
+  A140=Restaurante Bonpland
+  A141=Piscina
+  A142=TERRAZA NORTE Y SUR | B142=1000
+  A143=MOBILIARIO (SILLA) | B143=5
+  A144=MOBILIARIO (MESA 10 PERS.) | B144=50
+  A145=PROTOCOLO DE MARIPEREZ (Menos de 100 pers.) | B145=90
+  A146=PROTOCOLO DE MARIPEREZ (Más de 100 pers.) | B146=180
+  A147=Traslado Ida-Vuelta p/persona | B147=10
+  A148=Traslado especial
+  A149=Visita Guiada | B149=15
+  A150=DESCORCHE DE VINOS Y ESPUMANTES (por botella) | B150=15
+  A151=DESCORCHE DE OTROS LICORES (por botella) | B151=20
+  A152=Hospedaje - Escape en las alturas | B152=250
+  A153=Hospedaje - Romance entre las nubes | B153=336.21
+  A154=Hospedaje - Humboldt Spa | B154=370.69
+  A155=Hospedaje - Experiencia Humboldt | B155=301.72
+  A156=Hospedaje - Experiencia entre las nubes | B156=336.21
+  A157=Hospedaje - Aventura en el Humboldt | B157=293.1
+  A158=Personal de evento
+  A159=Protocolo Hotel
+  A160=Mobiliario
+  A161=Audiovisuales
+  A162=Planta eléctrica
+  A163=Menú especial de 4 tiempos
+  A164=Restaurante Bonpland
+  A165=Bebida por seleccionar (jugo o refresco)
+  A166=Bebida por seleccionar (vino)
+  A167=Bebida por seleccionar (espumoso)
+  A168=Buffet especial
+  A169=Talento
+  A170=Servicio especial
+  A171=Ticket de Restaurante Humboldt
+  A172=Risotto de setas, lomito y su reducción | B172=20
+  A173=Estación de arepas  | B173=11.5
+  A174=Estación de panes y antipastos | B174=30
+  A175=Estación de panes y antipastos plus | B175=20
+  A176=Estación de tapas plus | B176=20.5
+  A177=Estación especial Mediterránea | B177=25
+  A178=Actividad recreativa
+  A179=Tequeños con salsa de ají dulce | B179=0.9
+  A180=Blinis de queso crema con huevas de salmón | B180=3.3
+  A181=Ceviche de langostinos | B181=4.1
+  A182=Carpaccio de lomito con pesto de berenjenas asadas y Parmiggiano R. | B182=1.4
+  A183=Sushi Pizza de salmón ahumado, wakame y mayoWasabi | B183=2
+  A184=Tortilla española al aroma de trufas | B184=1.5
+  A185=Arepitas de ají dulce con pernil estofado y tomate | B185=0.9
+  A186=Filet Mignon de carne con salsa de champiñones | B186=1.7
+  A187=Satay de lomito, pimentón asado, yuca y chistorra | B187=2.3
+  A188=Croquetas de Manchego y Serrano | B188=1.1
+  A189=Cesta de vegetales con salsa de soya Thai | B189=1.1
+  A190=Kibbeh frito con hummus, tabule, sobre crocante de pita | B190=1.6
+  A191=Empanadita de ají rellena de asado negro con cremoso de queso de cabra | B191=1
+  A192=Tequeños de chistorra con salsa de Manchego | B192=1.5
+  A193=Caja de Pepsi Cola | B193=42
+  A194=Caja de Pepsi Cola Light | B194=42
+  A195=Caja de agua gasificada (12 unidades) | B195=20
+  A196=Caja de soda en lata | B196=40
+  A197=Caja de agua mineral Minalba | B197=20
+  A198=Limón (1 kilo - 35 personas) | B198=4
+  A199=Bolsas de hielo | B199=3
+  A200=Cena especial
+  A201=Utilería
+  A202=Desayuno especial
+  A203=Menú navideño 1 | B203=34
+  A204=Menú navideño 2 | B204=38
+  A205=Menú navideño plateado | B205=17.5
+  A208=CROISSANT ALMENDRADO | B208=3
+  A209=CROISSANT DE CHOCOLATE | B209=3
+  A210=CROISSANT DE JAMON DE PAVO Y QUESO PAISA | B210=4
+  A211=CROISSANT DE JAMON DE PIERNA Y QUESO EMMENTAL | B211=4
+  A212=CROISSANT PLAIN  | B212=3
+  A213=CROISSSANT DE QUESO RICOTTA CON TOCINETA | B213=6
+  A214=CROISSSANT RELLENO DE QUESO CREMA CON TOMATES SECOS | B214=6
+  A215=CROISSSANT RELLENO DE RUGULA, PESTO Y PROSCIUTTO | B215=6
+  A216=DANEESSAS DE CANELA | B216=3
+  A217=DANESSAS DE AREQUIPE  | B217=3
+  A218=DANESSAS DE CHOCOLATE | B218=3
+  A219=GOLFEADOS MEDIANOS CON QUESO NACIONAL | B219=4
+  A220=MINI CACHITO CON PROSCIUTTO | B220=4
+  A221=MINI CACHITOS  CON JAMON Y TOCINETA | B221=4
+  A222=MINI CACHITOS DE JAMON DE PAVO Y QUESO CREMA | B222=5
+  A223=MINI LUNCH | B223=4
+  A224=MINI PASTELITOS DE QUESO  | B224=4
+  A225=MINI QUESADILLAS ESTRELLADAS | B225=4
+  A227=BOMBAS (RELLENAS DE CREMA PASTELERA O AREQUIPE) | B227=2
+  A228=GALLETAS DE AVENA Y PASAS | B228=1.2
+  A229=GALLETAS DE CHOCO CHIPS | B229=1.3
+  A230=GALLETAS DE COCO | B230=1.2
+  A231=LIMON CAKE  | B231=5
+  A232=MUFFINS DE VAINILLA | B232=3
+  A233=PALMERITAS  | B233=1.2
+  A234=TRUFAS DE CHOCOLATE  | B234=4.2
+  A236=BOLW CON FRUTOS SECOS (ALMENDRAS FILETEADAS, NUECES, MANI O GRANOLA) | B236=5
+  A237=FRUTAS DE MANO (MANDARINAS, MANZANA O DURAZNO) | B237=6.2
+  A238=FRUTAS EN COPAS O PLATO (PATILLA, MELON, LECHOZA Y PIÑA) | B238=6
+  A239=YOGURT CON MERMELADA | B239=4
+  A240=YOGURT PLAIN | B240=3
+  A242=MINI AREPITAS (MECHADA, POLLO, REINA PEPIADA O QUESO AMARILLO) | B242=1.7
+  A243=MINI AREPITAS DE ANIS DULCE CON QUESO NACIONAL | B243=1.6
+  A244=MINI CACHAPAS CON QUESO NACIONAL | B244=3
+  A245=MINI PANQUECAS CON QUESO NACIONAL | B245=3
+  A247=CROQUETAS DE PESCA BLANCA CON SALSA DE AJO. | B247=3
+  A248=CROQUETAS DE POLLO CON SALSA DE AJO. | B248=3
+  A249=DADOS DE CACHAPAS CON CERDO FRITO Y CREMOSO GUAYANES. | B249=3
+  A250=ESFERAS DE CHICHARRON. | B250=2.8
+  A251=ESFERAS DE PLATANO. | B251=2.8
+  A252=LANGOSTINO CROCANTE CON SALSA DE CURRY. | B252=3
+  A253=MINI BOLLITOS PELONES. | B253=3
+  A254=MINI BROCHETAS DE LOMITO CON CHIMICHURRI. | B254=6.9
+  A255=MINI BROCHETAS DE POLLO. | B255=5
+  A256=MINI CORDON BLUE CON SALSA DE QUESO. | B256=4
+  A257=MINI EMPANADITAS (MECHADA, POLLO O QUESO) CON SALSA DE AJO. | B257=1.8
+  A258=MINI FILET MIGNON DE LOMITO CON SALSA DE VINO TINTO. | B258=6.5
+  A259=MINI FILET MIGNON DE POLLO CON REDUCCION DE VINO TINTO. | B259=4
+  A260=MINI LUMPIAS CON SALSA TERIYAKI. | B260=3.50912427552421
+  A261=MINI QUICHE CON QUESO CREMA Y ESPINACA. | B261=4.1
+  A262=PASTELITO ANDINO CON DE AJO. | B262=4.5
+  A263=SATAY DE CERDO CON TERIYAKI. | B263=5.5
+  A264=SATAY DE POLLO CON SALSA BBQ. | B264=3
+  A265=TEQUEÑO DE CHISTORRA CON SALSA DE AJO. | B265=2.89
+  A266=TEQUEÑO TRADICIONAL CON CHUTNEY DE AJI. | B266=2.25
+  A268=BUROKKU CON KANI Y MASAGO. | B268=3.6
+  A269=BUROKKU DE STEAK TARTAR AHUMADO. | B269=2.5
+  A270=BUROKKU DE SALMON. | B270=2.7
+  A271=BUROKKU DE TARTAR DE ATUN. | B271=2.5
+  A272=BUROKKU DINAMITA. | B272=2.5
+  A273=CANAPE CON PESCA AHUMADA. | B273=2.7
+  A274=CANAPE CON PROSCIUTTO. | B274=2.7
+  A275=CANAPE CON QUESO CREMA Y CHUTNEY DE AJI. | B275=2.5
+  A276=CANAPE DE CAPRESSA. | B276=2.5
+  A277=CESTA DE CAMARONES. | B277=4.5
+  A278=CEVICHE EN SHOT. | B278=4
+  A279=SUSHI ROLL CALIFORNIA. | B279=2.5
+  A280=SUSHI ROLL CHIKEN TERIYAKI. | B280=2.5
+  A281=SUSHI ROLL DE CAMARONES. | B281=2.7
+  A282=SUSHI ROLL DINAMITA. | B282=2.5
+  A283=SUSHI ROLL FUJI . | B283=3
+  A284=SUSHI ROLL KANI KAMA. | B284=3.6
+  A285=TARTALETA CON REINA PEPIADA. | B285=3
+  A286=VOULEVANT CON DOUXELLE DE CHAMPIÑONES Y QUESO PARMESANO. | B286=3.8
+  A287=VOULEVANT CON MOUSSE DE PESCA AHUMADA. | B287=3.8
+  A288=VOULEVANT CON STEAK TARTAR AHUMADO. | B288=3.8
+  A289=VOULEVANT CON TARTAR DE SALMON AHUMADO. | B289=4
+  A291=LIMONADA. | B291=6
+  A292=PAPELON CON LIMON. | B292=6
+  A293=JUGOS (NARANJA, PARCHITA O FRESA) | B293=8
+  A294=JUGOS VARIOS (MELON, LECHOZA, PIÑA, PAPELON CON LIMON O PATILLA) | B294=6
+  A296=Mocktails | B296=9

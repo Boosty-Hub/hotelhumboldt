@@ -1,0 +1,506 @@
+// Hotel Humboldt — Sistema Comercial
+// Modelo de datos. SQLite en desarrollo → PostgreSQL (Supabase) en producción.
+// Nota: SQLite no soporta enums en Prisma — los "enums" son String con
+// constantes tipadas en src/lib/constants.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Usuarios y roles ───────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("EJECUTIVO") // ADMIN | GERENTE | EJECUTIVO
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  opportunities     Opportunity[] @relation("OwnerOpportunities")
+  quotes            Quote[]       @relation("SignerQuotes")
+  activities        Activity[]
+  clientNotes       ClientNote[]
+  priceChanges      PriceHistory[]
+  discountsApproved QuoteLine[]   @relation("DiscountAuthor")
+}
+
+// ─────────────────────────── Clientes (CRM) ───────────────────────────
+
+model Client {
+  id        String   @id @default(cuid())
+  legalName String // razón social: IANCARINA C.A.
+  brandName String? // marca: Alimentos Mary
+  rif       String? // J-085033289
+  type      String   @default("EMPRESA") // EMPRESA | PERSONA | AGENCIA | INSTITUCIONAL
+  address   String?
+  phone     String?
+  email     String?
+  notes     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contacts      Contact[]
+  opportunities Opportunity[]
+  clientNotes   ClientNote[]
+  activities    Activity[]
+}
+
+model Contact {
+  id        String  @id @default(cuid())
+  clientId  String
+  name      String
+  title     String? // cargo
+  phone     String?
+  email     String?
+  isPrimary Boolean @default(false)
+
+  client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  opportunities Opportunity[]
+}
+
+model ClientNote {
+  id        String   @id @default(cuid())
+  clientId  String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+}
+
+// ─────────────────────────── Pipeline de ventas ───────────────────────────
+
+model Opportunity {
+  id                String    @id @default(cuid())
+  code              String    @unique // OP-2026-0001
+  clientId          String
+  contactId         String?
+  ownerId           String // ejecutivo responsable
+  title             String // "Fiesta de Navidad Alimentos Mary"
+  eventType         String? // de catálogo EventTypeOption
+  channel           String? // de catálogo ChannelOption
+  stage             String    @default("NUEVO") // NUEVO | CONTACTADO | PROPUESTA | NEGOCIACION | GANADO | PERDIDO
+  probability       Int       @default(10) // %
+  estimatedValue    Float     @default(0) // USD
+  expectedEventDate DateTime?
+  pax               Int?
+  roomsCount        Int       @default(0) // habitaciones
+  vgCount           Int       @default(0) // visitantes teleférico
+  lostReason        String? // Precio | Teleférico | Capacidad de hospedaje | ...
+  closeReason       String? // Reintegro | Comp. Retenciones | Diferencia cambiaria
+  followUpDate      DateTime? // seguimiento futuro
+  observations      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  client     Client      @relation(fields: [clientId], references: [id])
+  contact    Contact?    @relation(fields: [contactId], references: [id])
+  owner      User        @relation("OwnerOpportunities", fields: [ownerId], references: [id])
+  events     Event[]
+  quotes     Quote[]
+  payments   Payment[]
+  invoices   Invoice[]
+  activities Activity[]
+
+  @@index([stage])
+  @@index([ownerId])
+}
+
+// ─────────────────────────── Eventos ───────────────────────────
+
+model Event {
+  id             String    @id @default(cuid())
+  opportunityId  String
+  parentEventId  String? // sub-eventos (Sportbitz: conferencia + cena)
+  name           String
+  startDate      DateTime?
+  endDate        DateTime?
+  datesTentative Boolean   @default(false) // "fechas en revisión"
+  altDates       String? // fechas alternativas en texto
+  startTime      String? // "15:00"
+  endTime        String? // "02:00" (puede cruzar medianoche)
+  pax            Int?
+  paxApproximate Boolean   @default(false)
+  paxCirculating Boolean   @default(false) // invitados "circulantes"
+  status         String    @default("PLANIFICACION") // PLANIFICACION | CONFIRMADO | EJECUTADO | CANCELADO
+  notes          String?
+  createdAt      DateTime  @default(now())
+
+  opportunity   Opportunity         @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  parentEvent   Event?              @relation("SubEvents", fields: [parentEventId], references: [id])
+  subEvents     Event[]             @relation("SubEvents")
+  reservations  SpaceReservation[]
+  quotes        Quote[]
+  staff         EventStaff[]
+  supplierCosts SupplierEventCost[]
+}
+
+model EventStaff {
+  id          String @id @default(cuid())
+  eventId     String
+  area        String // área p | ayb | cocina | bartender | montaje | prevención | coordinador
+  quantity    Int
+  costCharged Float? // costo cargado al cliente
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────── Cotizaciones ───────────────────────────
+
+model Quote {
+  id            String    @id @default(cuid())
+  number        String    @unique // COT-2026-0001
+  version       Int       @default(1)
+  opportunityId String
+  eventId       String?
+  signerId      String // ejecutivo firmante
+  status        String    @default("BORRADOR") // BORRADOR | ENVIADA | APROBADA | RECHAZADA | VENCIDA | CONTRATADA
+  currency      String    @default("USD")
+  issueDate     DateTime  @default(now())
+  validUntil    DateTime?
+  agreementDate DateTime? // fecha del acuerdo
+
+  // Link público de aprobación
+  publicToken    String    @unique
+  publicViewedAt DateTime?
+  approvedByName String? // quién aprobó del lado del cliente
+  approvedAt     DateTime?
+  rejectionNote  String?
+
+  clientMessage   String? // mensaje de cortesía del encabezado
+  legalConditions String? // cláusulas (snapshot de la plantilla)
+
+  // Snapshot de parámetros al momento de cotizar (Configuración puede cambiar)
+  taxPct         Float   @default(16) // IVA
+  taxEnabled     Boolean @default(true)
+  servicePct     Float   @default(10) // % servicio sobre AyB
+  serviceEnabled Boolean @default(true)
+  depositPct     Float   @default(10) // garantía
+  depositEnabled Boolean @default(true)
+  igtfPct        Float   @default(3)
+  igtfEnabled    Boolean @default(true)
+
+  // Totales calculados (persistidos para listados y reportes)
+  subtotalMisc      Float @default(0)
+  subtotalTransfers Float @default(0) // exento de IVA
+  subtotalFood      Float @default(0) // AyB sin servicio
+  subtotalSpaces    Float @default(0)
+  serviceAmount     Float @default(0)
+  taxAmount         Float @default(0)
+  totalUsd          Float @default(0)
+  depositAmount     Float @default(0) // garantía: depósito reembolsable SEPARADO
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  opportunity  Opportunity          @relation(fields: [opportunityId], references: [id])
+  event        Event?               @relation(fields: [eventId], references: [id])
+  signer       User                 @relation("SignerQuotes", fields: [signerId], references: [id])
+  lines        QuoteLine[]
+  installments PaymentInstallment[]
+  payments     Payment[]
+  allocations  PaymentAllocation[]
+  invoices     Invoice[]
+  activities   Activity[]
+
+  @@index([status])
+  @@index([opportunityId])
+}
+
+model QuoteLine {
+  id          String  @id @default(cuid())
+  quoteId     String
+  section     String // MISCELANEOS | TRASLADOS | ALIMENTOS_BEBIDAS | ESPACIOS
+  dayNumber   Int? // Día 1, 2, 3 en eventos multi-día
+  productId   String? // null = línea libre
+  description String
+  comment     String? // comentarios al cliente (menú, medidas, condiciones)
+  listPrice   Float? // precio de lista snapshot
+  unitPrice   Float // precio cobrado (puede diferir de lista)
+  quantity    Float
+  unit        String  @default("UND") // PAX | UND | BOTELLA | DIA | EVENTO | VEHICULO | KG | CAJA
+  subtotal    Float
+  isOptional  Boolean @default(false) // cantidad 0 "de referencia"
+  taxExempt   Boolean @default(false) // traslados
+  sortOrder   Int     @default(0)
+
+  // Trazabilidad de precio especial (decisión: registrar con autor y motivo)
+  discountType     String? // DESCUENTO | PRECIO_ESPECIAL | CORTESIA | SOBREPRECIO
+  discountReason   String?
+  discountAuthorId String?
+
+  // Costeo interno — NUNCA visible al cliente (vista separada por rol)
+  supplierId   String?
+  unitCost     Float?
+  costQuantity Float? // puede diferir de quantity (60 copas = 6 botellas)
+  totalCost    Float?
+
+  quote          Quote     @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  product        Product?  @relation(fields: [productId], references: [id])
+  supplier       Supplier? @relation(fields: [supplierId], references: [id])
+  discountAuthor User?     @relation("DiscountAuthor", fields: [discountAuthorId], references: [id])
+
+  @@index([quoteId])
+}
+
+// ─────────────────────────── Catálogo de productos ───────────────────────────
+
+model ProductCategory {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  section   String? // sección sugerida de cotización
+  sortOrder Int     @default(0)
+
+  products Product[]
+}
+
+model Product {
+  id           String  @id @default(cuid())
+  name         String
+  categoryId   String?
+  type         String  @default("PROPIO") // PROPIO | PROVEEDOR | ESPACIO | HOSPEDAJE | SERVICIO | INSUMO | COMODIN
+  unit         String  @default("UND")
+  listPrice    Float? // precio de venta USD (null = comodín, precio manual)
+  cost         Float? // costo proveedor
+  supplierId   String?
+  minPax       Int? // estación quesos mín. 30
+  unitsPerPax  Int? // sushi 6 und/pax
+  priceContext String? // PIEZA | BUFFET | EMPLATADO
+  notes        String?
+  active       Boolean @default(true)
+
+  category     ProductCategory? @relation(fields: [categoryId], references: [id])
+  supplier     Supplier?        @relation(fields: [supplierId], references: [id])
+  priceHistory PriceHistory[]
+  quoteLines   QuoteLine[]
+
+  @@index([categoryId])
+}
+
+model PriceHistory {
+  id        String   @id @default(cuid())
+  productId String
+  listPrice Float?
+  cost      Float?
+  validFrom DateTime @default(now())
+  authorId  String?
+  reason    String?
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  author  User?   @relation(fields: [authorId], references: [id])
+}
+
+// ─────────────────────────── Salones y calendario ───────────────────────────
+
+model Space {
+  id            String  @id @default(cuid())
+  name          String  @unique
+  dailyRate     Float? // tarifa lista USD/día
+  halfDayRate   Float?
+  capacity      Int? // pax — pendiente de levantar con el hotel
+  capacityNotes String?
+  description   String?
+  color         String  @default("#0ea5e9") // color en el calendario
+  active        Boolean @default(true)
+  sortOrder     Int     @default(0)
+
+  reservations SpaceReservation[]
+}
+
+model SpaceReservation {
+  id        String   @id @default(cuid())
+  spaceId   String
+  eventId   String
+  date      DateTime // día reservado
+  startTime String? // franja horaria
+  endTime   String?
+  status    String   @default("TENTATIVA") // TENTATIVA | CONFIRMADA | CANCELADA
+  notes     String?
+  createdAt DateTime @default(now())
+
+  space Space @relation(fields: [spaceId], references: [id])
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([spaceId, date])
+  @@index([eventId])
+}
+
+// ─────────────────────────── Proveedores ───────────────────────────
+
+model Supplier {
+  id          String  @id @default(cuid())
+  name        String  @unique // Alternativa Gastronómica 2023 C.A., FIRIUS, Evenplus, VENTEL...
+  serviceType String? // catering | vinos | audiovisuales | teleférico | actividades
+  contactName String?
+  phone       String?
+  email       String?
+  discountPct Float? // A.G.: 30% dcto fijo al hotel
+  appliesIva  Boolean @default(false) // cobra "+ IVA"
+  conditions  String?
+  active      Boolean @default(true)
+
+  products   Product[]
+  quoteLines QuoteLine[]
+  eventCosts SupplierEventCost[]
+}
+
+model SupplierEventCost {
+  id         String  @id @default(cuid())
+  eventId    String
+  supplierId String
+  concept    String // "sonido/pantalla", "senderismo p/p"
+  amount     Float
+  plusIva    Boolean @default(false)
+  status     String  @default("COTIZADO") // COTIZADO | NEGOCIADO | CONFIRMADO | PAGADO
+  notes      String?
+
+  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+}
+
+// ─────────────────────────── Pagos y cobranza ───────────────────────────
+
+model PaymentInstallment {
+  id      String   @id @default(cuid())
+  quoteId String
+  label   String // "Reserva 30%", "Abono 2", "Saldo final"
+  dueDate DateTime
+  amount  Float // USD
+  status  String   @default("PENDIENTE") // PENDIENTE | PARCIAL | PAGADA | VENCIDA
+
+  quote    Quote     @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  payments Payment[]
+}
+
+model Payment {
+  id             String   @id @default(cuid())
+  opportunityId  String
+  quoteId        String?
+  installmentId  String?
+  date           DateTime @default(now())
+  method         String // BOLIVARES | ZELLE | EFECTIVO_DIVISAS | TARJETA_DEBITO | TARJETA_CREDITO | TRANSFERENCIA | OBSEQUIO
+  currency       String   @default("USD") // USD | BS
+  amountOriginal Float // monto en la moneda original
+  rateUsed       Float? // tasa Bs/USD aplicada
+  exchangeRateId String?
+  amountUsd      Float // equivalente USD
+  type           String   @default("ABONO") // ABONO | ANTICIPO | GARANTIA | REINTEGRO
+  reference      String? // nº de transferencia/Zelle
+  notes          String?
+
+  opportunity  Opportunity         @relation(fields: [opportunityId], references: [id])
+  quote        Quote?              @relation(fields: [quoteId], references: [id])
+  installment  PaymentInstallment? @relation(fields: [installmentId], references: [id])
+  exchangeRate ExchangeRate?       @relation(fields: [exchangeRateId], references: [id])
+  allocations  PaymentAllocation[]
+}
+
+model PaymentAllocation {
+  id        String @id @default(cuid())
+  paymentId String
+  quoteId   String
+  bucket    String // MISCELANEOS | TRASLADOS | ALIMENTOS_BEBIDAS | ESPACIOS | GARANTIA | GENERAL
+  amount    Float
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  quote   Quote   @relation(fields: [quoteId], references: [id])
+}
+
+// ─────────────────────────── Facturación ───────────────────────────
+
+model Invoice {
+  id             String   @id @default(cuid())
+  number         String // nº factura fiscal
+  date           DateTime
+  opportunityId  String
+  quoteId        String?
+  type           String   @default("FISCAL") // FISCAL | PROFORMA | ADICIONALES
+  amountBs       Float? // monto en bolívares (factura fiscal)
+  amountUsdRef   Float // referencia USD
+  rateUsed       Float?
+  exchangeRateId String?
+  status         String   @default("EMITIDA") // EMITIDA | PAGADA | ANULADA
+  notes          String?
+
+  opportunity  Opportunity   @relation(fields: [opportunityId], references: [id])
+  quote        Quote?        @relation(fields: [quoteId], references: [id])
+  exchangeRate ExchangeRate? @relation(fields: [exchangeRateId], references: [id])
+  retentions   Retention[]
+}
+
+model Retention {
+  id              String    @id @default(cuid())
+  invoiceId       String
+  type            String // IVA | ISLR
+  amountBs        Float
+  receivedDate    DateTime?
+  countsAsPayment Boolean   @default(true) // práctica actual: cuentan como pago
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model ExchangeRate {
+  id     String   @id @default(cuid())
+  date   DateTime
+  rate   Float // Bs por USD
+  source String   @default("BCV") // BCV | MANUAL
+
+  payments Payment[]
+  invoices Invoice[]
+
+  @@index([date])
+}
+
+// ─────────────────────────── Configuración ───────────────────────────
+
+model Setting {
+  key       String   @id // iva_pct, service_pct, deposit_pct, igtf_pct, quote_validity_days...
+  value     String // valor serializado
+  type      String   @default("number") // number | string | boolean | json
+  enabled   Boolean  @default(true) // habilitar/deshabilitar el cargo
+  label     String?
+  category  String   @default("general") // impuestos | comercial | hotel | general
+  updatedAt DateTime @updatedAt
+}
+
+model EventTypeOption {
+  id     String  @id @default(cuid())
+  name   String  @unique // Boda, Convención, Coctel, Fiesta de Navidad...
+  active Boolean @default(true)
+}
+
+model ChannelOption {
+  id     String  @id @default(cuid())
+  name   String  @unique // CRM, Referido, Director, Casa Matriz, Caminante...
+  active Boolean @default(true)
+}
+
+// ─────────────────────────── Actividad / timeline ───────────────────────────
+
+model Activity {
+  id            String   @id @default(cuid())
+  userId        String
+  opportunityId String?
+  clientId      String?
+  quoteId       String?
+  type          String   @default("NOTA") // NOTA | LLAMADA | EMAIL | REUNION | DEGUSTACION | CAMBIO_ETAPA | SISTEMA
+  body          String
+  createdAt     DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id])
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  client      Client?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  quote       Quote?       @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([opportunityId])
+  @@index([clientId])
+}

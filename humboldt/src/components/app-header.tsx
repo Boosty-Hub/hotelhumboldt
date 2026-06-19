@@ -1,4 +1,5 @@
-import { auth, signOut } from "@/lib/auth";
+import { auth, signOut, canManageSettings } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -11,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, ChevronDown } from "lucide-react";
 import { ROLE_LABELS, type Role } from "@/lib/constants";
+import { HeaderRate } from "@/components/header-rate";
+import { HeaderNotifications } from "@/components/header-notifications";
 
 function initials(name: string | null | undefined): string {
   if (!name) return "?";
@@ -26,8 +29,42 @@ export async function AppHeader() {
   const session = await auth();
   const user = session?.user;
 
+  const latestRate = await prisma.exchangeRate.findFirst({ orderBy: { date: "desc" } });
+  const rate = latestRate
+    ? { rate: latestRate.rate, date: latestRate.date, source: latestRate.source }
+    : null;
+  const canEdit = canManageSettings(user?.role);
+
+  // Tareas vencidas / de hoy del usuario para la campana de notificaciones.
+  const endToday = new Date();
+  endToday.setHours(23, 59, 59, 999);
+  const dueTasks = user?.id
+    ? await prisma.task.findMany({
+        where: { assigneeId: user.id, status: "PENDIENTE", dueAt: { lte: endToday } },
+        orderBy: { dueAt: "asc" },
+        take: 50,
+        include: {
+          opportunity: {
+            select: { id: true, client: { select: { legalName: true, brandName: true } } },
+          },
+        },
+      })
+    : [];
+  const headerTasks = dueTasks.map((t) => ({
+    id: t.id,
+    title: t.title,
+    type: t.type,
+    dueAt: t.dueAt,
+    opportunityId: t.opportunityId,
+    clientName: t.opportunity.client.brandName ?? t.opportunity.client.legalName,
+  }));
+
   return (
-    <header className="flex h-16 shrink-0 items-center justify-end gap-3 border-b bg-background px-6">
+    <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b bg-background px-6">
+      <div className="flex items-center gap-2">
+        <HeaderNotifications tasks={headerTasks} />
+        <HeaderRate rate={rate} canEdit={canEdit} />
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="gap-2 px-2">

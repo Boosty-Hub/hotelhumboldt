@@ -4,11 +4,12 @@
 // constantes tipadas en src/lib/constants.ts
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -29,6 +30,8 @@ model User {
   clientNotes       ClientNote[]
   priceChanges      PriceHistory[]
   discountsApproved QuoteLine[]   @relation("DiscountAuthor")
+  assignedTasks     Task[]        @relation("AssigneeTasks")
+  createdTasks      Task[]        @relation("CreatorTasks")
 }
 
 // ─────────────────────────── Clientes (CRM) ───────────────────────────
@@ -110,6 +113,7 @@ model Opportunity {
   payments   Payment[]
   invoices   Invoice[]
   activities Activity[]
+  tasks      Task[]
 
   @@index([stage])
   @@index([ownerId])
@@ -503,4 +507,29 @@ model Activity {
 
   @@index([opportunityId])
   @@index([clientId])
+}
+
+// ─────────────────────────── Tareas programadas ───────────────────────────
+
+model Task {
+  id            String    @id @default(cuid())
+  opportunityId String
+  assigneeId    String? // responsable (default: dueño de la oportunidad)
+  creatorId     String? // quién la creó
+  type          String    @default("VOLVER_CONTACTAR") // VOLVER_CONTACTAR | ENVIAR_COTIZACION | LLAMAR | GESTION_COBRO | OTRO
+  title         String
+  notes         String?
+  dueAt         DateTime // fecha/hora programada
+  status        String    @default("PENDIENTE") // PENDIENTE | COMPLETADA | CANCELADA
+  recurrence    String    @default("NONE") // NONE | DIARIA | SEMANAL | QUINCENAL | MENSUAL
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  assignee    User?       @relation("AssigneeTasks", fields: [assigneeId], references: [id])
+  creator     User?       @relation("CreatorTasks", fields: [creatorId], references: [id])
+
+  @@index([opportunityId])
+  @@index([assigneeId, status, dueAt])
 }

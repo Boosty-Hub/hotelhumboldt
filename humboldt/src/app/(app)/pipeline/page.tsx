@@ -12,8 +12,9 @@ export default async function PipelinePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await auth();
-  const { op } = await searchParams;
+  const { op, task } = await searchParams;
   const initialSelectedId = typeof op === "string" ? op : null;
+  const initialTaskId = typeof task === "string" ? task : null;
 
   const [opportunities, users, eventTypes, channels, clients] = await Promise.all([
     prisma.opportunity.findMany({
@@ -63,6 +64,7 @@ export default async function PipelinePage({
         clients={clients}
         currentUserId={session?.user?.id ?? ""}
         initialSelectedId={initialSelectedId}
+        initialTaskId={initialTaskId}
       />
     </div>
   );

@@ -64,11 +64,11 @@ export default async function CotizacionesPage({
   if (QUOTE_STATUSES.includes(estado as QuoteStatus)) where.status = estado;
   if (q) {
     where.OR = [
-      { number: { contains: q } },
-      { opportunity: { title: { contains: q } } },
-      { opportunity: { client: { legalName: { contains: q } } } },
-      { opportunity: { client: { brandName: { contains: q } } } },
-      { event: { name: { contains: q } } },
+      { number: { contains: q, mode: "insensitive" } },
+      { opportunity: { title: { contains: q, mode: "insensitive" } } },
+      { opportunity: { client: { legalName: { contains: q, mode: "insensitive" } } } },
+      { opportunity: { client: { brandName: { contains: q, mode: "insensitive" } } } },
+      { event: { name: { contains: q, mode: "insensitive" } } },
     ];
   }
 

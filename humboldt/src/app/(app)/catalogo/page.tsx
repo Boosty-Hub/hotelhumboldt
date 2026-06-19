@@ -34,7 +34,7 @@ export default async function CatalogoPage({
   const hasFilters = !!(q || categoria || tipo || inactivos);
 
   const where: Prisma.ProductWhereInput = {
-    ...(q ? { name: { contains: q } } : {}),
+    ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
     ...(categoria
       ? categoria === "SIN_CATEGORIA"
         ? { categoryId: null }

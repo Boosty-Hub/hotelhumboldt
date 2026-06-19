@@ -17,6 +17,12 @@ export const OPPORTUNITY_INCLUDE = {
     // tablero crecería sin límite con el histórico de todas las oportunidades.
     take: 30,
   },
+  tasks: {
+    where: { status: { not: "CANCELADA" } },
+    orderBy: { dueAt: "asc" },
+    include: { assignee: { select: { id: true, name: true } } },
+    take: 50,
+  },
 } satisfies Prisma.OpportunityInclude;
 
 export type PipelineOpportunity = Prisma.OpportunityGetPayload<{
@@ -24,6 +30,8 @@ export type PipelineOpportunity = Prisma.OpportunityGetPayload<{
 }>;
 
 export type PipelineActivity = PipelineOpportunity["activities"][number];
+
+export type PipelineTask = PipelineOpportunity["tasks"][number];
 
 export interface BasicUser {
   id: string;

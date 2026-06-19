@@ -43,6 +43,7 @@ import {
 import { addOpportunityNote, updateOpportunityDetails } from "../actions";
 import { initials, type PipelineOpportunity } from "../types";
 import { ACTIVITY_TYPE_ICONS, ACTIVITY_TYPE_LABELS } from "./pipeline-meta";
+import { TaskSection } from "./task-section";
 
 function DataItem({
   icon: Icon,
@@ -70,12 +71,14 @@ export function OpportunitySheet({
   onOpenChange,
   onStageChange,
   onPatch,
+  highlightTaskId,
 }: {
   opp: PipelineOpportunity | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStageChange: (opp: PipelineOpportunity, stage: Stage) => void;
   onPatch: (id: string, patch: Partial<PipelineOpportunity>) => void;
+  highlightTaskId?: string | null;
 }) {
   const [pending, startTransition] = useTransition();
   const [prob, setProb] = useState(opp?.probability ?? 0);
@@ -147,7 +150,7 @@ export function OpportunitySheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full gap-0 p-0 data-[side=right]:sm:max-w-lg"
+        className="w-full gap-0 p-0 data-[side=right]:sm:max-w-[50vw]"
       >
         <SheetHeader className="border-b pb-4">
           <p className="font-mono text-[11px] text-muted-foreground">{opp.code}</p>
@@ -368,6 +371,11 @@ export function OpportunitySheet({
               )}
             </div>
           </div>
+
+          <Separator />
+
+          {/* Tareas programadas */}
+          <TaskSection opportunityId={opp.id} tasks={opp.tasks} highlightId={highlightTaskId} />
 
           <Separator />
 

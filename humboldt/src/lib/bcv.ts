@@ -5,7 +5,12 @@
 import { prisma } from "./prisma";
 import { round2 } from "./money";
 
-const BCV_API = "https://pydolarve.org/api/v2/tipo-cambio";
+// Fuentes de la tasa oficial, con fallback. Mismas que usa el cron de Supabase
+// (refresh_exchange_rate): dolarapi (promedio/precio) y exchangedyn (sources.BCV.quote).
+const RATE_APIS = [
+  "https://ve.dolarapi.com/v1/dolares/oficial",
+  "https://api.exchangedyn.com/markets/quotes/usdves/bcv",
+];
 
 interface BcvResult {
   rate: number;
@@ -14,23 +19,29 @@ interface BcvResult {
 }
 
 /**
- * Consulta cruda a la API del BCV. Devuelve la tasa (Bs/USD) o null si falla.
- * Fuente única del fetch — usada por getCurrentRate y por el refresco manual.
+ * Consulta la tasa oficial (Bs/USD) probando las fuentes en orden con fallback.
+ * Usada por getCurrentRate y por el refresco manual del modal de tasa.
  */
 export async function fetchBcvRate(opts?: { force?: boolean }): Promise<number | null> {
-  try {
-    const res = await fetch(
-      BCV_API,
-      opts?.force ? { cache: "no-store" } : { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    const price = typeof data?.price === "number" ? data.price : parseFloat(data?.price);
-    if (!price || Number.isNaN(price) || price <= 0) return null;
-    return round2(price);
-  } catch {
-    return null;
+  for (const url of RATE_APIS) {
+    try {
+      const res = await fetch(
+        url,
+        opts?.force
+          ? { cache: "no-store", headers: { Accept: "application/json" } }
+          : { next: { revalidate: 3600 }, headers: { Accept: "application/json" } }
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      // dolarapi -> promedio/precio | exchangedyn -> sources.BCV.quote
+      const raw = data?.promedio ?? data?.precio ?? data?.sources?.BCV?.quote;
+      const price = typeof raw === "number" ? raw : parseFloat(String(raw));
+      if (price && !Number.isNaN(price) && price > 0) return round2(price);
+    } catch {
+      // probar la siguiente fuente
+    }
   }
+  return null;
 }
 
 /** Obtiene la tasa BCV del día: API → cache local del día → última guardada. */

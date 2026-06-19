@@ -227,3 +227,43 @@ export const SETTING_KEYS = {
   QUOTE_LEGAL_CONDITIONS: "quote_legal_conditions",
   QUOTE_GREETING: "quote_greeting",
 } as const;
+
+// ── Tareas ────────────────────────────────────────────────────────────
+export const TASK_TYPES = [
+  "VOLVER_CONTACTAR",
+  "ENVIAR_COTIZACION",
+  "LLAMAR",
+  "GESTION_COBRO",
+  "REUNION",
+  "OTRO",
+] as const;
+export type TaskType = (typeof TASK_TYPES)[number];
+
+export const TASK_TYPE_LABELS: Record<TaskType, string> = {
+  VOLVER_CONTACTAR: "Volver a contactar",
+  ENVIAR_COTIZACION: "Enviar cotización",
+  LLAMAR: "Llamar",
+  GESTION_COBRO: "Gestión de cobro",
+  REUNION: "Reunión",
+  OTRO: "Otro",
+};
+
+export const TASK_STATUSES = ["PENDIENTE", "COMPLETADA", "CANCELADA"] as const;
+export type TaskStatus = (typeof TASK_STATUSES)[number];
+
+export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
+  PENDIENTE: "Pendiente",
+  COMPLETADA: "Completada",
+  CANCELADA: "Cancelada",
+};
+
+export const RECURRENCES = ["NONE", "DIARIA", "SEMANAL", "QUINCENAL", "MENSUAL"] as const;
+export type Recurrence = (typeof RECURRENCES)[number];
+
+export const RECURRENCE_LABELS: Record<Recurrence, string> = {
+  NONE: "No se repite",
+  DIARIA: "Cada día",
+  SEMANAL: "Cada semana",
+  QUINCENAL: "Cada 15 días",
+  MENSUAL: "Cada mes",
+};

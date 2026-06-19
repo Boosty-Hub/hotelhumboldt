@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
@@ -60,6 +61,7 @@ export function PipelineBoard({
   clients,
   currentUserId,
   initialSelectedId = null,
+  initialTaskId = null,
 }: {
   opportunities: PipelineOpportunity[];
   users: BasicUser[];
@@ -68,6 +70,7 @@ export function PipelineBoard({
   clients: BasicClient[];
   currentUserId: string;
   initialSelectedId?: string | null;
+  initialTaskId?: string | null;
 }) {
   // Estado local sincronizado con el servidor (optimistic UI)
   const [opps, setOpps] = useState(opportunities);
@@ -80,7 +83,19 @@ export function PipelineBoard({
   const [view, setView] = useState<"kanban" | "lista">("kanban");
 
   // Detalle / diálogos (initialSelectedId permite deep-links /pipeline?op=ID)
+  const router = useRouter();
+  const pathname = usePathname();
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId);
+  // Abre el detalle cuando cambia el deep-link ?op= (ej. al pulsar una notificación
+  // estando ya en /pipeline). useState solo toma el valor inicial al montar.
+  useEffect(() => {
+    if (initialSelectedId) setSelectedId(initialSelectedId);
+  }, [initialSelectedId]);
+  // Tarea a resaltar (deep-link ?task=ID desde una notificación).
+  const [highlightTaskId, setHighlightTaskId] = useState<string | null>(initialTaskId);
+  useEffect(() => {
+    setHighlightTaskId(initialTaskId);
+  }, [initialTaskId]);
   const [newOpen, setNewOpen] = useState(false);
   const [lostPending, setLostPending] = useState<LostPending | null>(null);
 
@@ -419,9 +434,21 @@ export function PipelineBoard({
       <OpportunitySheet
         opp={selectedOpp}
         open={!!selectedOpp}
-        onOpenChange={(o) => !o && setSelectedId(null)}
+        onOpenChange={(o) => {
+          if (o) return;
+          setSelectedId(null);
+          setHighlightTaskId(null);
+          // Limpia ?op= de la URL para que re-pulsar la misma notificación reabra el detalle.
+          if (
+            typeof window !== "undefined" &&
+            new URLSearchParams(window.location.search).has("op")
+          ) {
+            router.replace(pathname, { scroll: false });
+          }
+        }}
         onStageChange={handleStageChange}
         onPatch={patchOpp}
+        highlightTaskId={highlightTaskId}
       />
 
       {/* Dialog motivo de pérdida (obligatorio) */}

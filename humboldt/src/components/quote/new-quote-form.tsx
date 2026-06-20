@@ -42,18 +42,28 @@ interface Props {
   opportunities: OppOption[];
   clients: ClientOption[];
   preselectedOpportunityId: string | null;
+  preselectedClientId?: string | null;
 }
 
-export function NewQuoteForm({ opportunities, clients, preselectedOpportunityId }: Props) {
+export function NewQuoteForm({
+  opportunities,
+  clients,
+  preselectedOpportunityId,
+  preselectedClientId,
+}: Props) {
   const [isPending, startTransition] = useTransition();
 
   const preselected = opportunities.find((o) => o.id === preselectedOpportunityId) ?? null;
 
   const [mode, setMode] = useState<"oportunidad" | "cliente">(
-    preselected || opportunities.length > 0 ? "oportunidad" : "cliente"
+    preselectedClientId
+      ? "cliente"
+      : preselected || opportunities.length > 0
+        ? "oportunidad"
+        : "cliente"
   );
   const [oppId, setOppId] = useState<string | null>(preselected?.id ?? null);
-  const [clientId, setClientId] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(preselectedClientId ?? null);
   const [oppOpen, setOppOpen] = useState(false);
   const [clientOpen, setClientOpen] = useState(false);
 

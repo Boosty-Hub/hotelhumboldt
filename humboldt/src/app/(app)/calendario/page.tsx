@@ -27,6 +27,7 @@ export default async function CalendarioPage({
   const query = await searchParams;
   const rawMonth = typeof query.mes === "string" ? query.mes : undefined;
   const month = rawMonth && MONTH_RE.test(rawMonth) ? rawMonth : format(new Date(), "yyyy-MM");
+  const showCancelled = query.canceladas === "1";
 
   const [year, monthNum] = month.split("-").map(Number);
   const monthStart = new Date(Date.UTC(year, monthNum - 1, 1));
@@ -40,7 +41,7 @@ export default async function CalendarioPage({
     prisma.spaceReservation.findMany({
       where: {
         date: { gte: monthStart, lt: nextMonthStart },
-        status: { not: "CANCELADA" },
+        ...(showCancelled ? {} : { status: { not: "CANCELADA" } }),
       },
       orderBy: { date: "asc" },
       include: {
@@ -78,17 +79,21 @@ export default async function CalendarioPage({
     endTime: r.endTime,
     status: r.status as ReservationStatus,
     notes: r.notes,
+    type: r.type === "MANTENIMIENTO" ? "MANTENIMIENTO" : "EVENTO",
     eventId: r.eventId,
-    eventName: r.event.name,
-    opportunityId: r.event.opportunityId,
-    opportunityCode: r.event.opportunity.code,
-    opportunityTitle: r.event.opportunity.title,
-    clientName: r.event.opportunity.client.brandName || r.event.opportunity.client.legalName,
+    eventName: r.event?.name ?? r.title ?? "Mantenimiento",
+    opportunityId: r.event?.opportunityId ?? null,
+    opportunityCode: r.event?.opportunity.code ?? null,
+    opportunityTitle: r.event?.opportunity.title ?? null,
+    clientName: r.event
+      ? r.event.opportunity.client.brandName || r.event.opportunity.client.legalName
+      : null,
   }));
 
   // ── Conflictos: 2+ reservas no canceladas en el mismo salón y día ─────
   const grouped = new Map<string, ReservationDTO[]>();
   for (const r of reservationDtos) {
+    if (r.status === "CANCELADA") continue; // las canceladas no generan conflicto
     const key = `${r.spaceId}|${r.dateKey}`;
     const list = grouped.get(key) ?? [];
     list.push(r);
@@ -159,6 +164,7 @@ export default async function CalendarioPage({
           conflicts={conflicts}
           events={eventOptions}
           opportunities={opportunityOptions}
+          showCancelled={showCancelled}
         />
       )}
     </div>

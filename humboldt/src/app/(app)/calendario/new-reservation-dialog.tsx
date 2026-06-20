@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { CalendarCheck, Check, ChevronsUpDown, Wrench } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +35,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { createReservation } from "./actions";
+import { createReservation, createMaintenanceBlock } from "./actions";
 import type { CalendarSpaceDTO, EventOptionDTO, OpportunityOptionDTO } from "./types";
 
 interface NewReservationDialogProps {
@@ -45,6 +45,8 @@ interface NewReservationDialogProps {
   spaces: CalendarSpaceDTO[];
   events: EventOptionDTO[];
   opportunities: OpportunityOptionDTO[];
+  presetDate?: string | null; // yyyy-MM-dd al abrir desde una celda
+  presetSpaceId?: string | null;
 }
 
 interface ComboItem {
@@ -130,11 +132,15 @@ export function NewReservationDialog({
   spaces,
   events,
   opportunities,
+  presetDate,
+  presetSpaceId,
 }: NewReservationDialogProps) {
   const todayKey = format(new Date(), "yyyy-MM-dd");
   const defaultDate = todayKey.startsWith(month) ? todayKey : `${month}-01`;
 
   const [spaceId, setSpaceId] = useState<string>("");
+  const [reservationType, setReservationType] = useState<"evento" | "mantenimiento">("evento");
+  const [maintTitle, setMaintTitle] = useState("");
   const [mode, setMode] = useState<"existente" | "nuevo">("existente");
   const [eventId, setEventId] = useState<string | null>(null);
   const [newEventName, setNewEventName] = useState("");
@@ -146,23 +152,25 @@ export function NewReservationDialog({
   const [notes, setNotes] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  function reset() {
-    setSpaceId("");
+  // Al abrir, resetea el formulario aplicando el día/salón preseleccionados
+  // (cuando se abre haciendo clic en una celda del calendario).
+  useEffect(() => {
+    if (!open) return;
+    const startDate = presetDate ?? defaultDate;
+    setSpaceId(presetSpaceId ?? "");
+    setReservationType("evento");
+    setMaintTitle("");
     setMode(events.length > 0 ? "existente" : "nuevo");
     setEventId(null);
     setNewEventName("");
     setOpportunityId(null);
-    setFrom(defaultDate);
-    setTo(defaultDate);
+    setFrom(startDate);
+    setTo(startDate);
     setStartTime("");
     setEndTime("");
     setNotes("");
-  }
-
-  function handleOpenChange(next: boolean) {
-    onOpenChange(next);
-    if (next) reset();
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, presetDate, presetSpaceId]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -170,6 +178,31 @@ export function NewReservationDialog({
       toast.error("Seleccione un salón.");
       return;
     }
+
+    if (reservationType === "mantenimiento") {
+      if (maintTitle.trim().length < 2) {
+        toast.error("Indique el motivo del bloqueo.");
+        return;
+      }
+      startTransition(async () => {
+        const res = await createMaintenanceBlock({
+          spaceId,
+          title: maintTitle.trim(),
+          from,
+          to,
+          notes: notes.trim() || null,
+        });
+        if (res.ok) {
+          if (res.warning) toast.warning(res.warning, { duration: 8000 });
+          toast.success(res.message ?? "Bloqueo creado.");
+          onOpenChange(false);
+        } else {
+          toast.error(res.error, { duration: 8000 });
+        }
+      });
+      return;
+    }
+
     if (mode === "existente" && !eventId) {
       toast.error("Seleccione el evento a reservar.");
       return;
@@ -202,7 +235,7 @@ export function NewReservationDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Nueva reserva de salón</DialogTitle>
@@ -216,6 +249,23 @@ export function NewReservationDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Tipo de reserva */}
+          <Tabs
+            value={reservationType}
+            onValueChange={(v) => setReservationType(v as "evento" | "mantenimiento")}
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="evento" className="flex-1">
+                <CalendarCheck data-icon="inline-start" />
+                Evento de cliente
+              </TabsTrigger>
+              <TabsTrigger value="mantenimiento" className="flex-1">
+                <Wrench data-icon="inline-start" />
+                Mantenimiento
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           {/* Salón */}
           <div className="space-y-1.5">
             <Label>Salón *</Label>
@@ -239,7 +289,7 @@ export function NewReservationDialog({
             </Select>
           </div>
 
-          {/* Evento */}
+          {reservationType === "evento" && (
           <div className="space-y-1.5">
             <Label>Evento *</Label>
             <Tabs value={mode} onValueChange={(v) => setMode(v as "existente" | "nuevo")}>
@@ -294,6 +344,20 @@ export function NewReservationDialog({
               </TabsContent>
             </Tabs>
           </div>
+          )}
+
+          {reservationType === "mantenimiento" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="maint-title">Motivo del bloqueo *</Label>
+              <Input
+                id="maint-title"
+                value={maintTitle}
+                onChange={(e) => setMaintTitle(e.target.value)}
+                placeholder="Ej. Mantenimiento del aire acondicionado"
+                maxLength={120}
+              />
+            </div>
+          )}
 
           {/* Fechas */}
           <div className="grid grid-cols-2 gap-3">
@@ -324,7 +388,7 @@ export function NewReservationDialog({
             </div>
           </div>
 
-          {/* Franja horaria */}
+          {reservationType === "evento" && (
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="res-start">Hora inicio (opcional)</Label>
@@ -345,6 +409,7 @@ export function NewReservationDialog({
               />
             </div>
           </div>
+          )}
 
           {/* Notas */}
           <div className="space-y-1.5">
@@ -364,7 +429,11 @@ export function NewReservationDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Verificando disponibilidad…" : "Crear reserva"}
+              {isPending
+                ? "Verificando disponibilidad…"
+                : reservationType === "mantenimiento"
+                  ? "Crear bloqueo"
+                  : "Crear reserva"}
             </Button>
           </DialogFooter>
         </form>

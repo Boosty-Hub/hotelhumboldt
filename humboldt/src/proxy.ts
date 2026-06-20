@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Rutas públicas: login, link público de cotización, API de auth y assets
-const PUBLIC_PATHS = ["/login", "/cotizacion", "/api/auth", "/api/public"];
+// Rutas públicas: login, link público de cotización y BEO, API de auth y assets
+const PUBLIC_PATHS = ["/login", "/cotizacion", "/orden", "/api/auth", "/api/public"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

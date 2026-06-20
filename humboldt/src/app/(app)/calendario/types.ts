@@ -17,12 +17,14 @@ export interface ReservationDTO {
   endTime: string | null;
   status: ReservationStatus;
   notes: string | null;
-  eventId: string;
+  type: "EVENTO" | "MANTENIMIENTO";
+  eventId: string | null;
+  /** Etiqueta a mostrar: nombre del evento, o título del bloqueo de mantenimiento. */
   eventName: string;
-  opportunityId: string;
-  opportunityCode: string;
-  opportunityTitle: string;
-  clientName: string;
+  opportunityId: string | null;
+  opportunityCode: string | null;
+  opportunityTitle: string | null;
+  clientName: string | null;
 }
 
 export interface ConflictDTO {

@@ -146,6 +146,7 @@ model Event {
   quotes        Quote[]
   staff         EventStaff[]
   supplierCosts SupplierEventCost[]
+  beo           Beo?
 }
 
 model EventStaff {
@@ -323,7 +324,9 @@ model Space {
 model SpaceReservation {
   id        String   @id @default(cuid())
   spaceId   String
-  eventId   String
+  eventId   String? // null en bloqueos de mantenimiento
+  type      String   @default("EVENTO") // EVENTO | MANTENIMIENTO
+  title     String? // descripción del bloqueo (mantenimiento, cuando no hay evento)
   date      DateTime // día reservado
   startTime String? // franja horaria
   endTime   String?
@@ -331,8 +334,8 @@ model SpaceReservation {
   notes     String?
   createdAt DateTime @default(now())
 
-  space Space @relation(fields: [spaceId], references: [id])
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  space Space  @relation(fields: [spaceId], references: [id])
+  event Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([spaceId, date])
   @@index([eventId])
@@ -532,4 +535,60 @@ model Task {
 
   @@index([opportunityId])
   @@index([assigneeId, status, dueAt])
+}
+
+// ─────────────────────────── Log de actividad de reservas ───────────────────────────
+
+model ReservationLog {
+  id            String   @id @default(cuid())
+  reservationId String // sin FK dura: el log sobrevive aunque se elimine la reserva
+  userId        String?
+  userName      String? // snapshot del nombre del usuario
+  action        String // CREADA | MODIFICADA | CONFIRMADA | CANCELADA | REACTIVADA | ELIMINADA
+  detail        String? // descripción legible del cambio
+  createdAt     DateTime @default(now())
+
+  @@index([reservationId])
+}
+
+// ─────────────────────────── BEO (Banquet Event Order) ───────────────────────────
+
+model Beo {
+  id          String @id @default(cuid())
+  number      Int    @unique // número de BEO correlativo (ej. 445)
+  eventId     String @unique // un BEO por evento (BEO → Evento → Cotización → Cliente)
+  status      String @default("BORRADOR") // BORRADOR | EMITIDO
+  responsable String?
+  publicToken String @unique // para el link público /beo/[token]
+
+  // Cabecera: snapshot autocompletado del evento/cotización/cliente, editable.
+  eventName  String?
+  clientName String?
+  spaceName  String?
+  eventDate  DateTime?
+  startTime  String?
+  pax        Int?
+
+  // Contenido estructurado (JSON).
+  schedule     Json? // [{ day, time, description }] — cronograma / programa
+  menu         Json? // [{ section, items: [...] }] — requerimiento de A&B
+  departments  Json? // [{ key, label, instructions }] — requerimientos por departamento
+  generalNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model BeoLog {
+  id        String   @id @default(cuid())
+  beoId     String
+  userId    String?
+  userName  String?
+  action    String // CREADO | MODIFICADO | EMITIDO | COMPARTIDO
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([beoId])
 }

@@ -16,6 +16,7 @@ export default async function NuevaCotizacionPage({
 }) {
   const sp = await searchParams;
   const preselected = typeof sp.oportunidad === "string" ? sp.oportunidad : null;
+  const preselectedClient = typeof sp.cliente === "string" ? sp.cliente : null;
 
   const [opportunities, clients] = await Promise.all([
     prisma.opportunity.findMany({
@@ -49,6 +50,7 @@ export default async function NuevaCotizacionPage({
       opportunities={oppOptions}
       clients={clientOptions}
       preselectedOpportunityId={preselected}
+      preselectedClientId={preselectedClient}
     />
   );
 }

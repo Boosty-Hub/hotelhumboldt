@@ -8,6 +8,9 @@ import {
   CalendarPlus,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  EyeOff,
+  Plus,
   TriangleAlert,
   CalendarX2,
 } from "lucide-react";
@@ -39,6 +42,7 @@ interface CalendarTimelineProps {
   conflicts: ConflictDTO[];
   events: EventOptionDTO[];
   opportunities: OpportunityOptionDTO[];
+  showCancelled: boolean;
 }
 
 function capitalize(s: string) {
@@ -52,10 +56,13 @@ export function CalendarTimeline({
   conflicts,
   events,
   opportunities,
+  showCancelled,
 }: CalendarTimelineProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [newOpen, setNewOpen] = useState(false);
+  const [presetDate, setPresetDate] = useState<string | null>(null);
+  const [presetSpaceId, setPresetSpaceId] = useState<string | null>(null);
   const [selected, setSelected] = useState<ReservationDTO | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -89,7 +96,17 @@ export function CalendarTimeline({
 
   function navigate(nextMonth: string) {
     startTransition(() => {
-      router.push(`/calendario?mes=${nextMonth}`);
+      const params = new URLSearchParams({ mes: nextMonth });
+      if (showCancelled) params.set("canceladas", "1");
+      router.push(`/calendario?${params.toString()}`);
+    });
+  }
+
+  function toggleCancelled() {
+    startTransition(() => {
+      const params = new URLSearchParams({ mes: month });
+      if (!showCancelled) params.set("canceladas", "1");
+      router.push(`/calendario?${params.toString()}`);
     });
   }
 
@@ -100,6 +117,13 @@ export function CalendarTimeline({
   function openReservation(r: ReservationDTO) {
     setSelected(r);
     setSheetOpen(true);
+  }
+
+  /** Abre el dialog de nueva reserva, opcionalmente con salón/día precargados. */
+  function openCreate(spaceId: string | null, dayKey: string | null) {
+    setPresetSpaceId(spaceId);
+    setPresetDate(dayKey);
+    setNewOpen(true);
   }
 
   const yearNow = new Date().getFullYear();
@@ -187,10 +211,20 @@ export function CalendarTimeline({
             </Select>
             <span className="ml-1 hidden text-sm font-semibold sm:inline">{monthLabel}</span>
           </div>
-          <Button onClick={() => setNewOpen(true)}>
-            <CalendarPlus data-icon="inline-start" />
-            Nueva reserva
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Button variant="outline" onClick={toggleCancelled}>
+              {showCancelled ? (
+                <EyeOff data-icon="inline-start" />
+              ) : (
+                <Eye data-icon="inline-start" />
+              )}
+              {showCancelled ? "Ocultar canceladas" : "Ver canceladas"}
+            </Button>
+            <Button onClick={() => openCreate(null, null)}>
+              <CalendarPlus data-icon="inline-start" />
+              Nueva reserva
+            </Button>
+          </div>
         </div>
 
         {/* Aviso de mes sin reservas */}
@@ -200,7 +234,7 @@ export function CalendarTimeline({
             No hay reservas en {monthLabel.toLowerCase()}.
             <button
               type="button"
-              onClick={() => setNewOpen(true)}
+              onClick={() => openCreate(null, null)}
               className="font-medium text-sky-950 underline-offset-2 hover:underline dark:text-sky-300"
             >
               Crear la primera
@@ -257,6 +291,7 @@ export function CalendarTimeline({
                 cellMap={cellMap}
                 conflictKeys={conflictKeys}
                 onSelect={openReservation}
+                onCreate={openCreate}
               />
             ))}
           </div>
@@ -289,6 +324,8 @@ export function CalendarTimeline({
         spaces={spaces}
         events={events}
         opportunities={opportunities}
+        presetDate={presetDate}
+        presetSpaceId={presetSpaceId}
       />
 
       <ReservationSheet
@@ -296,6 +333,7 @@ export function CalendarTimeline({
         onOpenChange={setSheetOpen}
         reservation={selected}
         space={selected ? spaces.find((s) => s.id === selected.spaceId) ?? null : null}
+        spaces={spaces}
       />
     </div>
   );
@@ -309,6 +347,7 @@ function SpaceRow({
   cellMap,
   conflictKeys,
   onSelect,
+  onCreate,
 }: {
   space: CalendarSpaceDTO;
   dayKeys: string[];
@@ -316,6 +355,7 @@ function SpaceRow({
   cellMap: Map<string, ReservationDTO[]>;
   conflictKeys: Set<string>;
   onSelect: (r: ReservationDTO) => void;
+  onCreate: (spaceId: string, dayKey: string) => void;
 }) {
   return (
     <>
@@ -345,8 +385,10 @@ function SpaceRow({
         return (
           <div
             key={dayKey}
+            onClick={() => onCreate(space.id, dayKey)}
+            title={`Crear reserva — ${space.name}, ${format(date, "d 'de' MMMM", { locale: es })}`}
             className={cn(
-              "relative min-h-[52px] space-y-0.5 border-b border-l p-0.5",
+              "group relative min-h-[52px] cursor-pointer space-y-0.5 border-b border-l p-0.5 transition-colors hover:bg-sky-100/70",
               isWeekend && "bg-muted/50",
               isToday && "bg-sky-50/70 dark:bg-sky-950/20",
               hasConflict && "bg-rose-50 ring-1 ring-inset ring-rose-300"
@@ -358,29 +400,44 @@ function SpaceRow({
                 aria-label="Conflicto de reservas"
               />
             )}
+            {items.length === 0 && (
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                <Plus className="size-4 text-sky-500" />
+              </span>
+            )}
             {items.map((r) => {
               const confirmed = r.status === "CONFIRMADA";
+              const cancelled = r.status === "CANCELADA";
+              const maintenance = r.type === "MANTENIMIENTO";
               return (
                 <button
                   key={r.id}
                   type="button"
-                  onClick={() => onSelect(r)}
-                  title={`${r.eventName} — ${r.clientName}${r.startTime ? ` · ${r.startTime}${r.endTime ? `–${r.endTime}` : ""}` : ""}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(r);
+                  }}
+                  title={`${maintenance ? "Mantenimiento: " : ""}${r.eventName}${r.clientName ? ` — ${r.clientName}` : ""}${cancelled ? " · CANCELADA" : ""}${r.startTime ? ` · ${r.startTime}${r.endTime ? `–${r.endTime}` : ""}` : ""}`}
                   className={cn(
                     "block w-full truncate rounded-sm px-1 py-1 text-left text-[10px] font-medium leading-tight transition-opacity hover:opacity-80",
-                    !confirmed && "opacity-80"
+                    !confirmed && !maintenance && "opacity-80",
+                    cancelled && "line-through opacity-60"
                   )}
                   style={
-                    confirmed
-                      ? { backgroundColor: space.color, color: "#fff" }
-                      : {
-                          backgroundColor: `${space.color}24`,
-                          border: `1.5px dashed ${space.color}`,
-                          color: space.color,
-                        }
+                    cancelled
+                      ? { backgroundColor: "#e5e7eb", color: "#6b7280", border: "1px solid #d1d5db" }
+                      : maintenance
+                        ? { backgroundColor: "#475569", color: "#fff", border: "1px solid #334155" }
+                        : confirmed
+                          ? { backgroundColor: space.color, color: "#fff" }
+                          : {
+                              backgroundColor: `${space.color}24`,
+                              border: `1.5px dashed ${space.color}`,
+                              color: space.color,
+                            }
                   }
                 >
-                  {r.eventName}
+                  {maintenance ? `🔧 ${r.eventName}` : r.eventName}
                 </button>
               );
             })}

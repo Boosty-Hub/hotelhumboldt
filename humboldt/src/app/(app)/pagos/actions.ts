@@ -87,6 +87,7 @@ const pagoSchema = z
     date: z.string().min(1, "Indica la fecha del pago"),
     reference: z.string().nullable().optional(),
     notes: z.string().nullable().optional(),
+    bankAccountId: z.string().nullable().optional(),
     allocations: z.array(allocationSchema).nullable().optional(),
   })
   .refine((d) => d.currency !== "BS" || (d.rate != null && d.rate > 0), {
@@ -158,6 +159,7 @@ export async function registrarPago(input: unknown): Promise<ActionResult> {
         type: d.type,
         reference: d.reference?.trim() || null,
         notes: d.notes?.trim() || null,
+        bankAccountId: d.bankAccountId || null,
         ...(d.quoteId
           ? {
               allocations: {

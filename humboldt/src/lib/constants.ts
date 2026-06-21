@@ -208,6 +208,16 @@ export const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
   REINTEGRO: "Reintegro",
 };
 
+// ── Bancos / cuentas de recepción ─────────────────────────────────────
+export const BANK_ACCOUNT_TYPES = ["BANCO", "ZELLE", "EFECTIVO"] as const;
+export type BankAccountType = (typeof BANK_ACCOUNT_TYPES)[number];
+
+export const BANK_ACCOUNT_TYPE_LABELS: Record<BankAccountType, string> = {
+  BANCO: "Banco (transferencia / pago móvil)",
+  ZELLE: "Zelle",
+  EFECTIVO: "Efectivo / Caja",
+};
+
 export const INSTALLMENT_STATUSES = ["PENDIENTE", "PARCIAL", "PAGADA", "VENCIDA"] as const;
 
 // ── Claves de configuración ───────────────────────────────────────────

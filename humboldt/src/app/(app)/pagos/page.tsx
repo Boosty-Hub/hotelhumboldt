@@ -8,7 +8,7 @@ import { getCurrentRate } from "@/lib/bcv";
 import { fmtUsd, fmtBs, fmtNum, round2 } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getCxcRows, getInvoiceRows, getPaymentRows, getTargetOptions, isGarantiaMovement } from "./data";
+import { getBankAccountOptions, getCxcRows, getInvoiceRows, getPaymentRows, getTargetOptions, isGarantiaMovement } from "./data";
 import { PagosTabs } from "./_components/pagos-tabs";
 import { PaymentDialog } from "./_components/payment-dialog";
 import { InvoiceDialog } from "./_components/invoice-dialog";
@@ -26,12 +26,13 @@ export default async function PagosPage({
   const sp = await searchParams;
   const tab = typeof sp.tab === "string" ? sp.tab : "cxc";
 
-  const [cxcRows, paymentRows, invoiceRows, targets, rateInfo] = await Promise.all([
+  const [cxcRows, paymentRows, invoiceRows, targets, rateInfo, bankAccounts] = await Promise.all([
     getCxcRows(),
     getPaymentRows(),
     getInvoiceRows(),
     getTargetOptions(),
     getCurrentRate(),
+    getBankAccountOptions(),
   ]);
 
   const defaultRate = rateInfo?.rate ?? null;
@@ -113,6 +114,7 @@ export default async function PagosPage({
           <PaymentDialog
             targets={targets}
             defaultRate={defaultRate}
+            bankAccounts={bankAccounts}
             trigger={
               <Button className="bg-sky-950 text-white hover:bg-sky-900">
                 <Banknote className="size-3.5" />
@@ -149,6 +151,7 @@ export default async function PagosPage({
         invoiceRows={invoiceRows}
         targets={targets}
         defaultRate={defaultRate}
+        bankAccounts={bankAccounts}
       />
     </div>
   );

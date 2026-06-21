@@ -33,7 +33,7 @@ import {
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import type { CxcRow, TargetOption } from "../types";
-import { PaymentDialog } from "./payment-dialog";
+import { PaymentDialog, type BankAccountOption } from "./payment-dialog";
 import { InstallmentsSheet } from "./installments-sheet";
 
 function saldoColor(row: CxcRow): string {
@@ -47,10 +47,12 @@ export function CxcTable({
   rows,
   targets,
   defaultRate,
+  bankAccounts,
 }: {
   rows: CxcRow[];
   targets: TargetOption[];
   defaultRate: number | null;
+  bankAccounts: BankAccountOption[];
 }) {
   const [payTarget, setPayTarget] = React.useState<string | null>(null);
   const [payOpen, setPayOpen] = React.useState(false);
@@ -238,6 +240,7 @@ export function CxcTable({
       <PaymentDialog
         targets={targets}
         defaultRate={defaultRate}
+        bankAccounts={bankAccounts}
         open={payOpen}
         onOpenChange={setPayOpen}
         presetTargetValue={payTarget}

@@ -72,7 +72,7 @@ export default async function EstadoCuentaPage({
 
   const { id } = await params;
 
-  const [opp, rateInfo, targets] = await Promise.all([
+  const [opp, rateInfo, targets, bankAccounts] = await Promise.all([
     prisma.opportunity.findUnique({
       where: { id },
       include: {
@@ -85,6 +85,11 @@ export default async function EstadoCuentaPage({
     }),
     getCurrentRate(),
     getTargetOptions(id),
+    prisma.bankAccount.findMany({
+      where: { active: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, currency: true, type: true },
+    }),
   ]);
 
   if (!opp) notFound();
@@ -97,6 +102,17 @@ export default async function EstadoCuentaPage({
   );
   const cotizado = round2(activeQuotes.reduce((s, q) => s + q.totalUsd, 0));
   const garantiaPactada = round2(activeQuotes.reduce((s, q) => s + q.depositAmount, 0));
+
+  // Desglose por sección de las cotizaciones activas — referencia para abonos
+  // parciales (los clientes abonan por AyB, espacios, misceláneos, etc.).
+  const desglose = [
+    { label: "Misceláneos", value: round2(activeQuotes.reduce((s, q) => s + q.subtotalMisc, 0)) },
+    { label: "Alimentos y Bebidas", value: round2(activeQuotes.reduce((s, q) => s + q.subtotalFood, 0)) },
+    { label: "Espacios", value: round2(activeQuotes.reduce((s, q) => s + q.subtotalSpaces, 0)) },
+    { label: "Traslados (exento IVA)", value: round2(activeQuotes.reduce((s, q) => s + q.subtotalTransfers, 0)) },
+    { label: "Servicio (sobre AyB)", value: round2(activeQuotes.reduce((s, q) => s + q.serviceAmount, 0)) },
+    { label: "IVA", value: round2(activeQuotes.reduce((s, q) => s + q.taxAmount, 0)) },
+  ].filter((d) => d.value > 0);
 
   const pagado = sumPagado(opp.payments);
   const garantiaCustodia = sumGarantiaCustodia(opp.payments);
@@ -231,6 +247,7 @@ export default async function EstadoCuentaPage({
             targets={targets}
             defaultRate={defaultRate}
             presetTargetValue={presetTarget}
+            bankAccounts={bankAccounts}
             trigger={
               <Button className="bg-sky-950 text-white hover:bg-sky-900">
                 <Banknote className="size-3.5" />
@@ -262,6 +279,33 @@ export default async function EstadoCuentaPage({
           </Card>
         ))}
       </div>
+
+      {/* Desglose de la cotización por sección */}
+      {desglose.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Desglose de la cotización</CardTitle>
+            <CardDescription>
+              Montos por sección — referencia para abonos parciales del cliente.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-x-8 gap-y-1.5 text-sm sm:grid-cols-2">
+              {desglose.map((d) => (
+                <div key={d.label} className="flex items-baseline justify-between border-b border-dashed border-zinc-100 pb-1">
+                  <span className="text-muted-foreground">{d.label}</span>
+                  <span className="font-medium tabular-nums">{fmtUsd(d.value)}</span>
+                </div>
+              ))}
+            </div>
+            <Separator className="my-3" />
+            <div className="flex items-baseline justify-between text-sm font-semibold text-sky-950">
+              <span>Total cotizado</span>
+              <span className="tabular-nums">{fmtUsd(cotizado)}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Diferencial cambiario */}
       {showDiferencial && (

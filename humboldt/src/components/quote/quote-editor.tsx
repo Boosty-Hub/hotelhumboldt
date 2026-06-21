@@ -34,6 +34,7 @@ import {
   Sparkles,
   Building2,
   TrendingUp,
+  FolderOpen,
 } from "lucide-react";
 import { saveQuoteLines } from "@/app/(app)/cotizaciones/actions";
 import { LineRow } from "./line-row";
@@ -59,6 +60,7 @@ const SECTION_ICONS: Record<Section, React.ComponentType<{ className?: string }>
 
 export interface QuoteEditorProps {
   quoteId: string;
+  eventId: string | null;
   number: string;
   version: number;
   status: string;
@@ -510,6 +512,14 @@ export function QuoteEditor(props: QuoteEditorProps) {
                 <Link href={`/cotizaciones/${props.quoteId}/costos`}>
                   <TrendingUp className="h-3.5 w-3.5" />
                   Análisis de costos
+                </Link>
+              </Button>
+            )}
+            {props.eventId && (
+              <Button variant="outline" asChild>
+                <Link href={`/eventos/${props.eventId}`}>
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  Expediente
                 </Link>
               </Button>
             )}

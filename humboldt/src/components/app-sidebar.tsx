@@ -17,6 +17,8 @@ import {
   Wallet,
   BarChart3,
   Settings,
+  FileSignature,
+  Landmark,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 
@@ -46,7 +48,9 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
       { href: "/salones", label: "Salones", icon: Building2 },
       { href: "/catalogo", label: "Catálogo", icon: UtensilsCrossed },
       { href: "/proveedores", label: "Proveedores", icon: Truck },
+      { href: "/documentos", label: "Documentos", icon: FileSignature },
       { href: "/pagos", label: "Pagos", icon: Wallet },
+      { href: "/bancos", label: "Bancos", icon: Landmark },
     ],
   },
   {

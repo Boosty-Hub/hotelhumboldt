@@ -416,11 +416,33 @@ model Payment {
   reference      String? // nº de transferencia/Zelle
   notes          String?
 
+  // Conciliación bancaria
+  bankAccountId String? // cuenta donde se recibió el pago
+  reconciled    Boolean   @default(false) // conciliado contra el extracto del banco
+  reconciledAt  DateTime?
+
   opportunity  Opportunity         @relation(fields: [opportunityId], references: [id])
   quote        Quote?              @relation(fields: [quoteId], references: [id])
   installment  PaymentInstallment? @relation(fields: [installmentId], references: [id])
   exchangeRate ExchangeRate?       @relation(fields: [exchangeRateId], references: [id])
+  bankAccount  BankAccount?        @relation(fields: [bankAccountId], references: [id])
   allocations  PaymentAllocation[]
+
+  @@index([bankAccountId])
+}
+
+model BankAccount {
+  id            String   @id @default(cuid())
+  name          String // alias: "Banesco Bs", "Zelle Hotel", "Caja USD"
+  bank          String? // banco emisor (null en efectivo/Zelle)
+  accountNumber String? // nº de cuenta, correo Zelle o teléfono de pago móvil
+  currency      String   @default("BS") // BS | USD
+  type          String   @default("BANCO") // BANCO | ZELLE | EFECTIVO
+  active        Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  payments Payment[]
 }
 
 model PaymentAllocation {

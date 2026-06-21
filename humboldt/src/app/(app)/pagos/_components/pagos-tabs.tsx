@@ -11,6 +11,7 @@ import type { CxcRow, InvoiceRow, PaymentRow, TargetOption } from "../types";
 import { CxcTable } from "./cxc-table";
 import { PaymentsTable } from "./payments-table";
 import { InvoicesTable } from "./invoices-table";
+import type { BankAccountOption } from "./payment-dialog";
 
 export function PagosTabs({
   initialTab,
@@ -19,6 +20,7 @@ export function PagosTabs({
   invoiceRows,
   targets,
   defaultRate,
+  bankAccounts,
 }: {
   initialTab: string;
   cxcRows: CxcRow[];
@@ -26,6 +28,7 @@ export function PagosTabs({
   invoiceRows: InvoiceRow[];
   targets: TargetOption[];
   defaultRate: number | null;
+  bankAccounts: BankAccountOption[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -64,7 +67,12 @@ export function PagosTabs({
       </TabsList>
 
       <TabsContent value="cxc" className="mt-3">
-        <CxcTable rows={cxcRows} targets={targets} defaultRate={defaultRate} />
+        <CxcTable
+          rows={cxcRows}
+          targets={targets}
+          defaultRate={defaultRate}
+          bankAccounts={bankAccounts}
+        />
       </TabsContent>
       <TabsContent value="pagos" className="mt-3">
         <PaymentsTable rows={paymentRows} />

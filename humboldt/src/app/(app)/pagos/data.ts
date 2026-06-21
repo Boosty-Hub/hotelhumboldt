@@ -14,6 +14,7 @@ import {
   type PaymentRow,
   type TargetOption,
 } from "./types";
+import type { BankAccountOption } from "./_components/payment-dialog";
 
 type PaymentLite = {
   id: string;
@@ -267,4 +268,13 @@ export async function getTargetOptions(opportunityId?: string): Promise<TargetOp
     }));
 
   return [...quoteOptions, ...oppOptions];
+}
+
+/** Cuentas bancarias activas para asignar al registrar un pago (conciliación). */
+export async function getBankAccountOptions(): Promise<BankAccountOption[]> {
+  return prisma.bankAccount.findMany({
+    where: { active: true },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    select: { id: true, name: true, currency: true, type: true },
+  });
 }

@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fmtUsd, bsToUsd, round2 } from "@/lib/money";
+import { fmtUsd, fmtBs, bsToUsd, round2 } from "@/lib/money";
 import {
   PAYMENT_METHODS,
   PAYMENT_METHOD_LABELS,
@@ -53,6 +53,13 @@ interface AllocationRow {
   amount: string;
 }
 
+export interface BankAccountOption {
+  id: string;
+  name: string;
+  currency: string;
+  type: string;
+}
+
 export function PaymentDialog({
   targets,
   defaultRate,
@@ -60,6 +67,7 @@ export function PaymentDialog({
   open: controlledOpen,
   onOpenChange,
   presetTargetValue,
+  bankAccounts = [],
 }: {
   targets: TargetOption[];
   defaultRate: number | null;
@@ -67,6 +75,7 @@ export function PaymentDialog({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   presetTargetValue?: string | null;
+  bankAccounts?: BankAccountOption[];
 }) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const open = controlledOpen ?? internalOpen;
@@ -87,6 +96,7 @@ export function PaymentDialog({
           targets={targets}
           defaultRate={defaultRate}
           presetTargetValue={presetTargetValue ?? null}
+          bankAccounts={bankAccounts}
           close={() => setOpen(false)}
         />
       </DialogContent>
@@ -98,11 +108,13 @@ function PaymentForm({
   targets,
   defaultRate,
   presetTargetValue,
+  bankAccounts,
   close,
 }: {
   targets: TargetOption[];
   defaultRate: number | null;
   presetTargetValue: string | null;
+  bankAccounts: BankAccountOption[];
   close: () => void;
 }) {
   const [pending, startTransition] = useTransition();
@@ -117,8 +129,12 @@ function PaymentForm({
   const [referencia, setReferencia] = React.useState("");
   const [notas, setNotas] = React.useState("");
   const [cuotaId, setCuotaId] = React.useState<string>("none");
+  const [bankAccountId, setBankAccountId] = React.useState<string>("none");
   const [imputar, setImputar] = React.useState(false);
   const [allocs, setAllocs] = React.useState<AllocationRow[]>([]);
+
+  // Cuentas de la misma moneda del pago (Bs→cuentas Bs, USD→cuentas USD).
+  const cuentasMoneda = bankAccounts.filter((b) => b.currency === moneda);
 
   const selected = targets.find((t) => t.value === target) ?? null;
   const cuotasPendientes = (selected?.installments ?? []).filter(
@@ -130,14 +146,17 @@ function PaymentForm({
   const equivalenteUsd =
     moneda === "BS" ? bsToUsd(montoNum, tasaNum) : round2(montoNum);
 
+  // La imputación se ingresa en la MONEDA del pago (Bs o USD) y debe sumar el
+  // monto del pago en esa moneda; al guardar se convierte cada sección a USD.
   const allocSum = round2(
     allocs.reduce((s, a) => s + (parseFloat(a.amount.replace(",", ".")) || 0), 0)
   );
   const allocOk =
-    !imputar || allocs.length === 0 || Math.abs(allocSum - equivalenteUsd) <= 0.01;
+    !imputar || allocs.length === 0 || Math.abs(allocSum - montoNum) <= 0.01;
 
   function handleMonedaChange(value: "USD" | "BS") {
     setMoneda(value);
+    setBankAccountId("none"); // las cuentas se filtran por moneda
     if (value === "BS" && !tasa && defaultRate) setTasa(String(defaultRate));
   }
 
@@ -155,10 +174,31 @@ function PaymentForm({
       return;
     }
     if (imputar && allocs.length > 0 && !allocOk) {
+      const f = (n: number) => (moneda === "BS" ? fmtBs(n) : fmtUsd(n));
       toast.error(
-        `La imputación (${fmtUsd(allocSum)}) debe sumar el equivalente del pago (${fmtUsd(equivalenteUsd)})`
+        `La imputación (${f(allocSum)}) debe sumar el monto del pago (${f(montoNum)})`
       );
       return;
+    }
+
+    // Imputaciones convertidas a USD (la acción trabaja en USD). La última
+    // sección absorbe el redondeo para que el total cuadre exacto con el
+    // equivalente en USD del pago.
+    let usdAllocations: { bucket: string; amount: number }[] | null = null;
+    if (imputar && allocs.length > 0) {
+      const rows = allocs.map((a) => {
+        const orig = parseFloat(a.amount.replace(",", ".")) || 0;
+        return {
+          bucket: a.bucket,
+          amount: moneda === "BS" ? bsToUsd(orig, tasaNum) : round2(orig),
+        };
+      });
+      const sum = round2(rows.reduce((s, r) => s + r.amount, 0));
+      const diff = round2(equivalenteUsd - sum);
+      if (rows.length > 0 && Math.abs(diff) >= 0.01) {
+        rows[rows.length - 1].amount = round2(rows[rows.length - 1].amount + diff);
+      }
+      usdAllocations = rows;
     }
 
     startTransition(async () => {
@@ -174,13 +214,8 @@ function PaymentForm({
         date: fecha,
         reference: referencia || null,
         notes: notas || null,
-        allocations:
-          imputar && allocs.length > 0
-            ? allocs.map((a) => ({
-                bucket: a.bucket,
-                amount: parseFloat(a.amount.replace(",", ".")) || 0,
-              }))
-            : null,
+        bankAccountId: bankAccountId !== "none" ? bankAccountId : null,
+        allocations: usdAllocations,
       });
       if (res.ok) {
         toast.success("Pago registrado correctamente");
@@ -308,6 +343,32 @@ function PaymentForm({
           </div>
         )}
 
+        <div className="grid gap-1.5">
+          <Label>¿A qué cuenta entró? (conciliación)</Label>
+          <Select value={bankAccountId} onValueChange={setBankAccountId}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Cuenta de recepción" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Sin especificar</SelectItem>
+              {cuentasMoneda.map((b) => (
+                <SelectItem key={b.id} value={b.id}>
+                  {b.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {bankAccounts.length === 0 ? (
+            <p className="text-[11px] text-muted-foreground">
+              Configurá cuentas en el módulo Bancos para poder conciliar.
+            </p>
+          ) : cuentasMoneda.length === 0 ? (
+            <p className="text-[11px] text-amber-700">
+              No hay cuentas en {moneda}. Creá una en Bancos.
+            </p>
+          ) : null}
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div className="grid gap-1.5">
             <Label>Fecha</Label>
@@ -395,7 +456,7 @@ function PaymentForm({
                       min="0"
                       step="0.01"
                       className="w-32"
-                      placeholder="Monto USD"
+                      placeholder={`Monto ${moneda === "BS" ? "Bs" : "USD"}`}
                       value={a.amount}
                       onChange={(e) =>
                         setAllocs((rows) =>
@@ -434,7 +495,13 @@ function PaymentForm({
                         : "text-[11px] font-medium text-rose-600"
                     }
                   >
-                    Imputado: {fmtUsd(allocSum)} / {fmtUsd(equivalenteUsd)}
+                    Imputado: {moneda === "BS" ? fmtBs(allocSum) : fmtUsd(allocSum)} /{" "}
+                    {moneda === "BS" ? fmtBs(montoNum) : fmtUsd(montoNum)}
+                    {moneda === "BS" && (
+                      <span className="ml-1 text-muted-foreground">
+                        (≈ {fmtUsd(equivalenteUsd)})
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>

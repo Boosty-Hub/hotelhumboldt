@@ -79,7 +79,10 @@ export default async function EstadoCuentaPage({
         client: true,
         owner: true,
         quotes: { orderBy: { createdAt: "desc" } },
-        payments: { include: { quote: true, installment: true }, orderBy: { date: "desc" } },
+        payments: {
+          include: { quote: true, installment: true, allocations: true },
+          orderBy: { date: "desc" },
+        },
         invoices: { include: { retentions: true }, orderBy: { date: "desc" } },
       },
     }),
@@ -103,16 +106,54 @@ export default async function EstadoCuentaPage({
   const cotizado = round2(activeQuotes.reduce((s, q) => s + q.totalUsd, 0));
   const garantiaPactada = round2(activeQuotes.reduce((s, q) => s + q.depositAmount, 0));
 
-  // Desglose por sección de las cotizaciones activas — referencia para abonos
-  // parciales (los clientes abonan por AyB, espacios, misceláneos, etc.).
-  const desglose = [
-    { label: "Misceláneos", value: round2(activeQuotes.reduce((s, q) => s + q.subtotalMisc, 0)) },
-    { label: "Alimentos y Bebidas", value: round2(activeQuotes.reduce((s, q) => s + q.subtotalFood, 0)) },
-    { label: "Espacios", value: round2(activeQuotes.reduce((s, q) => s + q.subtotalSpaces, 0)) },
-    { label: "Traslados (exento IVA)", value: round2(activeQuotes.reduce((s, q) => s + q.subtotalTransfers, 0)) },
+  // Imputaciones de pago por sección (PaymentAllocation.bucket). El monto ya
+  // viene en USD; se excluyen los movimientos de garantía (no son precio).
+  const abonadoBucket = new Map<string, number>();
+  for (const p of opp.payments) {
+    if (isGarantiaMovement(p)) continue;
+    for (const a of p.allocations) {
+      abonadoBucket.set(a.bucket, round2((abonadoBucket.get(a.bucket) ?? 0) + a.amount));
+    }
+  }
+
+  // Desglose por sección con saldo: el cliente abona por área (AyB, espacios,
+  // misceláneos, traslados) y el saldo de cada una baja con lo imputado.
+  const SECCIONES_BUCKETS = [
+    "MISCELANEOS",
+    "ALIMENTOS_BEBIDAS",
+    "ESPACIOS",
+    "TRASLADOS",
+  ] as const;
+  const secciones = (
+    [
+      { bucket: "MISCELANEOS", label: "Misceláneos", monto: round2(activeQuotes.reduce((s, q) => s + q.subtotalMisc, 0)) },
+      { bucket: "ALIMENTOS_BEBIDAS", label: "Alimentos y Bebidas", monto: round2(activeQuotes.reduce((s, q) => s + q.subtotalFood, 0)) },
+      { bucket: "ESPACIOS", label: "Espacios", monto: round2(activeQuotes.reduce((s, q) => s + q.subtotalSpaces, 0)) },
+      { bucket: "TRASLADOS", label: "Traslados (exento IVA)", monto: round2(activeQuotes.reduce((s, q) => s + q.subtotalTransfers, 0)) },
+    ] as const
+  )
+    .map((s) => {
+      const abonado = round2(abonadoBucket.get(s.bucket) ?? 0);
+      const saldo = round2(s.monto - abonado);
+      const pct =
+        s.monto > 0
+          ? Math.min(100, Math.max(0, Math.round((abonado / s.monto) * 100)))
+          : abonado > 0
+          ? 100
+          : 0;
+      return { ...s, abonado, saldo, pct, pagada: s.monto > 0.01 && abonado >= s.monto - 0.01 };
+    })
+    .filter((s) => s.monto > 0.01 || s.abonado > 0.01);
+
+  const abonadoSecciones = round2(
+    SECCIONES_BUCKETS.reduce((s, b) => s + (abonadoBucket.get(b) ?? 0), 0)
+  );
+
+  // Cargos incluidos en el total que no son áreas abonables por separado.
+  const cargos = [
     { label: "Servicio (sobre AyB)", value: round2(activeQuotes.reduce((s, q) => s + q.serviceAmount, 0)) },
     { label: "IVA", value: round2(activeQuotes.reduce((s, q) => s + q.taxAmount, 0)) },
-  ].filter((d) => d.value > 0);
+  ].filter((c) => c.value > 0.01);
 
   const pagado = sumPagado(opp.payments);
   const garantiaCustodia = sumGarantiaCustodia(opp.payments);
@@ -160,6 +201,11 @@ export default async function EstadoCuentaPage({
 
   const pagadoEfectivo = round2(pagado + retencionesUsd);
   const saldo = round2(cotizado - pagadoEfectivo);
+
+  // Abonos no imputados a una sección (bucket GENERAL, pagos sin imputar,
+  // retenciones y la parte de servicio/IVA cubierta). Reconcilia el desglose
+  // con el "Pagado efectivo": secciones + otros = pagadoEfectivo.
+  const abonadoOtros = round2(pagadoEfectivo - abonadoSecciones);
 
   const facturadoBs = round2(validInvoices.reduce((s, i) => s + (i.amountBs ?? 0), 0));
   const facturadoUsdRef = round2(validInvoices.reduce((s, i) => s + i.amountUsdRef, 0));
@@ -280,28 +326,104 @@ export default async function EstadoCuentaPage({
         ))}
       </div>
 
-      {/* Desglose de la cotización por sección */}
-      {desglose.length > 0 && (
+      {/* Desglose y saldo por sección */}
+      {(secciones.length > 0 || cargos.length > 0) && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Desglose de la cotización</CardTitle>
+            <CardTitle className="text-sm">Desglose y saldo por sección</CardTitle>
             <CardDescription>
-              Montos por sección — referencia para abonos parciales del cliente.
+              El saldo de cada área baja con cada abono imputado. Una sección se marca
+              «Pagada» cuando su saldo llega a cero.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-x-8 gap-y-1.5 text-sm sm:grid-cols-2">
-              {desglose.map((d) => (
-                <div key={d.label} className="flex items-baseline justify-between border-b border-dashed border-zinc-100 pb-1">
-                  <span className="text-muted-foreground">{d.label}</span>
-                  <span className="font-medium tabular-nums">{fmtUsd(d.value)}</span>
-                </div>
-              ))}
-            </div>
-            <Separator className="my-3" />
-            <div className="flex items-baseline justify-between text-sm font-semibold text-sky-950">
-              <span>Total cotizado</span>
-              <span className="tabular-nums">{fmtUsd(cotizado)}</span>
+          <CardContent className="space-y-4">
+            {secciones.length > 0 && (
+              <div className="space-y-3">
+                {secciones.map((s) => (
+                  <div key={s.bucket} className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 text-sm">
+                        {s.label}
+                        {s.pagada && (
+                          <Badge
+                            variant="outline"
+                            className="border-emerald-200 bg-emerald-100 text-emerald-800"
+                          >
+                            Pagada
+                          </Badge>
+                        )}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-sm font-semibold tabular-nums",
+                          s.pagada ? "text-emerald-700" : "text-foreground"
+                        )}
+                      >
+                        {fmtUsd(Math.max(s.saldo, 0))}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          s.pagada ? "bg-emerald-500" : "bg-sky-700"
+                        )}
+                        style={{ width: `${s.pct}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] tabular-nums text-muted-foreground">
+                      <span>Cotizado {fmtUsd(s.monto)}</span>
+                      <span className="text-emerald-700">Abonado {fmtUsd(s.abonado)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {(cargos.length > 0 || Math.abs(abonadoOtros) > 0.01) && (
+              <div className="space-y-1.5 rounded-md bg-muted/40 px-3 py-2 text-xs">
+                {cargos.map((c) => (
+                  <div key={c.label} className="flex items-baseline justify-between">
+                    <span className="text-muted-foreground">
+                      {c.label} · incluido en el total
+                    </span>
+                    <span className="font-medium tabular-nums">{fmtUsd(c.value)}</span>
+                  </div>
+                ))}
+                {Math.abs(abonadoOtros) > 0.01 && (
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-muted-foreground">
+                      General / otros abonos (sin imputar a sección)
+                    </span>
+                    <span className="font-medium tabular-nums text-emerald-700">
+                      {fmtUsd(abonadoOtros)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <Separator />
+            <div className="space-y-1 text-sm">
+              <div className="flex items-baseline justify-between text-muted-foreground">
+                <span>Total cotizado</span>
+                <span className="tabular-nums">{fmtUsd(cotizado)}</span>
+              </div>
+              <div className="flex items-baseline justify-between text-muted-foreground">
+                <span>Abonado</span>
+                <span className="tabular-nums text-emerald-700">{fmtUsd(pagadoEfectivo)}</span>
+              </div>
+              <div className="flex items-baseline justify-between font-semibold text-sky-950">
+                <span>Saldo pendiente</span>
+                <span
+                  className={cn(
+                    "tabular-nums",
+                    saldo <= 0.01 ? "text-emerald-700" : "text-amber-700"
+                  )}
+                >
+                  {fmtUsd(Math.max(saldo, 0))}
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>

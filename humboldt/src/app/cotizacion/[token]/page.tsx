@@ -7,8 +7,8 @@ import { notFound } from "next/navigation";
 import { format, isSameDay, differenceInCalendarDays } from "date-fns";
 import { formatDayEs } from "@/lib/dates";
 import { es } from "date-fns/locale";
+import { Logo } from "@/components/logo";
 import {
-  Mountain,
   CalendarDays,
   Clock3,
   Users,
@@ -182,14 +182,9 @@ export default async function CotizacionPublicaPage({
       {/* ── Header de marca (gradiente, como el login) ─────────────── */}
       <header className="print-hidden bg-gradient-to-br from-sky-950 via-sky-900 to-cyan-900 text-white">
         <div className="mx-auto max-w-4xl px-4 pt-8 pb-14 sm:px-6 sm:pt-10 sm:pb-16">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/20">
-              <Mountain className="h-4.5 w-4.5" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold leading-tight">{hotelName}</p>
-              <p className="text-[11px] text-sky-300/80">Caracas · Waraira Repano</p>
-            </div>
+          <div className="flex items-center gap-3">
+            <Logo variant="light" className="h-11 w-auto" />
+            <p className="text-[11px] text-sky-300/80">Caracas · Waraira Repano</p>
           </div>
 
           <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-300">
@@ -400,6 +395,7 @@ export default async function CotizacionPublicaPage({
               subtotalTransfers: totals.subtotalTransfers,
               subtotalFood: totals.subtotalFood,
               subtotalSpaces: totals.subtotalSpaces,
+              taxableBase: totals.taxableBase,
               serviceAmount: totals.serviceAmount,
               taxAmount: totals.taxAmount,
               totalUsd: totals.totalUsd,

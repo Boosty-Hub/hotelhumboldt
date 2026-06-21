@@ -11,10 +11,21 @@ export default async function UsuariosPage() {
   // Gestión de usuarios es exclusiva de ADMIN
   if (!canManageSettings(session.user.role)) redirect("/configuracion/parametros");
 
-  const users = await prisma.user.findMany({
+  const rows = await prisma.user.findMany({
     orderBy: { name: "asc" },
-    select: { id: true, name: true, email: true, role: true, active: true, createdAt: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      active: true,
+      createdAt: true,
+      pinHash: true,
+    },
   });
+
+  // Nunca enviamos el hash al cliente: lo reducimos a un booleano.
+  const users = rows.map(({ pinHash, ...u }) => ({ ...u, hasPin: pinHash !== null }));
 
   return <UsersTable users={users} currentUserId={session.user.id} />;
 }

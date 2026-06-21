@@ -13,6 +13,7 @@ import { prisma } from "@/lib/prisma";
 import { saveManualRate, fetchBcvRate } from "@/lib/bcv";
 import { round2 } from "@/lib/money";
 import { ROLES } from "@/lib/constants";
+import { validatePin, hashPin } from "@/lib/pin";
 import type { ActionResult, CatalogKind } from "./types";
 
 // ─────────────────────────── Guards ───────────────────────────
@@ -231,6 +232,54 @@ export async function resetUserPasswordAction(input: {
 
   revalidatePath("/configuracion");
   return { ok: true, message: `Contraseña de ${user.name} restablecida.` };
+}
+
+const setPinSchema = z.object({
+  userId: z.string().min(1),
+  pin: z.string(),
+});
+
+export async function setUserPinAction(input: {
+  userId: string;
+  pin: string;
+}): Promise<ActionResult> {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard;
+
+  const parsed = setPinSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+
+  const { userId, pin } = parsed.data;
+  const pinError = validatePin(pin);
+  if (pinError) return { ok: false, error: pinError };
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { ok: false, error: "El usuario no existe." };
+
+  // No exigimos unicidad del PIN: en el login el usuario se identifica primero,
+  // así que el PIN se compara solo contra su propio hash (sin ambigüedad).
+  const pinHash = await hashPin(pin);
+  await prisma.user.update({ where: { id: userId }, data: { pinHash } });
+
+  revalidatePath("/configuracion");
+  return { ok: true, message: `PIN de ${user.name} configurado.` };
+}
+
+export async function clearUserPinAction(input: {
+  userId: string;
+}): Promise<ActionResult> {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard;
+
+  if (!input.userId) return { ok: false, error: "Usuario inválido." };
+
+  const user = await prisma.user.findUnique({ where: { id: input.userId } });
+  if (!user) return { ok: false, error: "El usuario no existe." };
+
+  await prisma.user.update({ where: { id: input.userId }, data: { pinHash: null } });
+
+  revalidatePath("/configuracion");
+  return { ok: true, message: `PIN de ${user.name} eliminado.` };
 }
 
 export async function toggleUserActiveAction(input: {

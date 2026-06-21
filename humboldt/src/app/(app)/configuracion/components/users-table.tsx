@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { KeyRound, Loader2, MoreHorizontal, UserCog, UserPlus, UserX, UserCheck } from "lucide-react";
+import { KeyRound, Loader2, LockKeyhole, MoreHorizontal, ShieldOff, UserCog, UserPlus, UserX, UserCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from "@/components/ui/card";
@@ -52,14 +52,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PinInput } from "@/components/pin-input";
 import { ROLES, ROLE_LABELS, type Role } from "@/lib/constants";
 import {
+  clearUserPinAction,
   createUserAction,
   resetUserPasswordAction,
+  setUserPinAction,
   toggleUserActiveAction,
   updateUserRoleAction,
 } from "../actions";
 import type { SafeUser } from "../types";
+
+const PIN_LENGTH = 4;
 
 const ROLE_COLORS: Record<string, string> = {
   ADMIN: "bg-sky-100 text-sky-800 border-sky-200",
@@ -89,12 +94,14 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [roleTarget, setRoleTarget] = useState<SafeUser | null>(null);
   const [passwordTarget, setPasswordTarget] = useState<SafeUser | null>(null);
+  const [pinTarget, setPinTarget] = useState<SafeUser | null>(null);
   const [deactivateTarget, setDeactivateTarget] = useState<SafeUser | null>(null);
 
   // Formularios
   const [newUser, setNewUser] = useState({ name: "", email: "", role: "EJECUTIVO", password: "" });
   const [newRole, setNewRole] = useState<string>("EJECUTIVO");
   const [newPassword, setNewPassword] = useState("");
+  const [newPin, setNewPin] = useState("");
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -138,6 +145,29 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
       } else {
         toast.error(res.error);
       }
+    });
+  }
+
+  function handlePinSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!pinTarget) return;
+    startTransition(async () => {
+      const res = await setUserPinAction({ userId: pinTarget.id, pin: newPin });
+      if (res.ok) {
+        toast.success(res.message ?? "PIN configurado.");
+        setPinTarget(null);
+        setNewPin("");
+      } else {
+        toast.error(res.error);
+      }
+    });
+  }
+
+  function handlePinClear(user: SafeUser) {
+    startTransition(async () => {
+      const res = await clearUserPinAction({ userId: user.id });
+      if (res.ok) toast.success(res.message ?? "PIN eliminado.");
+      else toast.error(res.error);
     });
   }
 
@@ -210,6 +240,14 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                               (tú)
                             </span>
                           )}
+                          {user.hasPin && (
+                            <span
+                              className="ml-1.5 inline-flex items-center gap-0.5 align-middle text-[10px] font-medium text-emerald-600"
+                              title="Tiene PIN de acceso configurado"
+                            >
+                              <LockKeyhole className="size-3" /> PIN
+                            </span>
+                          )}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">{user.email}</p>
                       </div>
@@ -260,6 +298,19 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                         >
                           <KeyRound /> Restablecer contraseña
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setNewPin("");
+                            setPinTarget(user);
+                          }}
+                        >
+                          <LockKeyhole /> {user.hasPin ? "Cambiar PIN" : "Configurar PIN"}
+                        </DropdownMenuItem>
+                        {user.hasPin && (
+                          <DropdownMenuItem onSelect={() => handlePinClear(user)}>
+                            <ShieldOff /> Quitar PIN
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
                         {user.active ? (
                           <DropdownMenuItem
@@ -447,6 +498,61 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
               <Button type="submit" disabled={pending}>
                 {pending && <Loader2 className="animate-spin" data-icon="inline-start" />}
                 Restablecer
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Configurar / cambiar PIN */}
+      <Dialog
+        open={pinTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPinTarget(null);
+            setNewPin("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{pinTarget?.hasPin ? "Cambiar PIN" : "Configurar PIN"}</DialogTitle>
+            <DialogDescription>
+              {pinTarget
+                ? `PIN de ${PIN_LENGTH} dígitos para que ${pinTarget.name} inicie sesión rápido.`
+                : "Define un PIN de acceso."}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handlePinSave} className="space-y-4">
+            <div className="space-y-2">
+              <Label className="block text-center">Nuevo PIN</Label>
+              <PinInput
+                value={newPin}
+                onChange={setNewPin}
+                length={PIN_LENGTH}
+                disabled={pending}
+                mask={false}
+                autoFocus
+              />
+              <p className="text-center text-xs text-muted-foreground">
+                Evita PINs obvios (1234, 1111, años). Compártelo con el usuario.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setPinTarget(null);
+                  setNewPin("");
+                }}
+                disabled={pending}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={pending || newPin.length !== PIN_LENGTH}>
+                {pending && <Loader2 className="animate-spin" data-icon="inline-start" />}
+                Guardar PIN
               </Button>
             </DialogFooter>
           </form>

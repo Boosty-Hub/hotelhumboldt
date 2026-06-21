@@ -52,6 +52,7 @@ export interface QuoteDocumentProps {
     subtotalTransfers: number;
     subtotalFood: number;
     subtotalSpaces: number;
+    taxableBase: number;
     serviceAmount: number;
     taxAmount: number;
     totalUsd: number;
@@ -267,39 +268,73 @@ export function QuoteDocument(props: QuoteDocumentProps) {
         })}
       </div>
 
-      {/* ── Totales ────────────────────────────────────────────── */}
+      {/* ── Totales (formato Hotel Humboldt) ───────────────────── */}
       <section className="mt-8 flex justify-end break-inside-avoid-page">
-        <div className="w-full max-w-sm space-y-1.5 text-sm">
-          {totals.subtotalMisc > 0 && (
-            <Row label="Misceláneos" value={fmtUsd(totals.subtotalMisc)} />
-          )}
-          {totals.subtotalFood > 0 && (
-            <Row label="Alimentos y Bebidas" value={fmtUsd(totals.subtotalFood)} />
-          )}
-          {totals.subtotalSpaces > 0 && (
-            <Row label="Espacios" value={fmtUsd(totals.subtotalSpaces)} />
-          )}
-          {totals.subtotalTransfers > 0 && (
-            <Row
-              label="Traslados (exento de IVA)"
-              value={fmtUsd(totals.subtotalTransfers)}
-            />
-          )}
-          {params.serviceEnabled && totals.serviceAmount > 0 && (
-            <Row
-              label={`Servicio ${fmtPct(params.servicePct)} (sobre AyB)`}
-              value={fmtUsd(totals.serviceAmount)}
-            />
-          )}
-          {params.taxEnabled && (
-            <Row label={`IVA ${fmtPct(params.taxPct)}`} value={fmtUsd(totals.taxAmount)} />
-          )}
-          <div className="flex items-baseline justify-between border-t-2 border-sky-950 pt-2">
-            <span className="text-base font-bold text-sky-950">Total</span>
-            <span className="text-xl font-bold tabular-nums text-sky-950">
-              {fmtUsd(totals.totalUsd)}
-            </span>
+        <div className="w-full max-w-sm text-sm">
+          <div className="space-y-1.5">
+            {totals.subtotalMisc > 0 && (
+              <Row label="Total Misceláneos" value={fmtUsd(totals.subtotalMisc)} />
+            )}
+            {totals.subtotalFood > 0 && (
+              <Row label="Total AyB" value={fmtUsd(totals.subtotalFood)} />
+            )}
+            {totals.subtotalSpaces > 0 && (
+              <Row label="Total Salones" value={fmtUsd(totals.subtotalSpaces)} />
+            )}
           </div>
+
+          {/* Sub Total USD — base del IVA (Misceláneos + AyB + Salones) */}
+          {totals.taxableBase > 0 && (
+            <div className="mt-1.5 flex items-baseline justify-between bg-sky-50 px-2 py-1 font-semibold text-sky-950">
+              <span>Sub Total USD</span>
+              <span className="tabular-nums">{fmtUsd(totals.taxableBase)}</span>
+            </div>
+          )}
+
+          <div className="space-y-1.5 pt-1.5">
+            {totals.subtotalTransfers > 0 && (
+              <Row label="Traslados — Exento de IVA" value={fmtUsd(totals.subtotalTransfers)} />
+            )}
+            {params.serviceEnabled && totals.serviceAmount > 0 && (
+              <Row
+                label={`Total ${fmtPct(params.servicePct)} de servicio`}
+                value={fmtUsd(totals.serviceAmount)}
+              />
+            )}
+            {params.taxEnabled && (
+              <Row label={`${fmtPct(params.taxPct)} IVA`} value={fmtUsd(totals.taxAmount)} />
+            )}
+          </div>
+
+          {/* Cierre: Total USD → Garantía → TOTAL (la garantía se suma al TOTAL) */}
+          {params.depositEnabled && totals.depositAmount > 0 ? (
+            <>
+              <div className="mt-1.5 flex items-baseline justify-between bg-sky-900 px-2 py-1.5 font-bold text-white">
+                <span>Total USD</span>
+                <span className="tabular-nums">{fmtUsd(totals.totalUsd)}</span>
+              </div>
+              <div className="pt-1.5">
+                <Row
+                  label={`Garantía ${fmtPct(params.depositPct)}`}
+                  value={fmtUsd(totals.depositAmount)}
+                />
+              </div>
+              <div className="mt-1.5 flex items-baseline justify-between bg-sky-950 px-2 py-2 text-base font-bold text-white">
+                <span>TOTAL</span>
+                <span className="tabular-nums">{fmtUsd(totals.totalWithDeposit)}</span>
+              </div>
+              <p className="mt-1 text-right text-[10px] leading-snug text-zinc-400">
+                La garantía es un depósito reembolsable que se devuelve al finalizar el evento sin
+                novedades.
+              </p>
+            </>
+          ) : (
+            <div className="mt-1.5 flex items-baseline justify-between bg-sky-950 px-2 py-2 text-base font-bold text-white">
+              <span>TOTAL</span>
+              <span className="tabular-nums">{fmtUsd(totals.totalUsd)}</span>
+            </div>
+          )}
+
           {params.igtfEnabled && totals.igtfAmount > 0 && (
             <p className="pt-1 text-right text-[11px] text-zinc-400">
               Si paga en divisas aplica IGTF {fmtPct(params.igtfPct)}: +{fmtUsd(totals.igtfAmount)}
@@ -308,37 +343,11 @@ export function QuoteDocument(props: QuoteDocumentProps) {
         </div>
       </section>
 
-      {/* ── Garantía: depósito separado ────────────────────────── */}
-      {params.depositEnabled && totals.depositAmount > 0 && (
-        <section className="mt-4 flex justify-end break-inside-avoid-page">
-          <div className="w-full max-w-sm rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm">
-            <div className="flex items-baseline justify-between">
-              <span className="font-semibold text-amber-900">
-                Garantía {fmtPct(params.depositPct)}
-              </span>
-              <span className="font-bold tabular-nums text-amber-900">
-                {fmtUsd(totals.depositAmount)}
-              </span>
-            </div>
-            <p className="mt-0.5 text-[11px] leading-snug text-amber-800">
-              Depósito reembolsable en resguardo por daños. No forma parte del total del evento;
-              se devuelve al finalizar sin novedades.
-            </p>
-            <div className="mt-2 flex items-baseline justify-between border-t border-amber-200 pt-1.5 text-xs">
-              <span className="text-amber-800">Total a movilizar (evento + garantía)</span>
-              <span className="font-semibold tabular-nums text-amber-900">
-                {fmtUsd(totals.totalWithDeposit)}
-              </span>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* ── Condiciones legales ────────────────────────────────── */}
       {legalItems.length > 0 && (
         <section className="mt-8 break-inside-avoid-page">
           <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-            Condiciones del servicio
+            Condiciones importantes
           </h3>
           <ol className="mt-2 list-decimal space-y-1 pl-5 text-xs leading-relaxed text-zinc-600">
             {legalItems.map((item, i) => (

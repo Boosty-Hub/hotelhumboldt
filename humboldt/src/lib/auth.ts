@@ -2,7 +2,16 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
+import { headers } from "next/headers";
 import type { Role } from "./constants";
+import {
+  isValidPinFormat,
+  verifyUserPin,
+  ipFromHeaders,
+  checkPinRateLimit,
+  recordPinFailure,
+  clearPinFailures,
+} from "./pin";
 
 declare module "next-auth" {
   interface User {
@@ -42,6 +51,40 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
 
+        return { id: user.id, name: user.name, email: user.email, role: user.role };
+      },
+    }),
+    Credentials({
+      id: "pin",
+      name: "PIN",
+      credentials: {
+        userId: { label: "Usuario", type: "text" },
+        pin: { label: "PIN", type: "password" },
+      },
+      // El rate limiting vive AQUÍ, no en la server action: este provider es
+      // alcanzable directo por HTTP en /api/auth/callback/pin, así que es el
+      // ÚNICO punto que SIEMPRE se ejecuta para autenticar por PIN. Si el throttle
+      // estuviera solo en loginWithPinAction, un POST directo al callback lo
+      // saltearía (fuerza bruta del PIN sin límite).
+      async authorize(credentials) {
+        const userId = credentials?.userId as string | undefined;
+        const pin = credentials?.pin as string | undefined;
+        if (!userId || !pin || !isValidPinFormat(pin)) return null;
+
+        let ip = "local";
+        try {
+          ip = ipFromHeaders(await headers());
+        } catch {
+          // headers() fuera de contexto de request → clave por defecto.
+        }
+        if (!checkPinRateLimit(userId, ip).allowed) return null; // bloqueado: deniega
+
+        const user = await verifyUserPin(userId, pin);
+        if (!user) {
+          recordPinFailure(userId, ip);
+          return null;
+        }
+        clearPinFailures(userId, ip);
         return { id: user.id, name: user.name, email: user.email, role: user.role };
       },
     }),

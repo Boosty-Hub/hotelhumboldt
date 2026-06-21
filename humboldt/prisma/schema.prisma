@@ -20,6 +20,10 @@ model User {
   name         String
   email        String   @unique
   passwordHash String
+  // Hash bcrypt del PIN de 4 dígitos (opcional). La unicidad del PIN se valida
+  // en la capa de aplicación: bcrypt usa salt, así que dos PINs iguales producen
+  // hashes distintos y un @unique a nivel DB no serviría.
+  pinHash      String?
   role         String   @default("EJECUTIVO") // ADMIN | GERENTE | EJECUTIVO
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
@@ -216,6 +220,7 @@ model Quote {
   allocations  PaymentAllocation[]
   invoices     Invoice[]
   activities   Activity[]
+  reservations SpaceReservation[]
 
   @@index([status])
   @@index([opportunityId])
@@ -277,6 +282,7 @@ model Product {
   listPrice    Float? // precio de venta USD (null = comodín, precio manual)
   cost         Float? // costo proveedor
   supplierId   String?
+  spaceId      String? // si type=ESPACIO: salón del calendario (FK determinista, evita match por nombre)
   minPax       Int? // estación quesos mín. 30
   unitsPerPax  Int? // sushi 6 und/pax
   priceContext String? // PIEZA | BUFFET | EMPLATADO
@@ -285,10 +291,12 @@ model Product {
 
   category     ProductCategory? @relation(fields: [categoryId], references: [id])
   supplier     Supplier?        @relation(fields: [supplierId], references: [id])
+  space        Space?           @relation(fields: [spaceId], references: [id], onDelete: SetNull)
   priceHistory PriceHistory[]
   quoteLines   QuoteLine[]
 
   @@index([categoryId])
+  @@index([spaceId])
 }
 
 model PriceHistory {
@@ -319,12 +327,14 @@ model Space {
   sortOrder     Int     @default(0)
 
   reservations SpaceReservation[]
+  products     Product[]
 }
 
 model SpaceReservation {
   id        String   @id @default(cuid())
   spaceId   String
   eventId   String? // null en bloqueos de mantenimiento
+  quoteId   String? // cotización que originó la reserva (trazabilidad / liberación)
   type      String   @default("EVENTO") // EVENTO | MANTENIMIENTO
   title     String? // descripción del bloqueo (mantenimiento, cuando no hay evento)
   date      DateTime // día reservado
@@ -336,9 +346,11 @@ model SpaceReservation {
 
   space Space  @relation(fields: [spaceId], references: [id])
   event Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  quote Quote? @relation(fields: [quoteId], references: [id], onDelete: SetNull)
 
   @@index([spaceId, date])
   @@index([eventId])
+  @@index([quoteId])
 }
 
 // ─────────────────────────── Proveedores ───────────────────────────

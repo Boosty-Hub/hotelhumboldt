@@ -33,6 +33,7 @@ import {
   Bus,
   Sparkles,
   Building2,
+  TrendingUp,
 } from "lucide-react";
 import { saveQuoteLines } from "@/app/(app)/cotizaciones/actions";
 import { LineRow } from "./line-row";
@@ -347,6 +348,11 @@ export function QuoteEditor(props: QuoteEditorProps) {
     const sectionLines = lines.filter((l) => l.section === section);
     const isCollapsed = collapsed[section];
     const dayGrouped = section === "ALIMENTOS_BEBIDAS" && multiDay;
+    // El selector de productos muestra solo los de esta sección (según la
+    // categoría). Los productos sin sección caen en Misceláneos como catch-all.
+    const sectionCatalog = props.catalog.filter(
+      (p) => p.section === section || (p.section === null && section === "MISCELANEOS")
+    );
 
     return (
       <div key={section} className="rounded-xl border bg-card shadow-xs">
@@ -405,7 +411,7 @@ export function QuoteEditor(props: QuoteEditorProps) {
                       ))}
                       {!readOnly && (
                         <ProductCombobox
-                          catalog={props.catalog}
+                          catalog={sectionCatalog}
                           onSelect={(p) => addProduct(section, p, day)}
                           onFreeLine={() => addFreeLine(section, day)}
                         />
@@ -447,7 +453,7 @@ export function QuoteEditor(props: QuoteEditorProps) {
                 ))}
                 {!readOnly && (
                   <ProductCombobox
-                    catalog={props.catalog}
+                    catalog={sectionCatalog}
                     onSelect={(p) => addProduct(section, p, null)}
                     onFreeLine={() => addFreeLine(section, null)}
                   />
@@ -499,6 +505,14 @@ export function QuoteEditor(props: QuoteEditorProps) {
                 Ver documento
               </Link>
             </Button>
+            {props.canViewCosts && (
+              <Button variant="outline" asChild>
+                <Link href={`/cotizaciones/${props.quoteId}/costos`}>
+                  <TrendingUp className="h-3.5 w-3.5" />
+                  Análisis de costos
+                </Link>
+              </Button>
+            )}
             <StatusActions
               quoteId={props.quoteId}
               status={props.status}

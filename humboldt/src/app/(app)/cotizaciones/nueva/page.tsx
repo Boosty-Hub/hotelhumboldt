@@ -18,7 +18,7 @@ export default async function NuevaCotizacionPage({
   const preselected = typeof sp.oportunidad === "string" ? sp.oportunidad : null;
   const preselectedClient = typeof sp.cliente === "string" ? sp.cliente : null;
 
-  const [opportunities, clients] = await Promise.all([
+  const [opportunities, clients, spaces] = await Promise.all([
     prisma.opportunity.findMany({
       where: { stage: { not: "PERDIDO" } },
       include: { client: true },
@@ -27,6 +27,11 @@ export default async function NuevaCotizacionPage({
     prisma.client.findMany({
       where: { active: true },
       orderBy: { legalName: "asc" },
+    }),
+    prisma.space.findMany({
+      where: { active: true },
+      orderBy: { sortOrder: "asc" },
+      select: { id: true, name: true },
     }),
   ]);
 
@@ -49,6 +54,7 @@ export default async function NuevaCotizacionPage({
     <NewQuoteForm
       opportunities={oppOptions}
       clients={clientOptions}
+      spaces={spaces}
       preselectedOpportunityId={preselected}
       preselectedClientId={preselectedClient}
     />

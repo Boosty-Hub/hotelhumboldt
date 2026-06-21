@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/logo";
 import { BeoPrintButton } from "./print-button";
 import { BEO_DEPARTMENT_HEADER } from "@/app/(app)/beo/constants";
 import type {
@@ -56,7 +57,7 @@ export default async function PublicBeoPage({ params }: { params: Promise<{ toke
             </tbody>
           </table>
           <div className="flex items-center justify-center p-4">
-            <span className="font-heading text-2xl font-bold text-sky-950">Hotel Humboldt</span>
+            <Logo className="h-20 w-auto" />
           </div>
         </div>
       </div>

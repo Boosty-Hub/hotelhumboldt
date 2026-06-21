@@ -15,7 +15,13 @@ import { auth, canViewCosts } from "@/lib/auth";
 import { getCommercialParams, getSetting } from "@/lib/settings";
 import { calcQuoteTotals, isPriceOverride, lineCost, lineSubtotal } from "@/lib/quote-calc";
 import { round2 } from "@/lib/money";
-import { dateKeyToUtcDate } from "@/lib/dates";
+import { dateKeyToUtcDate, toDayKey } from "@/lib/dates";
+import {
+  reserveQuoteSpaces,
+  checkSpaceConflicts,
+  promoteQuoteReservations,
+  notifyReleaseQuoteReservations,
+} from "@/lib/reservations";
 import {
   SECTIONS,
   DISCOUNT_TYPES,
@@ -95,6 +101,7 @@ const createQuoteSchema = z
     pax: z.coerce.number().int().min(0).optional(),
     paxApproximate: z.boolean().default(false),
     daysCount: z.coerce.number().int().min(1, "Mínimo 1 día").max(30, "Máximo 30 días").default(1),
+    spaceIds: z.array(z.string()).optional().default([]), // salones a reservar (tentativo)
   })
   .refine((d) => d.opportunityId || d.clientId, {
     message: "Selecciona una oportunidad existente o un cliente",
@@ -227,6 +234,19 @@ export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false;
     }
     if (!createdId) return { ok: false, error: "No se pudo generar el número de la cotización." };
     quoteId = createdId;
+
+    // 4) Reserva tentativa de los salones elegidos. No bloquea la creación:
+    // si un salón ya está confirmado esas fechas, simplemente no se reserva.
+    if (data.spaceIds.length > 0) {
+      try {
+        await reserveQuoteSpaces(quoteId, data.spaceIds, {
+          id: session.user.id,
+          name: session.user.name,
+        });
+      } catch (err) {
+        console.error("reserveQuoteSpaces", err);
+      }
+    }
   } catch (e) {
     console.error("createQuote", e);
     return { ok: false, error: "No se pudo crear la cotización. Intenta de nuevo." };
@@ -234,7 +254,43 @@ export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false;
 
   revalidatePath("/cotizaciones");
   revalidatePath("/pipeline");
+  revalidatePath("/calendario");
+  revalidatePath("/salones");
   redirect(`/cotizaciones/${quoteId}/editar`);
+}
+
+export type SpaceAvailability = {
+  spaceId: string;
+  status: "free" | "tentative" | "confirmed";
+  detail: string;
+};
+
+/** Disponibilidad de salones para un rango de fechas — semáforo del cotizador. */
+export async function checkSpaceAvailability(input: {
+  spaceIds: string[];
+  startDate: string;
+  daysCount: number;
+}): Promise<SpaceAvailability[]> {
+  await requireSession();
+  if (!input.startDate || input.spaceIds.length === 0) return [];
+
+  const start = dateKeyToUtcDate(input.startDate);
+  const days = Math.min(Math.max(Math.trunc(input.daysCount) || 1, 1), 30);
+  const keys: string[] = [];
+  for (let i = 0; i < days; i++) keys.push(toDayKey(addDays(start, i)));
+
+  const out: SpaceAvailability[] = [];
+  for (const spaceId of input.spaceIds) {
+    const c = await checkSpaceConflicts(spaceId, keys);
+    if (c.confirmed.length > 0) {
+      out.push({ spaceId, status: "confirmed", detail: c.confirmed.map((x) => x.label).join(", ") });
+    } else if (c.tentative.length > 0) {
+      out.push({ spaceId, status: "tentative", detail: c.tentative.map((x) => x.label).join(", ") });
+    } else {
+      out.push({ spaceId, status: "free", detail: "" });
+    }
+  }
+  return out;
 }
 
 // ─────────────────────────── Guardar líneas ───────────────────────────
@@ -540,9 +596,27 @@ export async function changeQuoteStatus(
     await prisma.$transaction(ops);
 
     if (newStatus === "CONTRATADA") {
-      // Reservas tentativas de salones (efecto posterior, recreable si algo falla):
-      // líneas de ESPACIOS con producto tipo ESPACIO.
-      await createTentativeReservations(quoteId, session.user.id);
+      // Promueve a CONFIRMADA las reservas de la cotización (tentativas hechas
+      // al cotizar + líneas de ESPACIOS resueltas por Product.spaceId).
+      try {
+        await promoteQuoteReservations(quoteId, {
+          id: session.user.id,
+          name: session.user.name,
+        });
+      } catch (err) {
+        console.error("promoteQuoteReservations", err);
+      }
+    }
+    if (newStatus === "RECHAZADA" || newStatus === "VENCIDA") {
+      // Aviso al ejecutivo para que decida liberar el/los salón(es) reservado(s).
+      try {
+        await notifyReleaseQuoteReservations(
+          quoteId,
+          newStatus === "RECHAZADA" ? "cotización rechazada" : "cotización vencida"
+        );
+      } catch (err) {
+        console.error("notifyReleaseQuoteReservations", err);
+      }
     }
   } catch (e) {
     console.error("changeQuoteStatus", e);
@@ -553,76 +627,6 @@ export async function changeQuoteStatus(
   revalidatePath("/pipeline");
   revalidatePath("/calendario");
   return { ok: true };
-}
-
-/**
- * Al contratar: crea SpaceReservation TENTATIVA por cada día del evento para
- * cada línea de sección ESPACIOS cuyo producto sea tipo ESPACIO. El salón se
- * resuelve por coincidencia de nombre entre Product y Space.
- */
-async function createTentativeReservations(quoteId: string, userId: string) {
-  const quote = await prisma.quote.findUnique({
-    where: { id: quoteId },
-    include: {
-      event: true,
-      lines: { include: { product: true } },
-    },
-  });
-  if (!quote?.event?.startDate) return; // sin fechas no hay reserva
-
-  const event = quote.event;
-  const start = event.startDate!;
-  const end = event.endDate ?? start;
-  const days = Math.max(differenceInCalendarDays(end, start) + 1, 1);
-
-  const spaceLines = quote.lines.filter(
-    (l) => l.section === "ESPACIOS" && l.product?.type === "ESPACIO" && !l.isOptional
-  );
-  if (spaceLines.length === 0) return;
-
-  const spaces = await prisma.space.findMany({ where: { active: true } });
-  const norm = (s: string) => s.trim().toLowerCase();
-
-  const created: string[] = [];
-  for (const line of spaceLines) {
-    const pname = norm(line.product!.name);
-    const space = spaces.find(
-      (s) => norm(s.name) === pname || pname.includes(norm(s.name)) || norm(s.name).includes(pname)
-    );
-    if (!space) continue;
-
-    for (let d = 0; d < days; d++) {
-      const date = addDays(start, d);
-      const dup = await prisma.spaceReservation.findFirst({
-        where: { spaceId: space.id, eventId: event.id, date },
-      });
-      if (dup) continue;
-      await prisma.spaceReservation.create({
-        data: {
-          spaceId: space.id,
-          eventId: event.id,
-          date,
-          startTime: event.startTime,
-          endTime: event.endTime,
-          status: "TENTATIVA",
-          notes: `Generada al contratar la cotización ${quoteBaseNumber(quote.number)}`,
-        },
-      });
-      if (!created.includes(space.name)) created.push(space.name);
-    }
-  }
-
-  if (created.length > 0) {
-    await prisma.activity.create({
-      data: {
-        userId,
-        opportunityId: quote.opportunityId,
-        quoteId,
-        type: "SISTEMA",
-        body: `Reservas tentativas creadas: ${created.join(", ")}`,
-      },
-    });
-  }
 }
 
 // ─────────────────────────── Nueva versión ───────────────────────────

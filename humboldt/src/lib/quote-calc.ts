@@ -12,7 +12,7 @@
 // Todos los % vienen de la Configuración y se snapshotean en cada cotización.
 
 import { round2 } from "./money";
-import type { Section } from "./constants";
+import { SECTIONS, type Section } from "./constants";
 
 export interface CalcLine {
   section: Section | string;
@@ -146,4 +146,96 @@ export function lineMarginPct(line: CalcLine): number | null {
 export function isPriceOverride(unitPrice: number, listPrice: number | null | undefined): boolean {
   if (listPrice == null) return false;
   return round2(unitPrice) !== round2(listPrice);
+}
+
+// ───────────────────── Análisis de costos (informe interno) ─────────────────────
+// Desglose costo vs venta vs ganancia por línea y por sección, para que
+// administración valide el margen. NUNCA debe exponerse al cliente.
+
+export interface CostAnalysisLine {
+  description: string;
+  quantity: number;
+  unit: string;
+  isOptional: boolean;
+  unitCost: number | null;
+  cost: number; // costo total de la línea
+  unitPrice: number;
+  sale: number; // subtotal de venta
+  profit: number; // venta − costo
+  marginPct: number | null;
+  hasCost: boolean; // false = costo no cargado (margen potencialmente inflado)
+}
+
+export interface CostAnalysisSection {
+  section: Section;
+  cost: number;
+  sale: number;
+  profit: number;
+  marginPct: number | null;
+  lines: CostAnalysisLine[];
+}
+
+export interface CostAnalysis {
+  sections: CostAnalysisSection[];
+  totalCost: number;
+  totalSale: number; // ingresos del evento antes de impuestos (base + traslados)
+  grossMargin: number;
+  grossMarginPct: number;
+  linesWithoutCost: number; // líneas con venta pero sin costo cargado
+}
+
+type CostInputLine = CalcLine & { description: string; unit: string };
+
+/** Construye el desglose de costos/margen por sección e ítem desde las líneas. */
+export function buildCostAnalysis(lines: CostInputLine[]): CostAnalysis {
+  const bySection = new Map<string, CostAnalysisLine[]>();
+  let linesWithoutCost = 0;
+
+  for (const l of lines) {
+    const sale = lineSubtotal(l);
+    const cost = lineCost(l);
+    const hasCost = l.unitCost != null;
+    if (!hasCost && !l.isOptional && sale > 0) linesWithoutCost++;
+    const profit = round2(sale - cost);
+    const row: CostAnalysisLine = {
+      description: l.description,
+      quantity: l.quantity,
+      unit: l.unit,
+      isOptional: Boolean(l.isOptional),
+      unitCost: l.unitCost ?? null,
+      cost,
+      unitPrice: l.unitPrice,
+      sale,
+      profit,
+      marginPct: sale > 0 ? round2((profit / sale) * 100) : null,
+      hasCost,
+    };
+    const arr = bySection.get(String(l.section));
+    if (arr) arr.push(row);
+    else bySection.set(String(l.section), [row]);
+  }
+
+  const sections: CostAnalysisSection[] = [];
+  for (const s of SECTIONS) {
+    const rows = bySection.get(s);
+    if (!rows || rows.length === 0) continue;
+    const cost = round2(rows.reduce((a, r) => a + r.cost, 0));
+    const sale = round2(rows.reduce((a, r) => a + r.sale, 0));
+    const profit = round2(sale - cost);
+    sections.push({
+      section: s,
+      cost,
+      sale,
+      profit,
+      marginPct: sale > 0 ? round2((profit / sale) * 100) : null,
+      lines: rows,
+    });
+  }
+
+  const totalCost = round2(sections.reduce((a, s) => a + s.cost, 0));
+  const totalSale = round2(sections.reduce((a, s) => a + s.sale, 0));
+  const grossMargin = round2(totalSale - totalCost);
+  const grossMarginPct = totalSale > 0 ? round2((grossMargin / totalSale) * 100) : 0;
+
+  return { sections, totalCost, totalSale, grossMargin, grossMarginPct, linesWithoutCost };
 }

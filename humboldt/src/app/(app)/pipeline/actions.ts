@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { pickerDateToUtcDay } from "@/lib/dates";
+import { notifyReleaseOpportunityReservations } from "@/lib/reservations";
 import {
   STAGES,
   STAGE_LABELS,
@@ -92,6 +93,16 @@ export async function moveOpportunityStage(input: {
     ]);
   } catch {
     return { ok: false, error: "No se pudo actualizar la etapa. Intenta de nuevo." };
+  }
+
+  if (stage === "PERDIDO") {
+    // Aviso al responsable para que libere los salones reservados (no se cancelan solos).
+    try {
+      await notifyReleaseOpportunityReservations(id);
+    } catch (err) {
+      console.error("notifyReleaseOpportunityReservations", err);
+    }
+    revalidatePath("/calendario");
   }
 
   revalidatePath("/pipeline");

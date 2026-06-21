@@ -184,6 +184,7 @@ export default async function DocumentoCotizacionPage({
             subtotalTransfers: totals.subtotalTransfers,
             subtotalFood: totals.subtotalFood,
             subtotalSpaces: totals.subtotalSpaces,
+            taxableBase: totals.taxableBase,
             serviceAmount: totals.serviceAmount,
             taxAmount: totals.taxAmount,
             totalUsd: totals.totalUsd,

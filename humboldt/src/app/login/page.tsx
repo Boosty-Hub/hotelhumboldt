@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { LoginForm } from "./login-form";
-import { Mountain } from "lucide-react";
+import { Logo } from "@/components/logo";
 
 export const metadata = { title: "Iniciar sesión" };
 
@@ -9,13 +11,20 @@ export default async function LoginPage() {
   const session = await auth();
   if (session?.user) redirect("/");
 
+  // Solo los usuarios activos CON PIN aparecen en el selector del login por PIN.
+  // Exponemos únicamente id y nombre (nunca correo ni hash).
+  const pinUsers = await prisma.user.findMany({
+    where: { active: true, pinHash: { not: null } },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Panel de marca */}
       <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-sky-950 via-sky-900 to-cyan-900 p-10 text-white">
-        <div className="flex items-center gap-2 text-lg font-semibold">
-          <Mountain className="h-6 w-6" />
-          Hotel Humboldt
+        <div className="flex items-center">
+          <Logo variant="light" className="h-9 w-auto" priority />
         </div>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold leading-tight">
@@ -36,16 +45,16 @@ export default async function LoginPage() {
         <div className="w-full max-w-sm space-y-6">
           <div className="space-y-2 text-center">
             <div className="lg:hidden flex justify-center mb-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-950 text-white">
-                <Mountain className="h-6 w-6" />
-              </div>
+              <Logo className="h-14 w-auto" priority />
             </div>
             <h2 className="text-2xl font-bold">Bienvenido</h2>
             <p className="text-sm text-muted-foreground">
               Ingresa con tu cuenta del departamento comercial
             </p>
           </div>
-          <LoginForm />
+          <Suspense fallback={<div className="h-48" aria-hidden />}>
+            <LoginForm pinUsers={pinUsers} />
+          </Suspense>
         </div>
       </div>
     </div>

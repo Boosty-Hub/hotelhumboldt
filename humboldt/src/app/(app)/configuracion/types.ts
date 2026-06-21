@@ -18,6 +18,8 @@ export interface SafeUser {
   email: string;
   role: string;
   active: boolean;
+  /** ¿Tiene PIN configurado? Nunca exponemos el hash al cliente. */
+  hasPin: boolean;
   createdAt: Date;
 }
 

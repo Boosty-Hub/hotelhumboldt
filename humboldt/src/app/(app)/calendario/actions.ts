@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { RESERVATION_STATUSES, RESERVATION_STATUS_LABELS } from "@/lib/constants";
 import { utcDayRange } from "@/lib/dates";
+import { checkSpaceConflicts } from "@/lib/reservations";
 
 export type CalendarActionResult =
   | { ok: true; warning?: string; message?: string }
@@ -104,43 +105,28 @@ export async function createReservation(
   if (!space) return { ok: false, error: "El salón seleccionado no existe." };
   if (!space.active) return { ok: false, error: "El salón seleccionado está inactivo." };
 
-  // ── Verificación de conflictos ────────────────────────────────────────
-  // Por rango de día UTC (robusto ante reservas con cualquier hora del día).
-  const rangeStart = utcDayRange(toUtcDate(dateKeys[0])).gte;
-  const rangeEnd = utcDayRange(toUtcDate(dateKeys[dateKeys.length - 1])).lt;
-  const dayKeySet = new Set(dateKeys);
-  const existing = (
-    await prisma.spaceReservation.findMany({
-      where: {
-        spaceId: data.spaceId,
-        date: { gte: rangeStart, lt: rangeEnd },
-        status: { not: "CANCELADA" },
-      },
-      include: { event: { select: { id: true, name: true } } },
-    })
-  ).filter((r) => dayKeySet.has(r.date.toISOString().slice(0, 10)));
+  // ── Verificación de conflictos (regla compartida con cotizaciones) ─────
+  const conflicts = await checkSpaceConflicts(data.spaceId, dateKeys);
 
-  const confirmed = existing.filter((r) => r.status === "CONFIRMADA");
-  if (confirmed.length > 0) {
-    const detail = confirmed
+  if (conflicts.confirmed.length > 0) {
+    const detail = conflicts.confirmed
       .slice(0, 4)
-      .map((r) => `“${r.event.name}” (${fmtDay(r.date.toISOString().slice(0, 10))})`)
+      .map((c) => `“${c.label}” (${fmtDay(c.dateKey)})`)
       .join(", ");
     return {
       ok: false,
-      error: `${space.name} ya tiene reserva CONFIRMADA: ${detail}${confirmed.length > 4 ? "…" : ""}. Elija otra fecha u otro salón.`,
+      error: `${space.name} ya tiene reserva CONFIRMADA: ${detail}${conflicts.confirmed.length > 4 ? "…" : ""}. Elija otra fecha u otro salón.`,
     };
   }
 
-  const tentative = existing.filter((r) => r.status === "TENTATIVA");
   let warning: string | undefined;
   let conflictNote = "";
-  if (tentative.length > 0) {
-    const detail = tentative
+  if (conflicts.tentative.length > 0) {
+    const detail = conflicts.tentative
       .slice(0, 4)
-      .map((r) => `“${r.event.name}” (${fmtDay(r.date.toISOString().slice(0, 10))})`)
+      .map((c) => `“${c.label}” (${fmtDay(c.dateKey)})`)
       .join(", ");
-    warning = `Atención: se solapa con tentativa${tentative.length > 1 ? "s" : ""}: ${detail}${tentative.length > 4 ? "…" : ""}.`;
+    warning = `Atención: se solapa con tentativa${conflicts.tentative.length > 1 ? "s" : ""}: ${detail}${conflicts.tentative.length > 4 ? "…" : ""}.`;
     conflictNote = `[Conflicto al crear] Solapa con tentativa: ${detail}.`;
   }
 

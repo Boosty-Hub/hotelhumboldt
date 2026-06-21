@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,14 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronsUpDown, Check, Loader2, ArrowLeft, FilePlus2 } from "lucide-react";
+import { ChevronsUpDown, Check, Loader2, ArrowLeft, FilePlus2, Building2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { createQuote } from "@/app/(app)/cotizaciones/actions";
+import {
+  createQuote,
+  checkSpaceAvailability,
+  type SpaceAvailability,
+} from "@/app/(app)/cotizaciones/actions";
 
 export interface OppOption {
   id: string;
@@ -38,9 +42,15 @@ export interface ClientOption {
   brandName: string | null;
 }
 
+export interface SpaceOption {
+  id: string;
+  name: string;
+}
+
 interface Props {
   opportunities: OppOption[];
   clients: ClientOption[];
+  spaces: SpaceOption[];
   preselectedOpportunityId: string | null;
   preselectedClientId?: string | null;
 }
@@ -48,6 +58,7 @@ interface Props {
 export function NewQuoteForm({
   opportunities,
   clients,
+  spaces,
   preselectedOpportunityId,
   preselectedClientId,
 }: Props) {
@@ -75,6 +86,28 @@ export function NewQuoteForm({
   const [pax, setPax] = useState(preselected?.pax != null ? String(preselected.pax) : "");
   const [paxApproximate, setPaxApproximate] = useState(false);
   const [daysCount, setDaysCount] = useState("1");
+
+  // Reserva de salón (opcional)
+  const [selectedSpaceIds, setSelectedSpaceIds] = useState<string[]>([]);
+  const [spaceOpen, setSpaceOpen] = useState(false);
+  const [availability, setAvailability] = useState<Record<string, SpaceAvailability>>({});
+  const [checkingAvail, startAvailCheck] = useTransition();
+
+  // Consultá disponibilidad cuando cambian los salones o las fechas.
+  useEffect(() => {
+    if (selectedSpaceIds.length === 0 || !startDate) {
+      setAvailability({});
+      return;
+    }
+    startAvailCheck(async () => {
+      const rows = await checkSpaceAvailability({
+        spaceIds: selectedSpaceIds,
+        startDate,
+        daysCount: Number(daysCount) || 1,
+      });
+      setAvailability(Object.fromEntries(rows.map((r) => [r.spaceId, r])));
+    });
+  }, [selectedSpaceIds, startDate, daysCount]);
 
   const selectedOpp = opportunities.find((o) => o.id === oppId) ?? null;
   const selectedClient = clients.find((c) => c.id === clientId) ?? null;
@@ -114,6 +147,7 @@ export function NewQuoteForm({
         pax: pax ? Number(pax) : undefined,
         paxApproximate,
         daysCount: Number(daysCount) || 1,
+        spaceIds: selectedSpaceIds,
       });
       // En éxito redirige al editor; si retorna, hubo error
       if (res && !res.ok) toast.error(res.error);
@@ -361,6 +395,119 @@ export function NewQuoteForm({
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Reservar salón (opcional) ── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Reservar salón (opcional)</CardTitle>
+          <CardDescription>
+            Elegí uno o más salones: al crear la cotización se bloquearán de forma{" "}
+            <b>tentativa</b> en el calendario para estas fechas.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Popover open={spaceOpen} onOpenChange={setSpaceOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                type="button"
+                className="w-full justify-between font-normal"
+                aria-label="Seleccionar salones"
+              >
+                {selectedSpaceIds.length > 0 ? (
+                  <span>
+                    {selectedSpaceIds.length} salón
+                    {selectedSpaceIds.length === 1 ? "" : "es"} seleccionado
+                    {selectedSpaceIds.length === 1 ? "" : "s"}
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">Seleccionar salón(es)…</span>
+                )}
+                <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Buscar salón…" />
+                <CommandList>
+                  <CommandEmpty>No hay salones activos.</CommandEmpty>
+                  <CommandGroup>
+                    {spaces.map((s) => {
+                      const sel = selectedSpaceIds.includes(s.id);
+                      return (
+                        <CommandItem
+                          key={s.id}
+                          value={s.name}
+                          onSelect={() =>
+                            setSelectedSpaceIds((cur) =>
+                              sel ? cur.filter((x) => x !== s.id) : [...cur, s.id]
+                            )
+                          }
+                        >
+                          <Check className={cn("h-3.5 w-3.5", sel ? "opacity-100" : "opacity-0")} />
+                          <span className="flex-1 truncate">{s.name}</span>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          {selectedSpaceIds.length > 0 && (
+            <ul className="space-y-1.5">
+              {selectedSpaceIds.map((id) => {
+                const s = spaces.find((x) => x.id === id);
+                const av = availability[id];
+                return (
+                  <li
+                    key={id}
+                    className="flex items-center justify-between rounded-md border px-2.5 py-1.5 text-sm"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      {s?.name ?? "—"}
+                    </span>
+                    {!startDate ? (
+                      <span className="text-xs text-muted-foreground">Indicá la fecha</span>
+                    ) : checkingAvail || !av ? (
+                      <span className="text-xs text-muted-foreground">Verificando…</span>
+                    ) : av.status === "confirmed" ? (
+                      <span className="flex items-center gap-1 text-xs font-medium text-rose-600">
+                        <span className="h-2 w-2 rounded-full bg-rose-500" />
+                        Ocupado (confirmado)
+                      </span>
+                    ) : av.status === "tentative" ? (
+                      <span className="flex items-center gap-1 text-xs font-medium text-amber-600">
+                        <span className="h-2 w-2 rounded-full bg-amber-500" />
+                        Tentativa existente
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        Disponible
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {selectedSpaceIds.length > 0 && !startDate && (
+            <p className="text-xs text-amber-600">
+              Sin fecha del evento no se puede reservar el salón.
+            </p>
+          )}
+          {Object.values(availability).some((a) => a.status === "confirmed") && (
+            <p className="text-xs text-rose-600">
+              Los salones ocupados (confirmados) no se reservarán; el resto sí. Elegí otra fecha u
+              otro salón si necesitás ese espacio.
+            </p>
+          )}
         </CardContent>
       </Card>
 

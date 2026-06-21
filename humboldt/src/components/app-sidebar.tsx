@@ -17,8 +17,8 @@ import {
   Wallet,
   BarChart3,
   Settings,
-  Mountain,
 } from "lucide-react";
+import { Logo } from "@/components/logo";
 
 interface NavItem {
   href: string;
@@ -64,14 +64,13 @@ export function AppSidebar({ role }: { role: string }) {
   return (
     <aside className="hidden md:flex w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
       {/* Marca */}
-      <div className="flex h-16 items-center gap-2.5 border-b px-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-950 text-white">
-          <Mountain className="h-5 w-5" />
-        </div>
-        <div className="leading-tight">
-          <p className="text-sm font-bold">Hotel Humboldt</p>
-          <p className="text-[11px] text-muted-foreground">Sistema Comercial</p>
-        </div>
+      <div className="flex h-16 items-center gap-3 border-b px-5">
+        <Logo className="h-10 w-auto" priority />
+        <span className="text-[11px] leading-tight text-muted-foreground">
+          Sistema
+          <br />
+          Comercial
+        </span>
       </div>
 
       {/* Navegación */}

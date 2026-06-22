@@ -67,6 +67,19 @@ export async function generateBeo(eventId: string): Promise<Result> {
   });
   if (!event) return { ok: false, error: "El evento no existe." };
 
+  // El BEO solo va atado a un evento ganado: oportunidad GANADO o cotización
+  // aprobada/contratada. Si no, no se genera.
+  const wonQuotes = await prisma.quote.count({
+    where: { eventId, status: { in: ["APROBADA", "CONTRATADA"] } },
+  });
+  if (event.opportunity.stage !== "GANADO" && wonQuotes === 0) {
+    return {
+      ok: false,
+      error:
+        "El BEO solo se genera para eventos con cotización aprobada o contratada (oportunidad ganada).",
+    };
+  }
+
   const last = await prisma.beo.findFirst({ orderBy: { number: "desc" }, select: { number: true } });
   const number = (last?.number ?? 444) + 1; // continúa el correlativo actual (445…)
 

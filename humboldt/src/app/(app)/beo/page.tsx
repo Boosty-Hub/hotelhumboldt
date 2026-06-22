@@ -21,7 +21,15 @@ export default async function BeoPage() {
       },
     }),
     prisma.event.findMany({
-      where: { beo: { is: null }, opportunity: { stage: { not: "PERDIDO" } } },
+      // El BEO solo se genera para eventos ganados: oportunidad GANADO o con una
+      // cotización aprobada/contratada.
+      where: {
+        beo: { is: null },
+        OR: [
+          { opportunity: { stage: "GANADO" } },
+          { quotes: { some: { status: { in: ["APROBADA", "CONTRATADA"] } } } },
+        ],
+      },
       orderBy: [{ startDate: "asc" }],
       take: 60,
       include: { opportunity: { include: { client: true } } },

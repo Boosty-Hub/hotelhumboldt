@@ -74,8 +74,8 @@ export function GenerateBeoDialog({
         <DialogHeader>
           <DialogTitle>Generar BEO desde un evento</DialogTitle>
           <DialogDescription>
-            Eventos próximos sin BEO. Al elegir uno, se autocompleta del evento, su cliente y su
-            cotización.
+            Solo eventos ganados sin BEO (oportunidad ganada o cotización aprobada/contratada).
+            Al elegir uno, se autocompleta del evento, su cliente y su cotización.
           </DialogDescription>
         </DialogHeader>
 
@@ -92,7 +92,7 @@ export function GenerateBeoDialog({
         <div className="max-h-96 space-y-1.5 overflow-y-auto">
           {filtered.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No hay eventos próximos sin BEO.
+              No hay eventos ganados sin BEO.
             </p>
           ) : (
             filtered.map((e) => (

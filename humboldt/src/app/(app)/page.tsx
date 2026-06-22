@@ -329,33 +329,40 @@ export default async function DashboardPage() {
                     ev.opportunity.client.brandName ?? ev.opportunity.client.legalName;
                   const salones = [...new Set(ev.reservations.map((r) => r.space.name))];
                   return (
-                    <li key={ev.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                      <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-md border border-sky-100 bg-sky-50 text-sky-950">
-                        <span className="text-sm font-bold leading-none">{format(d, "d")}</span>
-                        <span className="text-[10px] uppercase leading-tight">
-                          {format(d, "MMM", { locale: es })}
-                        </span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{ev.name}</p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {clientName}
-                          {salones.length > 0 ? ` · ${salones.join(", ")}` : ""}
-                        </p>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1.5">
-                        {ev.datesTentative && (
-                          <Badge variant="outline" className="text-amber-700">
-                            Tentativa
-                          </Badge>
-                        )}
-                        {ev.pax != null && (
-                          <Badge variant="secondary">
-                            {ev.pax}
-                            {ev.paxApproximate ? "±" : ""} pax
-                          </Badge>
-                        )}
-                      </div>
+                    <li key={ev.id}>
+                      <Link
+                        href={`/eventos/${ev.id}`}
+                        className="group -mx-2 flex items-center gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-muted/60"
+                      >
+                        <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-md border border-sky-100 bg-sky-50 text-sky-950">
+                          <span className="text-sm font-bold leading-none">{format(d, "d")}</span>
+                          <span className="text-[10px] uppercase leading-tight">
+                            {format(d, "MMM", { locale: es })}
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium group-hover:underline">
+                            {ev.name}
+                          </p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {clientName}
+                            {salones.length > 0 ? ` · ${salones.join(", ")}` : ""}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          {ev.datesTentative && (
+                            <Badge variant="outline" className="text-amber-700">
+                              Tentativa
+                            </Badge>
+                          )}
+                          {ev.pax != null && (
+                            <Badge variant="secondary">
+                              {ev.pax}
+                              {ev.paxApproximate ? "±" : ""} pax
+                            </Badge>
+                          )}
+                        </div>
+                      </Link>
                     </li>
                   );
                 })}

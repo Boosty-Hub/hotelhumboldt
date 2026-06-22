@@ -14,6 +14,8 @@ import { auth, canViewCosts } from "@/lib/auth";
 import { fmtPct, fmtUsd, round2 } from "@/lib/money";
 import { calcQuoteTotals } from "@/lib/quote-calc";
 import { STAGES, type Stage } from "@/lib/constants";
+import { isGarantiaMovement } from "../pagos/data";
+import { segmentOfEventType } from "@/lib/segments";
 import {
   Card,
   CardAction,
@@ -76,6 +78,29 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+/** Tarjeta de indicador del informe: valor grande + etiqueta + nota. */
+function IndicadorCard({
+  label,
+  value,
+  hint,
+  accent,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  accent?: string;
+}) {
+  return (
+    <Card size="sm">
+      <CardContent className="px-4">
+        <p className="text-[11px] text-muted-foreground">{label}</p>
+        <p className={`truncate text-lg font-bold tabular-nums ${accent ?? ""}`}>{value}</p>
+        {hint ? <p className="truncate text-[11px] text-muted-foreground">{hint}</p> : null}
+      </CardContent>
+    </Card>
+  );
+}
+
 /** Celda compuesta: # arriba, $ debajo en gris. */
 function CountUsdCell({ count, usd }: { count: number; usd: number }) {
   return (
@@ -119,7 +144,7 @@ export default async function ReportesPage({
     format(to, "MMMM yyyy", { locale: es })
   )}`;
 
-  const [quotes, opportunities, marginQuotes] = await Promise.all([
+  const [quotes, opportunities, marginQuotes, payments, spacesConfirmadas] = await Promise.all([
     // Todas las cotizaciones (dataset pequeño; la lógica de cohortes se hace en JS)
     prisma.quote.findMany({
       select: {
@@ -156,7 +181,23 @@ export default async function ReportesPage({
           include: { lines: true },
         })
       : Promise.resolve([]),
+    // Cobranza real del período (pagos recibidos, sin garantías)
+    prisma.payment.findMany({
+      where: { date: { gte: rangeStart, lte: rangeEnd } },
+      select: { amountUsd: true, type: true, notes: true },
+    }),
+    // Comercialización de espacios: reservas de salón confirmadas en el período
+    prisma.spaceReservation.count({
+      where: { status: "CONFIRMADA", date: { gte: rangeStart, lte: rangeEnd } },
+    }),
   ]);
+
+  // Cobranza real (excluye movimientos de garantía, que no son precio del evento)
+  const cobranzaReal = round2(
+    payments
+      .filter((p) => !isGarantiaMovement(p))
+      .reduce((acc, p) => acc + p.amountUsd, 0)
+  );
 
   // ── Tabla mensual (réplica del Excel "Resumen") ─────────────────────
   // Fecha de "ganada" de una cotización: aprobación del cliente → fecha de
@@ -301,6 +342,20 @@ export default async function ReportesPage({
     .slice(0, 10)
     .map(({ name, value }) => ({ name, count: value }));
 
+  // ── Indicadores de Gestión (para el Informe) ────────────────────────
+  // Eventos ganados del período clasificados por segmento comercial.
+  const segmentData: PieDatum[] = countBy(wonOpps, (o) =>
+    segmentOfEventType(o.eventType)
+  );
+
+  // Estatus operativo de las solicitudes del período (dona del informe).
+  const estatusSolicitudesData: PieDatum[] = [
+    { name: "Ganados (mismo mes)", value: totals.ganadosCount },
+    { name: "Ganados de arrastre", value: totals.arrastreCount },
+    { name: "Rechazados", value: totals.rechazadosCount },
+    { name: "Sin respuesta", value: totals.sinRespuestaCount },
+  ].filter((d) => d.value > 0);
+
   // ── Margen bruto (solo gerencia/admin) ──────────────────────────────
   let margin: {
     quotesCount: number;
@@ -356,6 +411,76 @@ export default async function ReportesPage({
           <RangeFilter desde={desdeStr} hasta={hastaStr} />
         </CardContent>
       </Card>
+
+      {/* ── Indicadores de Gestión (Informe) ── */}
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold tracking-tight">Indicadores de Gestión</h2>
+        <p className="text-sm text-muted-foreground">
+          Cifras clave del período para el informe de gestión · {rangeLabel}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
+        <IndicadorCard
+          label="Valor presupuestos"
+          value={fmtUsd(totals.realizadosUsd)}
+          hint={`${totals.realizadosCount} solicitudes cotizadas`}
+        />
+        <IndicadorCard
+          label="Venta ejecutada (cobranza)"
+          value={fmtUsd(cobranzaReal)}
+          hint="Pagos recibidos en el período"
+          accent="text-emerald-700"
+        />
+        <IndicadorCard
+          label="Cotizaciones ganadas"
+          value={fmtUsd(round2(totals.ganadosUsd + totals.arrastreUsd))}
+          hint={`${totalWon} cierres (mes + arrastre)`}
+        />
+        <IndicadorCard
+          label="Conversión"
+          value={totalConversion === null ? "—" : fmtPct(totalConversion)}
+          hint={`${totalWon} ganadas / ${totalClosed} cerradas`}
+        />
+        <IndicadorCard
+          label="Espacios comercializados"
+          value={String(spacesConfirmadas)}
+          hint="Reservas de salón confirmadas"
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PieChartIcon className="h-3.5 w-3.5 text-sky-700" />
+              Estatus operativo de solicitudes
+            </CardTitle>
+            <CardDescription>
+              Distribución de las solicitudes del período (
+              {totals.ganadosCount + totals.arrastreCount + totals.rechazadosCount + totals.sinRespuestaCount})
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DistributionPie data={estatusSolicitudesData} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PieChartIcon className="h-3.5 w-3.5 text-sky-700" />
+              Eventos ganados por segmento
+            </CardTitle>
+            <CardDescription>
+              Corporativo · Institucional · Social ({wonOpps.length}) — clasificado por tipo de evento
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DistributionPie data={segmentData} />
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Tabla mensual */}
       <Card>

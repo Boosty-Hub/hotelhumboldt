@@ -22,6 +22,19 @@ export interface ClienteOption {
   contacts: { id: string; name: string; title: string | null }[];
 }
 
+export interface QuoteContratoOption {
+  id: string;
+  numero: string;
+  label: string;
+  cliente: string;
+  rif: string;
+  direccion: string;
+  representante: string;
+  contacto: string;
+  fechaEvento: string;
+  horario: string;
+}
+
 function Field({
   label,
   value,
@@ -43,13 +56,16 @@ function Field({
 
 export function ContratoGenerator({
   clients,
+  quotes,
   fechaContratoLarga,
 }: {
   clients: ClienteOption[];
+  quotes: QuoteContratoOption[];
   fechaContratoLarga: string;
 }) {
   const [clientId, setClientId] = useState<string>("");
   const [contactId, setContactId] = useState<string>("");
+  const [quoteId, setQuoteId] = useState<string>("");
 
   const [f, setF] = useState<ContratoFields>({
     cliente: "",
@@ -61,10 +77,30 @@ export function ContratoGenerator({
     horario: "",
     contactoCliente: "",
     fechaContratoLarga,
+    numeroCotizacion: "",
   });
   const set = (k: keyof ContratoFields) => (v: string) => setF((cur) => ({ ...cur, [k]: v }));
 
   const selectedClient = clients.find((c) => c.id === clientId) ?? null;
+
+  function onSelectQuote(id: string) {
+    setQuoteId(id);
+    const q = quotes.find((x) => x.id === id);
+    if (!q) return;
+    setClientId(""); // el contrato queda atado a la cotización
+    setContactId("");
+    setF((cur) => ({
+      ...cur,
+      cliente: q.cliente,
+      rif: q.rif,
+      direccion: q.direccion,
+      representante: q.representante,
+      contactoCliente: q.contacto,
+      fechaEvento: q.fechaEvento,
+      horario: q.horario,
+      numeroCotizacion: q.numero,
+    }));
+  }
 
   function onSelectClient(id: string) {
     setClientId(id);
@@ -93,6 +129,32 @@ export function ContratoGenerator({
       title="Contrato de evento"
       form={
         <>
+          <div className="space-y-1">
+            <Label className="text-xs">Cotización aprobada / ganada</Label>
+            <Select value={quoteId} onValueChange={onSelectQuote}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Elegí la cotización…" />
+              </SelectTrigger>
+              <SelectContent>
+                {quotes.length === 0 ? (
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                    No hay cotizaciones aprobadas o contratadas.
+                  </div>
+                ) : (
+                  quotes.map((q) => (
+                    <SelectItem key={q.id} value={q.id}>
+                      {q.label}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+            <p className="text-[11px] text-muted-foreground">
+              El contrato queda atado al número de cotización. También podés cargar un cliente
+              manualmente abajo.
+            </p>
+          </div>
+
           <div className="space-y-1">
             <Label className="text-xs">Cliente</Label>
             <Select value={clientId} onValueChange={onSelectClient}>
@@ -131,6 +193,12 @@ export function ContratoGenerator({
           <p className="pt-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             Datos del contrato (editables)
           </p>
+          <Field
+            label="N° de cotización"
+            value={f.numeroCotizacion ?? ""}
+            onChange={set("numeroCotizacion")}
+            placeholder="ej. COT-2026-0001"
+          />
           <Field label="Razón social" value={f.cliente} onChange={set("cliente")} />
           <Field label="RIF" value={f.rif} onChange={set("rif")} />
           <Field label="Dirección" value={f.direccion} onChange={set("direccion")} />

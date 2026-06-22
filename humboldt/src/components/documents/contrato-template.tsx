@@ -15,6 +15,7 @@ export interface ContratoFields {
   horario: string; // ej. "03:00 P.M. A 12:00 A.M."
   contactoCliente: string; // persona contacto del cliente (cláusula XIII)
   fechaContratoLarga: string; // ej. "los 21 días del mes de junio de 2026"
+  numeroCotizacion?: string; // cotización aprobada que origina el contrato (referencia)
 }
 
 // Parte fija del Hotel (idéntica al documento original).
@@ -42,9 +43,16 @@ export function ContratoTemplate({ fields: f }: { fields: ContratoFields }) {
   return (
     <article className="mx-auto max-w-4xl bg-white p-8 text-[13px] leading-relaxed text-zinc-900 print:max-w-none print:p-0">
       <header className="mb-4 flex items-center justify-between gap-4 border-b-2 border-sky-950 pb-4">
-        <h1 className="text-lg font-bold text-sky-950">
-          Contrato para la celebración de eventos en el Hotel
-        </h1>
+        <div>
+          <h1 className="text-lg font-bold text-sky-950">
+            Contrato para la celebración de eventos en el Hotel
+          </h1>
+          {f.numeroCotizacion ? (
+            <p className="mt-0.5 text-xs font-medium text-zinc-600">
+              Ref. Cotización N°: {f.numeroCotizacion}
+            </p>
+          ) : null}
+        </div>
         <Logo className="h-12 w-auto shrink-0" />
       </header>
 

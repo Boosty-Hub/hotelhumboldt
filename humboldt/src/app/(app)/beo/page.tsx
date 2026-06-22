@@ -20,21 +20,24 @@ export default async function BeoPage() {
         pax: true,
       },
     }),
-    // El BEO se genera desde oportunidades GANADAS / con cotización aprobada
+    // El BEO solo sale de oportunidades con una cotización GANADA/APROBADA
     // que aún no tienen BEO (ninguno de sus eventos tiene BEO).
     prisma.opportunity.findMany({
       where: {
-        OR: [
-          { stage: "GANADO" },
-          { quotes: { some: { status: { in: ["APROBADA", "CONTRATADA"] } } } },
-        ],
+        quotes: { some: { status: { in: ["APROBADA", "CONTRATADA"] } } },
         events: { none: { beo: { isNot: null } } },
       },
       orderBy: [{ expectedEventDate: "asc" }, { updatedAt: "desc" }],
       take: 100,
       include: {
         client: true,
-        quotes: { orderBy: { createdAt: "desc" }, take: 1, select: { number: true } },
+        // El número que se muestra es el de la cotización ganada/aprobada (no el último borrador).
+        quotes: {
+          where: { status: { in: ["APROBADA", "CONTRATADA"] } },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: { number: true },
+        },
       },
     }),
   ]);

@@ -44,14 +44,14 @@ export async function fetchBcvRate(opts?: { force?: boolean }): Promise<number |
   return null;
 }
 
-/** Obtiene la tasa BCV del día: API → cache local del día → última guardada. */
+/** Obtiene la tasa BCV (OFICIAL) del día: API → cache local del día → última guardada. */
 export async function getCurrentRate(): Promise<BcvResult | null> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // ¿Ya tenemos la tasa de hoy?
+  // ¿Ya tenemos la tasa OFICIAL de hoy?
   const cached = await prisma.exchangeRate.findFirst({
-    where: { date: { gte: today } },
+    where: { kind: "OFICIAL", date: { gte: today } },
     orderBy: { date: "desc" },
   });
   if (cached) return { rate: cached.rate, date: cached.date, source: "CACHE" };
@@ -60,20 +60,36 @@ export async function getCurrentRate(): Promise<BcvResult | null> {
   const price = await fetchBcvRate();
   if (price != null) {
     const saved = await prisma.exchangeRate.create({
-      data: { date: new Date(), rate: price, source: "BCV" },
+      data: { date: new Date(), rate: price, source: "BCV", kind: "OFICIAL" },
     });
     return { rate: saved.rate, date: saved.date, source: "BCV" };
   }
 
-  // Última tasa conocida
-  const last = await prisma.exchangeRate.findFirst({ orderBy: { date: "desc" } });
+  // Última tasa OFICIAL conocida
+  const last = await prisma.exchangeRate.findFirst({
+    where: { kind: "OFICIAL" },
+    orderBy: { date: "desc" },
+  });
   if (last) return { rate: last.rate, date: last.date, source: "CACHE" };
   return null;
 }
 
-/** Registra una tasa manual (override). */
-export async function saveManualRate(rate: number): Promise<void> {
+/** Última tasa PARALELA registrada manualmente (no se consulta a ninguna API). */
+export async function getParallelRate(): Promise<BcvResult | null> {
+  const last = await prisma.exchangeRate.findFirst({
+    where: { kind: "PARALELA" },
+    orderBy: { date: "desc" },
+  });
+  if (last) return { rate: last.rate, date: last.date, source: "MANUAL" };
+  return null;
+}
+
+/** Registra una tasa manual. kind: OFICIAL (override BCV) | PARALELA. */
+export async function saveManualRate(
+  rate: number,
+  kind: "OFICIAL" | "PARALELA" = "OFICIAL"
+): Promise<void> {
   await prisma.exchangeRate.create({
-    data: { date: new Date(), rate: round2(rate), source: "MANUAL" },
+    data: { date: new Date(), rate: round2(rate), source: "MANUAL", kind },
   });
 }

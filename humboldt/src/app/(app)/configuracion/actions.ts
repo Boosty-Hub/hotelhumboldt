@@ -424,7 +424,7 @@ export async function refreshBcvRateAction(): Promise<ActionResult> {
     };
   }
   await prisma.exchangeRate.create({
-    data: { date: new Date(), rate, source: "BCV" },
+    data: { date: new Date(), rate, source: "BCV", kind: "OFICIAL" },
   });
   revalidatePath("/", "layout");
   return { ok: true, message: `Tasa BCV actualizada: Bs. ${rate} por USD.` };
@@ -447,4 +447,19 @@ export async function setManualRateAction(input: {
   await saveManualRate(parsed.data);
   revalidatePath("/", "layout");
   return { ok: true, message: `Tasa manual registrada: Bs. ${round2(parsed.data)} por USD.` };
+}
+
+/** Registra la tasa PARALELA (siempre manual). */
+export async function setParallelRateAction(input: {
+  rate: string | number;
+}): Promise<ActionResult> {
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return guard;
+
+  const parsed = manualRateSchema.safeParse(input.rate);
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+
+  await saveManualRate(parsed.data, "PARALELA");
+  revalidatePath("/", "layout");
+  return { ok: true, message: `Tasa paralela registrada: Bs. ${round2(parsed.data)} por USD.` };
 }

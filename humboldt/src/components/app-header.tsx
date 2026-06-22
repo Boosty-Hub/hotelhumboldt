@@ -29,7 +29,10 @@ export async function AppHeader() {
   const session = await auth();
   const user = session?.user;
 
-  const latestRate = await prisma.exchangeRate.findFirst({ orderBy: { date: "desc" } });
+  const latestRate = await prisma.exchangeRate.findFirst({
+    where: { kind: "OFICIAL" },
+    orderBy: { date: "desc" },
+  });
   const rate = latestRate
     ? { rate: latestRate.rate, date: latestRate.date, source: latestRate.source }
     : null;

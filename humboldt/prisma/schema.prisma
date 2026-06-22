@@ -209,6 +209,10 @@ model Quote {
   totalUsd          Float @default(0)
   depositAmount     Float @default(0) // garantía: depósito reembolsable SEPARADO
 
+  // Tasa elegida al cotizar (para el equivalente en Bs del documento)
+  rateUsed Float? // Bs/USD usado en la cotización
+  rateKind String? // OFICIAL | PARALELA
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -411,6 +415,7 @@ model Payment {
   currency       String   @default("USD") // USD | BS
   amountOriginal Float // monto en la moneda original
   rateUsed       Float? // tasa Bs/USD aplicada
+  rateKind       String? // OFICIAL | PARALELA (fuente de la tasa aplicada)
   exchangeRateId String?
   amountUsd      Float // equivalente USD
   type           String   @default("ABONO") // ABONO | ANTICIPO | GARANTIA | REINTEGRO
@@ -497,11 +502,13 @@ model ExchangeRate {
   date   DateTime
   rate   Float // Bs por USD
   source String   @default("BCV") // BCV | MANUAL
+  kind   String   @default("OFICIAL") // OFICIAL (BCV) | PARALELA
 
   payments Payment[]
   invoices Invoice[]
 
   @@index([date])
+  @@index([kind, date])
 }
 
 // ─────────────────────────── Configuración ───────────────────────────

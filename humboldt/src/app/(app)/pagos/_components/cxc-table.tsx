@@ -176,7 +176,7 @@ export function CxcTable({
                               : "text-muted-foreground"
                           )}
                         >
-                          {format(new Date(row.nextInstallment.dueDate), "dd MMM yyyy", {
+                          {format(new Date(row.nextInstallment.dueDate), "dd/MM/yyyy", {
                             locale: es,
                           })}
                           {row.nextInstallment.overdue && " · vencida"}

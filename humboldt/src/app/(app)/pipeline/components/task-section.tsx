@@ -243,7 +243,7 @@ export function TaskSection({
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex-1 justify-start font-normal">
                 <CalendarDays data-icon="inline-start" />
-                {day ? format(day, "d MMM yyyy", { locale: es }) : "Fecha"}
+                {day ? format(day, "dd/MM/yyyy", { locale: es }) : "Fecha"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -296,7 +296,7 @@ export function TaskSection({
                   <p className="truncate text-xs font-medium">{t.title}</p>
                   <p className={cn("text-[10px]", overdue ? "font-semibold text-rose-600" : "text-muted-foreground")}>
                     {overdue && <AlarmClock className="mr-0.5 inline size-2.5" />}
-                    {format(due, "EEE d MMM, HH:mm", { locale: es })}
+                    {format(due, "dd/MM/yyyy, HH:mm", { locale: es })}
                     {t.recurrence !== "NONE" && ` · ${RECURRENCE_LABELS[t.recurrence as Recurrence]}`}
                   </p>
                 </div>

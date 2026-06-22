@@ -153,7 +153,7 @@ function StatCard({
   );
 }
 
-function fmtDate(d: Date | null | undefined, pattern = "d MMM yyyy"): string {
+function fmtDate(d: Date | null | undefined, pattern = "dd/MM/yyyy"): string {
   if (!d) return "—";
   return format(d, pattern, { locale: es });
 }
@@ -623,7 +623,7 @@ export default async function ClienteDetailPage({
                           </p>
                           <p
                             className="text-[11px] text-muted-foreground"
-                            title={fmtDate(note.createdAt, "d MMM yyyy · HH:mm")}
+                            title={fmtDate(note.createdAt, "dd/MM/yyyy · HH:mm")}
                           >
                             {formatDistanceToNow(note.createdAt, {
                               addSuffix: true,
@@ -681,7 +681,7 @@ export default async function ClienteDetailPage({
                             {a.body}
                           </p>
                           <p className="mt-0.5 text-[11px] text-muted-foreground">
-                            {fmtDate(a.createdAt, "d MMM yyyy · HH:mm")}
+                            {fmtDate(a.createdAt, "dd/MM/yyyy · HH:mm")}
                           </p>
                         </div>
                       </li>

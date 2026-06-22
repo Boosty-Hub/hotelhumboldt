@@ -205,7 +205,7 @@ export function ReservationSheet({
     });
   }
 
-  const dateLabel = format(parseISO(r.dateKey), "EEEE d 'de' MMMM 'de' yyyy", { locale: es });
+  const dateLabel = format(parseISO(r.dateKey), "dd/MM/yyyy", { locale: es });
 
   return (
     <>
@@ -499,7 +499,7 @@ export function ReservationSheet({
                       {l.detail && <p className="mt-0.5 text-xs leading-snug">{l.detail}</p>}
                       <p className="mt-0.5 text-[10px] text-muted-foreground">
                         {l.userName ?? "Sistema"} ·{" "}
-                        {format(parseISO(l.createdAt), "d MMM yyyy, HH:mm", { locale: es })}
+                        {format(parseISO(l.createdAt), "dd/MM/yyyy, HH:mm", { locale: es })}
                       </p>
                     </li>
                   ))}

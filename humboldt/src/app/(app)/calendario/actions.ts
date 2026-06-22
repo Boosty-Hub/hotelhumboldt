@@ -35,7 +35,7 @@ function expandRange(from: string, to: string): string[] {
 }
 
 function fmtDay(dateKey: string): string {
-  return format(parseISO(dateKey), "d 'de' MMM yyyy", { locale: es });
+  return format(parseISO(dateKey), "dd/MM/yyyy", { locale: es });
 }
 
 /** Registra una operación en el log de actividad de la reserva. */

@@ -87,7 +87,7 @@ export function RatePanel({ rate }: RatePanelProps) {
                     </Badge>
                   )}
                   <span className="text-xs text-muted-foreground">
-                    {format(rate.date, "EEEE d 'de' MMMM yyyy, h:mm a", { locale: es })}
+                    {format(rate.date, "dd/MM/yyyy, h:mm a", { locale: es })}
                   </span>
                 </div>
               </div>

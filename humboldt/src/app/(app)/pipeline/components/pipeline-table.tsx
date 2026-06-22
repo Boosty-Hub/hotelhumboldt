@@ -171,7 +171,7 @@ export function PipelineTable({
                 </TableCell>
                 <TableCell className="text-xs tabular-nums text-muted-foreground">
                   {opp.expectedEventDate
-                    ? format(opp.expectedEventDate, "d MMM yyyy", { locale: es })
+                    ? format(opp.expectedEventDate, "dd/MM/yyyy", { locale: es })
                     : "—"}
                 </TableCell>
                 <TableCell className="text-right text-xs tabular-nums">

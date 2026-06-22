@@ -93,7 +93,7 @@ export function HeaderNotifications({ tasks }: { tasks: HeaderTask[] }) {
             )}
           >
             {overdue && <AlarmClock className="mr-0.5 inline size-2.5" />}
-            {t.clientName} · {format(new Date(t.dueAt), "EEE d MMM, HH:mm", { locale: es })}
+            {t.clientName} · {format(new Date(t.dueAt), "dd/MM/yyyy, HH:mm", { locale: es })}
           </p>
         </Link>
       </div>

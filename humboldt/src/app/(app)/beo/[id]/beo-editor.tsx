@@ -373,7 +373,7 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
                   {l.detail && <p className="text-xs text-muted-foreground">{l.detail}</p>}
                   <p className="text-[10px] text-muted-foreground">
                     {l.userName ?? "Sistema"} ·{" "}
-                    {format(parseISO(l.createdAt), "d MMM yyyy, HH:mm", { locale: es })}
+                    {format(parseISO(l.createdAt), "dd/MM/yyyy, HH:mm", { locale: es })}
                   </p>
                 </li>
               ))}

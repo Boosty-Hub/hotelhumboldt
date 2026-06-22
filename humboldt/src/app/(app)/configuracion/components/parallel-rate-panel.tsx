@@ -59,7 +59,7 @@ export function ParallelRatePanel({ rate }: { rate: RateInfo | null }) {
                 Paralela
               </Badge>
               <span className="text-xs text-muted-foreground">
-                {format(rate.date, "d 'de' MMMM yyyy, h:mm a", { locale: es })}
+                {format(rate.date, "dd/MM/yyyy, h:mm a", { locale: es })}
               </span>
             </div>
           ) : (

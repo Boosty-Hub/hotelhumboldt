@@ -116,7 +116,7 @@ export function HeaderRate({ rate, canEdit }: HeaderRateProps) {
                   </Badge>
                 )}
                 <span className="text-muted-foreground">
-                  {format(new Date(rate.date), "EEEE d 'de' MMMM yyyy, h:mm a", { locale: es })}
+                  {format(new Date(rate.date), "dd/MM/yyyy, h:mm a", { locale: es })}
                 </span>
               </div>
             </div>

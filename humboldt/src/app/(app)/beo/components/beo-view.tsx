@@ -163,7 +163,7 @@ export function BeoView({
                       </Link>
                     </TableCell>
                     <TableCell className="text-sm">
-                      {b.eventDate ? format(parseISO(b.eventDate), "d MMM yyyy", { locale: es }) : "—"}
+                      {b.eventDate ? format(parseISO(b.eventDate), "dd/MM/yyyy", { locale: es }) : "—"}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">{b.pax ?? "—"}</TableCell>
                     <TableCell className="text-right">

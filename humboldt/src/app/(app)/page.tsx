@@ -427,10 +427,10 @@ export default async function DashboardPage() {
                           >
                             <Clock className="h-3 w-3" />
                             {expired
-                              ? `Venció ${format(validUntil, "d MMM", { locale: es })}`
+                              ? `Venció ${format(validUntil, "dd/MM/yyyy", { locale: es })}`
                               : daysLeft === 0
                                 ? "Hoy"
-                                : `${daysLeft} d (${format(validUntil, "d MMM", { locale: es })})`}
+                                : `${daysLeft} d (${format(validUntil, "dd/MM/yyyy", { locale: es })})`}
                           </span>
                         </TableCell>
                       </TableRow>

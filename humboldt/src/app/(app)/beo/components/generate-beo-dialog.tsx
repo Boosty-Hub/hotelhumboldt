@@ -112,7 +112,7 @@ export function GenerateBeoDialog({
                 </div>
                 <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
                   <CalendarDays className="size-3" />
-                  {e.startDate ? format(parseISO(e.startDate), "d MMM yyyy", { locale: es }) : "Sin fecha"}
+                  {e.startDate ? format(parseISO(e.startDate), "dd/MM/yyyy", { locale: es }) : "Sin fecha"}
                 </span>
               </button>
             ))

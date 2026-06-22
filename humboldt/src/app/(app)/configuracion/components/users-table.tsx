@@ -270,7 +270,7 @@ export function UsersTable({ users, currentUserId }: UsersTableProps) {
                     />
                   </TableCell>
                   <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
-                    {format(user.createdAt, "d MMM yyyy", { locale: es })}
+                    {format(user.createdAt, "dd/MM/yyyy", { locale: es })}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

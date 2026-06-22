@@ -367,7 +367,7 @@ export function NewOpportunityDialog({
                   >
                     <CalendarDays className="size-3.5" />
                     {form.expectedEventDate
-                      ? format(form.expectedEventDate, "d MMM yyyy", { locale: es })
+                      ? format(form.expectedEventDate, "dd/MM/yyyy", { locale: es })
                       : "Seleccionar fecha"}
                   </Button>
                 </PopoverTrigger>

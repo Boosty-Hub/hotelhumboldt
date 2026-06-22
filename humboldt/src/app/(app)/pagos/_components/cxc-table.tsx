@@ -47,11 +47,13 @@ export function CxcTable({
   rows,
   targets,
   defaultRate,
+  parallelRate,
   bankAccounts,
 }: {
   rows: CxcRow[];
   targets: TargetOption[];
   defaultRate: number | null;
+  parallelRate: number | null;
   bankAccounts: BankAccountOption[];
 }) {
   const [payTarget, setPayTarget] = React.useState<string | null>(null);
@@ -240,6 +242,7 @@ export function CxcTable({
       <PaymentDialog
         targets={targets}
         defaultRate={defaultRate}
+        parallelRate={parallelRate}
         bankAccounts={bankAccounts}
         open={payOpen}
         onOpenChange={setPayOpen}

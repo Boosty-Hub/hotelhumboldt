@@ -20,6 +20,7 @@ export function PagosTabs({
   invoiceRows,
   targets,
   defaultRate,
+  parallelRate,
   bankAccounts,
 }: {
   initialTab: string;
@@ -28,6 +29,7 @@ export function PagosTabs({
   invoiceRows: InvoiceRow[];
   targets: TargetOption[];
   defaultRate: number | null;
+  parallelRate: number | null;
   bankAccounts: BankAccountOption[];
 }) {
   const router = useRouter();
@@ -71,6 +73,7 @@ export function PagosTabs({
           rows={cxcRows}
           targets={targets}
           defaultRate={defaultRate}
+          parallelRate={parallelRate}
           bankAccounts={bankAccounts}
         />
       </TabsContent>

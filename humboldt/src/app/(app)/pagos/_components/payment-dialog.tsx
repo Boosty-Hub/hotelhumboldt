@@ -63,6 +63,7 @@ export interface BankAccountOption {
 export function PaymentDialog({
   targets,
   defaultRate,
+  parallelRate = null,
   trigger,
   open: controlledOpen,
   onOpenChange,
@@ -71,6 +72,7 @@ export function PaymentDialog({
 }: {
   targets: TargetOption[];
   defaultRate: number | null;
+  parallelRate?: number | null;
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -95,6 +97,7 @@ export function PaymentDialog({
         <PaymentForm
           targets={targets}
           defaultRate={defaultRate}
+          parallelRate={parallelRate}
           presetTargetValue={presetTargetValue ?? null}
           bankAccounts={bankAccounts}
           close={() => setOpen(false)}
@@ -107,12 +110,14 @@ export function PaymentDialog({
 function PaymentForm({
   targets,
   defaultRate,
+  parallelRate,
   presetTargetValue,
   bankAccounts,
   close,
 }: {
   targets: TargetOption[];
   defaultRate: number | null;
+  parallelRate: number | null;
   presetTargetValue: string | null;
   bankAccounts: BankAccountOption[];
   close: () => void;
@@ -125,6 +130,7 @@ function PaymentForm({
   const [moneda, setMoneda] = React.useState<"USD" | "BS">("USD");
   const [monto, setMonto] = React.useState("");
   const [tasa, setTasa] = React.useState(defaultRate ? String(defaultRate) : "");
+  const [rateKind, setRateKind] = React.useState<"OFICIAL" | "PARALELA">("OFICIAL");
   const [fecha, setFecha] = React.useState(() => format(new Date(), "yyyy-MM-dd"));
   const [referencia, setReferencia] = React.useState("");
   const [notas, setNotas] = React.useState("");
@@ -154,10 +160,23 @@ function PaymentForm({
   const allocOk =
     !imputar || allocs.length === 0 || Math.abs(allocSum - montoNum) <= 0.01;
 
+  function rateFor(kind: "OFICIAL" | "PARALELA"): number | null {
+    return kind === "PARALELA" ? parallelRate : defaultRate;
+  }
+
   function handleMonedaChange(value: "USD" | "BS") {
     setMoneda(value);
     setBankAccountId("none"); // las cuentas se filtran por moneda
-    if (value === "BS" && !tasa && defaultRate) setTasa(String(defaultRate));
+    if (value === "BS" && !tasa) {
+      const r = rateFor(rateKind);
+      if (r) setTasa(String(r));
+    }
+  }
+
+  function handleRateKindChange(kind: "OFICIAL" | "PARALELA") {
+    setRateKind(kind);
+    const r = rateFor(kind);
+    if (r) setTasa(String(r)); // precarga la tasa de la fuente; el usuario puede editarla
   }
 
   function submit() {
@@ -211,6 +230,7 @@ function PaymentForm({
         currency: moneda,
         amount: montoNum,
         rate: moneda === "BS" ? tasaNum : null,
+        rateKind: moneda === "BS" ? rateKind : null,
         date: fecha,
         reference: referencia || null,
         notes: notas || null,
@@ -320,19 +340,34 @@ function PaymentForm({
           <div className="grid grid-cols-2 items-end gap-3">
             <div className="grid gap-1.5">
               <Label>Tasa Bs/USD</Label>
-              <Input
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.0001"
-                placeholder="Tasa BCV"
-                value={tasa}
-                onChange={(e) => setTasa(e.target.value)}
-              />
+              <div className="grid grid-cols-[7rem_1fr] gap-2">
+                <Select value={rateKind} onValueChange={(v) => handleRateKindChange(v as "OFICIAL" | "PARALELA")}>
+                  <SelectTrigger aria-label="Fuente de la tasa">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="OFICIAL">BCV</SelectItem>
+                    {parallelRate != null && <SelectItem value="PARALELA">Paralela</SelectItem>}
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="0.0001"
+                  placeholder="Tasa"
+                  value={tasa}
+                  onChange={(e) => setTasa(e.target.value)}
+                />
+              </div>
               <p className="text-[11px] text-muted-foreground">
-                {defaultRate
-                  ? `Tasa BCV del día: ${defaultRate}`
-                  : "Sin tasa BCV disponible — indícala manualmente"}
+                {rateKind === "PARALELA"
+                  ? parallelRate
+                    ? `Tasa paralela: ${parallelRate}`
+                    : "Sin tasa paralela cargada"
+                  : defaultRate
+                    ? `Tasa BCV del día: ${defaultRate}`
+                    : "Sin tasa BCV disponible — indícala manualmente"}
               </p>
             </div>
             <div className="flex h-9 items-center gap-2 rounded-md border bg-muted/40 px-3 text-sm">

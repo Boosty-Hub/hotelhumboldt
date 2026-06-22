@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getCurrentRate } from "@/lib/bcv";
+import { getCurrentRate, getParallelRate } from "@/lib/bcv";
 import { fmtUsd, fmtBs, fmtNum, round2, bsToUsd } from "@/lib/money";
 import {
   PAYMENT_METHOD_LABELS,
@@ -72,7 +72,7 @@ export default async function EstadoCuentaPage({
 
   const { id } = await params;
 
-  const [opp, rateInfo, targets, bankAccounts] = await Promise.all([
+  const [opp, rateInfo, parallelInfo, targets, bankAccounts] = await Promise.all([
     prisma.opportunity.findUnique({
       where: { id },
       include: {
@@ -87,6 +87,7 @@ export default async function EstadoCuentaPage({
       },
     }),
     getCurrentRate(),
+    getParallelRate(),
     getTargetOptions(id),
     prisma.bankAccount.findMany({
       where: { active: true },
@@ -98,6 +99,7 @@ export default async function EstadoCuentaPage({
   if (!opp) notFound();
 
   const defaultRate = rateInfo?.rate ?? null;
+  const parallelRate = parallelInfo?.rate ?? null;
 
   // ── Cálculos ────────────────────────────────────────────────────────
   const activeQuotes = opp.quotes.filter((q) =>
@@ -292,6 +294,7 @@ export default async function EstadoCuentaPage({
           <PaymentDialog
             targets={targets}
             defaultRate={defaultRate}
+            parallelRate={parallelRate}
             presetTargetValue={presetTarget}
             bankAccounts={bankAccounts}
             trigger={

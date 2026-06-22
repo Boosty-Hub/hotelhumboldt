@@ -4,7 +4,7 @@
 import { redirect } from "next/navigation";
 import { Banknote, FilePlus2, Landmark, ShieldCheck, TrendingUp, Wallet } from "lucide-react";
 import { auth } from "@/lib/auth";
-import { getCurrentRate } from "@/lib/bcv";
+import { getCurrentRate, getParallelRate } from "@/lib/bcv";
 import { fmtUsd, fmtBs, fmtNum, round2 } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,16 +26,19 @@ export default async function PagosPage({
   const sp = await searchParams;
   const tab = typeof sp.tab === "string" ? sp.tab : "cxc";
 
-  const [cxcRows, paymentRows, invoiceRows, targets, rateInfo, bankAccounts] = await Promise.all([
-    getCxcRows(),
-    getPaymentRows(),
-    getInvoiceRows(),
-    getTargetOptions(),
-    getCurrentRate(),
-    getBankAccountOptions(),
-  ]);
+  const [cxcRows, paymentRows, invoiceRows, targets, rateInfo, parallelInfo, bankAccounts] =
+    await Promise.all([
+      getCxcRows(),
+      getPaymentRows(),
+      getInvoiceRows(),
+      getTargetOptions(),
+      getCurrentRate(),
+      getParallelRate(),
+      getBankAccountOptions(),
+    ]);
 
   const defaultRate = rateInfo?.rate ?? null;
+  const parallelRate = parallelInfo?.rate ?? null;
 
   // Indicadores
   const porCobrar = round2(
@@ -114,6 +117,7 @@ export default async function PagosPage({
           <PaymentDialog
             targets={targets}
             defaultRate={defaultRate}
+            parallelRate={parallelRate}
             bankAccounts={bankAccounts}
             trigger={
               <Button className="bg-sky-950 text-white hover:bg-sky-900">
@@ -151,6 +155,7 @@ export default async function PagosPage({
         invoiceRows={invoiceRows}
         targets={targets}
         defaultRate={defaultRate}
+        parallelRate={parallelRate}
         bankAccounts={bankAccounts}
       />
     </div>

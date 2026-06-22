@@ -84,6 +84,7 @@ const pagoSchema = z
       .number({ message: "Indica el monto del pago" })
       .positive("El monto debe ser mayor a 0"),
     rate: z.number().positive("La tasa debe ser mayor a 0").nullable().optional(),
+    rateKind: z.enum(["OFICIAL", "PARALELA"]).nullable().optional(),
     date: z.string().min(1, "Indica la fecha del pago"),
     reference: z.string().nullable().optional(),
     notes: z.string().nullable().optional(),
@@ -155,6 +156,7 @@ export async function registrarPago(input: unknown): Promise<ActionResult> {
         currency: d.currency,
         amountOriginal: round2(sign * d.amount),
         rateUsed: d.currency === "BS" ? d.rate : null,
+        rateKind: d.currency === "BS" ? (d.rateKind ?? "OFICIAL") : null,
         amountUsd: round2(sign * usd),
         type: d.type,
         reference: d.reference?.trim() || null,

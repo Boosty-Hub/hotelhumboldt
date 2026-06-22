@@ -16,6 +16,7 @@ import { calcQuoteTotals } from "@/lib/quote-calc";
 import { STAGES, type Stage } from "@/lib/constants";
 import { isGarantiaMovement } from "../pagos/data";
 import { segmentOfEventType } from "@/lib/segments";
+import { getGoals } from "@/lib/settings";
 import {
   Card,
   CardAction,
@@ -144,7 +145,7 @@ export default async function ReportesPage({
     format(to, "MMMM yyyy", { locale: es })
   )}`;
 
-  const [quotes, opportunities, marginQuotes, payments, spacesConfirmadas] = await Promise.all([
+  const [quotes, opportunities, marginQuotes, payments, spacesConfirmadas, goals] = await Promise.all([
     // Todas las cotizaciones (dataset pequeño; la lógica de cohortes se hace en JS)
     prisma.quote.findMany({
       select: {
@@ -168,6 +169,7 @@ export default async function ReportesPage({
         lostReason: true,
         channel: true,
         eventType: true,
+        segment: true,
         owner: { select: { name: true } },
       },
     }),
@@ -190,6 +192,8 @@ export default async function ReportesPage({
     prisma.spaceReservation.count({
       where: { status: "CONFIRMADA", date: { gte: rangeStart, lte: rangeEnd } },
     }),
+    // Metas comerciales configurables (informe de gestión)
+    getGoals(),
   ]);
 
   // Cobranza real (excluye movimientos de garantía, que no son precio del evento)
@@ -343,10 +347,19 @@ export default async function ReportesPage({
     .map(({ name, value }) => ({ name, count: value }));
 
   // ── Indicadores de Gestión (para el Informe) ────────────────────────
-  // Eventos ganados del período clasificados por segmento comercial.
+  // Eventos ganados del período por segmento comercial: usa el campo explícito
+  // de la oportunidad y, si no está cargado, cae al mapeo por tipo de evento.
   const segmentData: PieDatum[] = countBy(wonOpps, (o) =>
-    segmentOfEventType(o.eventType)
+    o.segment?.trim() ? o.segment.trim() : segmentOfEventType(o.eventType)
   );
+
+  // Cumplimiento de metas configurables (Configuración › Parámetros › Metas).
+  const ventaPctMeta =
+    goals.monthlySales > 0 ? round2((cobranzaReal / goals.monthlySales) * 100) : null;
+  const espaciosPctMeta =
+    goals.monthlySpaces > 0
+      ? round2((spacesConfirmadas / goals.monthlySpaces) * 100)
+      : null;
 
   // Estatus operativo de las solicitudes del período (dona del informe).
   const estatusSolicitudesData: PieDatum[] = [
@@ -429,7 +442,11 @@ export default async function ReportesPage({
         <IndicadorCard
           label="Venta ejecutada (cobranza)"
           value={fmtUsd(cobranzaReal)}
-          hint="Pagos recibidos en el período"
+          hint={
+            ventaPctMeta === null
+              ? "Pagos recibidos en el período"
+              : `${fmtPct(ventaPctMeta)} de la meta (${fmtUsd(goals.monthlySales)})`
+          }
           accent="text-emerald-700"
         />
         <IndicadorCard
@@ -440,12 +457,16 @@ export default async function ReportesPage({
         <IndicadorCard
           label="Conversión"
           value={totalConversion === null ? "—" : fmtPct(totalConversion)}
-          hint={`${totalWon} ganadas / ${totalClosed} cerradas`}
+          hint={`Meta ${fmtPct(goals.conversionPct)} · ${totalWon}/${totalClosed} cerradas`}
         />
         <IndicadorCard
           label="Espacios comercializados"
           value={String(spacesConfirmadas)}
-          hint="Reservas de salón confirmadas"
+          hint={
+            espaciosPctMeta === null
+              ? "Reservas de salón confirmadas"
+              : `${fmtPct(espaciosPctMeta)} de la meta (${goals.monthlySpaces})`
+          }
         />
       </div>
 

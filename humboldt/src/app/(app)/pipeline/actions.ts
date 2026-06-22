@@ -123,6 +123,7 @@ const createSchema = z
       .min(3, "El título debe tener al menos 3 caracteres")
       .max(160, "El título es demasiado largo"),
     eventType: optional(z.string().trim().min(1)),
+    segment: optional(z.string().trim().min(1)),
     channel: optional(z.string().trim().min(1)),
     expectedEventDate: optional(z.coerce.date({ message: "Fecha inválida" })),
     pax: optional(
@@ -158,6 +159,7 @@ export async function createOpportunity(input: {
   newClientName?: string | null;
   title: string;
   eventType?: string | null;
+  segment?: string | null;
   channel?: string | null;
   expectedEventDate?: Date | null;
   pax?: number | null;
@@ -190,6 +192,7 @@ export async function createOpportunity(input: {
             ownerId: data.ownerId,
             title: data.title,
             eventType: data.eventType ?? null,
+            segment: data.segment ?? null,
             channel: data.channel ?? null,
             expectedEventDate: data.expectedEventDate
               ? pickerDateToUtcDay(data.expectedEventDate)

@@ -46,6 +46,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { ROLE_LABELS, type Role } from "@/lib/constants";
+import { SELECTABLE_SEGMENTS } from "@/lib/segments";
 import { createOpportunity } from "../actions";
 import type { BasicClient, BasicUser } from "../types";
 
@@ -54,6 +55,7 @@ interface FormState {
   newClientName: string;
   title: string;
   eventType: string;
+  segment: string;
   channel: string;
   expectedEventDate: Date | undefined;
   pax: string;
@@ -84,6 +86,7 @@ export function NewOpportunityDialog({
       newClientName: "",
       title: "",
       eventType: "",
+      segment: "",
       channel: "",
       expectedEventDate: undefined,
       pax: "",
@@ -141,6 +144,7 @@ export function NewOpportunityDialog({
         newClientName: form.clientId ? undefined : form.newClientName.trim() || undefined,
         title: form.title.trim(),
         eventType: form.eventType || undefined,
+        segment: form.segment || undefined,
         channel: form.channel || undefined,
         expectedEventDate: form.expectedEventDate,
         pax,
@@ -329,6 +333,23 @@ export function NewOpportunityDialog({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Segmento comercial */}
+          <div className="space-y-1.5">
+            <Label>Segmento</Label>
+            <Select value={form.segment} onValueChange={(v) => set("segment", v)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Corporativo · Institucional · Social" />
+              </SelectTrigger>
+              <SelectContent>
+                {SELECTABLE_SEGMENTS.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Fecha + pax + valor */}

@@ -16,6 +16,12 @@ export const PARAM_NOTES: Record<string, string> = {
     "Markup sugerido sobre el costo del proveedor al fijar precios de venta. Información interna.",
   min_margin_pct:
     "Si está habilitado, el cotizador alertará cuando el margen de una línea quede por debajo de este valor. Información interna.",
+  goal_monthly_sales:
+    "Meta de ventas/cobranza mensual en USD. Se compara contra la cobranza real del período en el informe de gestión.",
+  goal_monthly_spaces:
+    "Meta de espacios (salones) comercializados por mes. Se compara contra las reservas confirmadas del período.",
+  goal_conversion_pct:
+    "Meta de conversión de cierres (ganadas sobre cerradas). Referencia para el informe de gestión.",
 };
 
 // Orden de presentación dentro de cada grupo
@@ -37,5 +43,7 @@ export const RATE_SOURCE_BADGES: Record<string, { label: string; className: stri
 export function suffixFor(key: string): string {
   if (key.endsWith("_pct")) return "%";
   if (key.endsWith("_days")) return "días";
+  if (key === "goal_monthly_sales") return "USD";
+  if (key === "goal_monthly_spaces") return "salones";
   return "";
 }

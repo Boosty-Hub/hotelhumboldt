@@ -1,4 +1,4 @@
-import { Landmark, Percent } from "lucide-react";
+import { Landmark, Percent, Target } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import {
   Card,
@@ -24,6 +24,9 @@ export default async function ParametrosPage() {
     });
   const taxSettings = numericSettings.filter((s) => s.category === "impuestos");
   const commercialSettings = numericSettings.filter((s) => s.category === "comercial");
+  const goalSettings = settings
+    .filter((s) => s.type === "number" && s.category === "metas")
+    .sort((a, b) => a.key.localeCompare(b.key));
 
   return (
     <div className="space-y-6">
@@ -65,6 +68,32 @@ export default async function ParametrosPage() {
         </CardHeader>
         <CardContent className="divide-y">
           {commercialSettings.map((s) => (
+            <ParamRow
+              key={s.key}
+              settingKey={s.key}
+              label={s.label ?? s.key}
+              value={s.value}
+              enabled={s.enabled}
+              note={PARAM_NOTES[s.key]}
+              suffix={suffixFor(s.key)}
+            />
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Target className="size-4 text-sky-950" />
+            <CardTitle>Metas comerciales</CardTitle>
+          </div>
+          <CardDescription>
+            Objetivos mensuales que se comparan contra los resultados reales en el
+            informe de gestión (Reportes).
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="divide-y">
+          {goalSettings.map((s) => (
             <ParamRow
               key={s.key}
               settingKey={s.key}

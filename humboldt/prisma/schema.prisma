@@ -94,6 +94,7 @@ model Opportunity {
   ownerId           String // ejecutivo responsable
   title             String // "Fiesta de Navidad Alimentos Mary"
   eventType         String? // de catálogo EventTypeOption
+  segment           String? // Corporativo | Institucional | Social (segmento comercial)
   channel           String? // de catálogo ChannelOption
   stage             String    @default("NUEVO") // NUEVO | CONTACTADO | PROPUESTA | NEGOCIACION | GANADO | PERDIDO
   probability       Int       @default(10) // %

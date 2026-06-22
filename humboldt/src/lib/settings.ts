@@ -67,3 +67,35 @@ export async function getSetting(key: string): Promise<string | null> {
   const row = await prisma.setting.findUnique({ where: { key } });
   return row?.value ?? null;
 }
+
+export interface CommercialGoals {
+  /** Meta de ventas/cobranza mensual en USD. */
+  monthlySales: number;
+  /** Meta de espacios (salones) comercializados por mes. */
+  monthlySpaces: number;
+  /** Meta de conversión de cierres (%). */
+  conversionPct: number;
+}
+
+const GOAL_DEFAULTS: CommercialGoals = {
+  monthlySales: 80000,
+  monthlySpaces: 6,
+  conversionPct: 80,
+};
+
+/** Lee las metas comerciales de la tabla Setting (con defaults seguros). */
+export async function getGoals(): Promise<CommercialGoals> {
+  const rows = await prisma.setting.findMany({ where: { category: "metas" } });
+  const map = new Map(rows.map((r) => [r.key, r]));
+  const num = (key: string, def: number) => {
+    const row = map.get(key);
+    if (!row || !row.enabled) return def;
+    const v = parseFloat(row.value);
+    return Number.isNaN(v) ? def : v;
+  };
+  return {
+    monthlySales: num(SETTING_KEYS.GOAL_MONTHLY_SALES, GOAL_DEFAULTS.monthlySales),
+    monthlySpaces: num(SETTING_KEYS.GOAL_MONTHLY_SPACES, GOAL_DEFAULTS.monthlySpaces),
+    conversionPct: num(SETTING_KEYS.GOAL_CONVERSION_PCT, GOAL_DEFAULTS.conversionPct),
+  };
+}

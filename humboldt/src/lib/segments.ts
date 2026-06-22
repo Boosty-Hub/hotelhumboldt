@@ -8,6 +8,9 @@
 export const EVENT_SEGMENTS = ["Corporativo", "Institucional", "Social", "Otros"] as const;
 export type EventSegment = (typeof EVENT_SEGMENTS)[number];
 
+/** Segmentos elegibles por el usuario al crear/editar una oportunidad. */
+export const SELECTABLE_SEGMENTS = ["Corporativo", "Institucional", "Social"] as const;
+
 /** tipo de evento (nombre del catálogo) → segmento comercial */
 export const EVENT_SEGMENT_MAP: Record<string, EventSegment> = {
   // Corporativos

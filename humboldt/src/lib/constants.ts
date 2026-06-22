@@ -236,6 +236,10 @@ export const SETTING_KEYS = {
   HOTEL_EMAIL: "hotel_email",
   QUOTE_LEGAL_CONDITIONS: "quote_legal_conditions",
   QUOTE_GREETING: "quote_greeting",
+  // Metas comerciales (para el informe de gestión)
+  GOAL_MONTHLY_SALES: "goal_monthly_sales",
+  GOAL_MONTHLY_SPACES: "goal_monthly_spaces",
+  GOAL_CONVERSION_PCT: "goal_conversion_pct",
 } as const;
 
 // ── Tareas ────────────────────────────────────────────────────────────

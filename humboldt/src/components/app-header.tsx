@@ -60,7 +60,7 @@ export async function AppHeader() {
   }));
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b bg-background px-6">
+    <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b bg-background px-6 print:hidden">
       <div className="flex items-center gap-2">
         <HeaderRate rate={rate} canEdit={canEdit} />
       </div>

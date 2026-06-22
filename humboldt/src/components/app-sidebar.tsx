@@ -66,7 +66,7 @@ export function AppSidebar({ role }: { role: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
+    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground print:hidden">
       {/* Marca */}
       <div className="flex h-16 items-center gap-3 border-b px-5">
         <Logo className="h-10 w-auto" priority />

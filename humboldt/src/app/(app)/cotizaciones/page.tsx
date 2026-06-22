@@ -7,20 +7,10 @@ import type { Prisma } from "@prisma/client";
 import { fmtUsd } from "@/lib/money";
 import { QUOTE_STATUSES, type QuoteStatus } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { FilePlus2, FileText, Eye, Pencil } from "lucide-react";
+import { FilePlus2, FileText } from "lucide-react";
 import { QuotesToolbar } from "@/components/quote/quotes-toolbar";
-import { QuoteStatusBadge } from "@/components/quote/quote-status-badge";
 import { quoteBaseNumber } from "@/components/quote/quote-utils";
-import { cn } from "@/lib/utils";
+import { QuotesTable, type QuoteGroup, type QuoteRow } from "./_components/quotes-table";
 
 export const metadata = { title: "Cotizaciones" };
 
@@ -84,6 +74,41 @@ export default async function CotizacionesPage({
 
   const hasFilters = Boolean(q || estado);
 
+  // Agrupar versiones por número base: una línea por cotización, con las
+  // versiones anteriores desplegables.
+  const groupsMap = new Map<string, QuoteRow[]>();
+  for (const quote of quotes) {
+    const baseNumber = quoteBaseNumber(quote.number);
+    const client = quote.opportunity.client;
+    const validity = validityLabel(quote);
+    const row: QuoteRow = {
+      id: quote.id,
+      baseNumber,
+      version: quote.version,
+      clientName: client.brandName ?? client.legalName,
+      clientLegal: client.brandName ? client.legalName : null,
+      eventName: quote.event?.name ?? quote.opportunity.title,
+      eventDateLabel: quote.event?.startDate
+        ? `${formatDayEs(quote.event.startDate, "dd MMM yyyy")}${
+            quote.event.datesTentative ? " (tentativa)" : ""
+          }`
+        : null,
+      issueDateLabel: format(quote.issueDate, "dd/MM/yyyy", { locale: es }),
+      validityText: validity.text,
+      validityClass: validity.className,
+      totalUsd: quote.totalUsd,
+      status: quote.status,
+      signerName: quote.signer.name,
+    };
+    const arr = groupsMap.get(baseNumber);
+    if (arr) arr.push(row);
+    else groupsMap.set(baseNumber, [row]);
+  }
+  const groups: QuoteGroup[] = Array.from(groupsMap, ([baseNumber, versions]) => ({
+    baseNumber,
+    versions: versions.sort((a, b) => b.version - a.version),
+  }));
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -128,95 +153,7 @@ export default async function CotizacionesPage({
           )}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border bg-card">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Número</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Evento</TableHead>
-                <TableHead>Emisión</TableHead>
-                <TableHead>Vigencia</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Firmante</TableHead>
-                <TableHead className="w-20"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {quotes.map((quote) => {
-                const validity = validityLabel(quote);
-                const client = quote.opportunity.client;
-                return (
-                  <TableRow key={quote.id} className="group">
-                    <TableCell>
-                      <Link
-                        href={`/cotizaciones/${quote.id}/editar`}
-                        className="flex items-center gap-1.5 font-medium text-sky-950 hover:underline dark:text-sky-200"
-                      >
-                        {quoteBaseNumber(quote.number)}
-                        {quote.version > 1 && (
-                          <Badge variant="outline" className="text-[10px]">
-                            v{quote.version}
-                          </Badge>
-                        )}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <p className="max-w-44 truncate font-medium">
-                        {client.brandName ?? client.legalName}
-                      </p>
-                      {client.brandName && (
-                        <p className="max-w-44 truncate text-xs text-muted-foreground">
-                          {client.legalName}
-                        </p>
-                      )}
-                    </TableCell>
-                    <TableCell className="max-w-48">
-                      <p className="truncate">{quote.event?.name ?? quote.opportunity.title}</p>
-                      {quote.event?.startDate && (
-                        <p className="text-xs text-muted-foreground">
-                          {formatDayEs(quote.event.startDate, "dd MMM yyyy")}
-                          {quote.event.datesTentative && " (tentativa)"}
-                        </p>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {format(quote.issueDate, "dd/MM/yyyy", { locale: es })}
-                    </TableCell>
-                    <TableCell>
-                      <span className={cn("text-sm", validity.className)}>{validity.text}</span>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold tabular-nums">
-                      {fmtUsd(quote.totalUsd)}
-                    </TableCell>
-                    <TableCell>
-                      <QuoteStatusBadge status={quote.status} />
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{quote.signer.name}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                        <Button variant="ghost" size="icon-sm" asChild>
-                          <Link
-                            href={`/cotizaciones/${quote.id}/editar`}
-                            aria-label="Editar cotización"
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </Link>
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" asChild>
-                          <Link href={`/cotizaciones/${quote.id}`} aria-label="Ver documento">
-                            <Eye className="h-3 w-3" />
-                          </Link>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <QuotesTable groups={groups} />
       )}
     </div>
   );

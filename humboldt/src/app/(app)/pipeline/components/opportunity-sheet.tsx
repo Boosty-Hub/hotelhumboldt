@@ -44,6 +44,7 @@ import { addOpportunityNote, updateOpportunityDetails } from "../actions";
 import { initials, type PipelineOpportunity } from "../types";
 import { ACTIVITY_TYPE_ICONS, ACTIVITY_TYPE_LABELS } from "./pipeline-meta";
 import { TaskSection } from "./task-section";
+import { AttachmentsSection } from "./attachments-section";
 
 function DataItem({
   icon: Icon,
@@ -371,6 +372,11 @@ export function OpportunitySheet({
               )}
             </div>
           </div>
+
+          <Separator />
+
+          {/* Documentos del evento (expediente) */}
+          <AttachmentsSection opportunityId={opp.id} />
 
           <Separator />
 

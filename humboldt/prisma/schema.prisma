@@ -36,6 +36,7 @@ model User {
   discountsApproved QuoteLine[]   @relation("DiscountAuthor")
   assignedTasks     Task[]        @relation("AssigneeTasks")
   createdTasks      Task[]        @relation("CreatorTasks")
+  attachments       Attachment[]
 }
 
 // ─────────────────────────── Clientes (CRM) ───────────────────────────
@@ -113,12 +114,13 @@ model Opportunity {
   client     Client      @relation(fields: [clientId], references: [id])
   contact    Contact?    @relation(fields: [contactId], references: [id])
   owner      User        @relation("OwnerOpportunities", fields: [ownerId], references: [id])
-  events     Event[]
-  quotes     Quote[]
-  payments   Payment[]
-  invoices   Invoice[]
-  activities Activity[]
-  tasks      Task[]
+  events      Event[]
+  quotes      Quote[]
+  payments    Payment[]
+  invoices    Invoice[]
+  activities  Activity[]
+  tasks       Task[]
+  attachments Attachment[]
 
   @@index([stage])
   @@index([ownerId])
@@ -635,4 +637,21 @@ model BeoLog {
   createdAt DateTime @default(now())
 
   @@index([beoId])
+}
+
+// Archivos adjuntos del expediente (fotos, PDF, contratos) por oportunidad.
+model Attachment {
+  id            String   @id @default(cuid())
+  opportunityId String
+  fileName      String // nombre original visible
+  path          String // ruta en el bucket de Supabase Storage
+  mimeType      String
+  size          Int // bytes
+  uploadedById  String
+  createdAt     DateTime @default(now())
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  uploadedBy  User        @relation(fields: [uploadedById], references: [id])
+
+  @@index([opportunityId])
 }

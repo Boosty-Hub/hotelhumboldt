@@ -435,7 +435,9 @@ model BankAccount {
   id            String   @id @default(cuid())
   name          String // alias: "Banesco Bs", "Zelle Hotel", "Caja USD"
   bank          String? // banco emisor (null en efectivo/Zelle)
-  accountNumber String? // nº de cuenta, correo Zelle o teléfono de pago móvil
+  accountNumber String? // nº de cuenta (transferencia) o correo Zelle
+  phone         String? // teléfono celular para pago móvil (Venezuela)
+  documentId    String? // cédula o RIF del titular para pago móvil
   currency      String   @default("BS") // BS | USD
   type          String   @default("BANCO") // BANCO | ZELLE | EFECTIVO
   active        Boolean  @default(true)

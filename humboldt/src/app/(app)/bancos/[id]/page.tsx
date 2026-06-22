@@ -65,6 +65,8 @@ export default async function CuentaPage({ params }: { params: Promise<{ id: str
             <Badge variant="outline">{account.currency}</Badge>
             {account.bank && <span>· {account.bank}</span>}
             {account.accountNumber && <span>· {account.accountNumber}</span>}
+            {account.phone && <span>· Pago móvil {account.phone}</span>}
+            {account.documentId && <span>· {account.documentId}</span>}
           </div>
         </div>
       </div>

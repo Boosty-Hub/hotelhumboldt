@@ -40,6 +40,8 @@ export interface AccountRow {
   name: string;
   bank: string | null;
   accountNumber: string | null;
+  phone: string | null;
+  documentId: string | null;
   currency: string;
   type: string;
   active: boolean;
@@ -52,11 +54,21 @@ type FormState = {
   name: string;
   bank: string;
   accountNumber: string;
+  phone: string;
+  documentId: string;
   currency: "BS" | "USD";
   type: BankAccountType;
 };
 
-const EMPTY: FormState = { name: "", bank: "", accountNumber: "", currency: "BS", type: "BANCO" };
+const EMPTY: FormState = {
+  name: "",
+  bank: "",
+  accountNumber: "",
+  phone: "",
+  documentId: "",
+  currency: "BS",
+  type: "BANCO",
+};
 
 export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
   const [pending, startTransition] = useTransition();
@@ -73,6 +85,8 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
       name: a.name,
       bank: a.bank ?? "",
       accountNumber: a.accountNumber ?? "",
+      phone: a.phone ?? "",
+      documentId: a.documentId ?? "",
       currency: a.currency === "USD" ? "USD" : "BS",
       type: (BANK_ACCOUNT_TYPES as readonly string[]).includes(a.type)
         ? (a.type as BankAccountType)
@@ -84,10 +98,14 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
   function save(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
+      const esBanco = form.type === "BANCO";
       const payload = {
         name: form.name,
         bank: form.bank,
         accountNumber: form.accountNumber,
+        // El pago móvil solo aplica a cuentas bancarias.
+        phone: esBanco ? form.phone : "",
+        documentId: esBanco ? form.documentId : "",
         currency: form.currency,
         type: form.type,
       };
@@ -159,7 +177,9 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
                           )}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
-                          {[a.bank, a.accountNumber].filter(Boolean).join(" · ") || "—"}
+                          {[a.bank, a.accountNumber, a.phone && `PM ${a.phone}`]
+                            .filter(Boolean)
+                            .join(" · ") || "—"}
                         </p>
                       </div>
                     </div>
@@ -277,14 +297,52 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="acc-number">Nº de cuenta / correo Zelle / teléfono (opcional)</Label>
+              <Label htmlFor="acc-number">
+                {form.type === "ZELLE"
+                  ? "Correo Zelle (opcional)"
+                  : form.type === "EFECTIVO"
+                  ? "Referencia (opcional)"
+                  : "Nº de cuenta · transferencia (opcional)"}
+              </Label>
               <Input
                 id="acc-number"
                 value={form.accountNumber}
                 onChange={(e) => setForm((f) => ({ ...f, accountNumber: e.target.value }))}
+                placeholder={form.type === "ZELLE" ? "correo@dominio.com" : undefined}
                 disabled={pending}
               />
             </div>
+
+            {form.type === "BANCO" && (
+              <div className="space-y-3 rounded-md border border-dashed bg-muted/30 p-3">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Pago móvil (Venezuela)
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="acc-phone">Teléfono</Label>
+                    <Input
+                      id="acc-phone"
+                      value={form.phone}
+                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                      placeholder="0414-1234567"
+                      inputMode="tel"
+                      disabled={pending}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="acc-doc">Cédula / RIF</Label>
+                    <Input
+                      id="acc-doc"
+                      value={form.documentId}
+                      onChange={(e) => setForm((f) => ({ ...f, documentId: e.target.value }))}
+                      placeholder="V-12345678 / J-12345678-9"
+                      disabled={pending}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={pending}>
                 Cancelar

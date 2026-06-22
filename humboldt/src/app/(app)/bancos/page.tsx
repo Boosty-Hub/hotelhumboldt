@@ -30,6 +30,8 @@ export default async function BancosPage() {
     name: a.name,
     bank: a.bank,
     accountNumber: a.accountNumber,
+    phone: a.phone,
+    documentId: a.documentId,
     currency: a.currency,
     type: a.type,
     active: a.active,

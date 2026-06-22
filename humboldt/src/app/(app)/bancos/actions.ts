@@ -25,6 +25,8 @@ const accountSchema = z.object({
   name: z.string().trim().min(2, "El alias de la cuenta es obligatorio."),
   bank: z.string().trim().max(80).optional().or(z.literal("")),
   accountNumber: z.string().trim().max(80).optional().or(z.literal("")),
+  phone: z.string().trim().max(40).optional().or(z.literal("")),
+  documentId: z.string().trim().max(40).optional().or(z.literal("")),
   currency: z.enum(["BS", "USD"], "Moneda inválida."),
   type: z.enum(BANK_ACCOUNT_TYPES, "Tipo de cuenta inválido."),
 });
@@ -33,6 +35,8 @@ export async function createBankAccount(input: {
   name: string;
   bank?: string;
   accountNumber?: string;
+  phone?: string;
+  documentId?: string;
   currency: string;
   type: string;
 }): Promise<BancoResult> {
@@ -46,6 +50,8 @@ export async function createBankAccount(input: {
       name: d.name,
       bank: d.bank || null,
       accountNumber: d.accountNumber || null,
+      phone: d.phone || null,
+      documentId: d.documentId || null,
       currency: d.currency,
       type: d.type,
     },
@@ -59,6 +65,8 @@ export async function updateBankAccount(input: {
   name: string;
   bank?: string;
   accountNumber?: string;
+  phone?: string;
+  documentId?: string;
   currency: string;
   type: string;
 }): Promise<BancoResult> {
@@ -74,6 +82,8 @@ export async function updateBankAccount(input: {
       name: d.name,
       bank: d.bank || null,
       accountNumber: d.accountNumber || null,
+      phone: d.phone || null,
+      documentId: d.documentId || null,
       currency: d.currency,
       type: d.type,
     },

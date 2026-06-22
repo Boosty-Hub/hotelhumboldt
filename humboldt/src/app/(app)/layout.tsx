@@ -12,11 +12,13 @@ export default async function AppLayout({
   if (!session?.user) redirect("/login");
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden print:block print:h-auto print:overflow-visible">
       <AppSidebar role={session.user.role} />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden print:block print:overflow-visible">
         <AppHeader />
-        <main className="flex-1 overflow-y-auto bg-muted/30 p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-muted/30 p-6 print:overflow-visible print:bg-white print:p-0">
+          {children}
+        </main>
       </div>
     </div>
   );

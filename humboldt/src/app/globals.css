@@ -128,3 +128,22 @@
     @apply font-sans;
   }
 }
+
+/* Impresión / PDF: el contenido debe salir completo, sin recortes por scroll. */
+@media print {
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  /* Las tarjetas no se cortan a la mitad entre páginas. */
+  [data-slot="card"] {
+    overflow: visible !important;
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+  @page {
+    margin: 12mm;
+  }
+}

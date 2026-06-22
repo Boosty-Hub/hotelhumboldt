@@ -29,30 +29,32 @@ export async function AppHeader() {
   const session = await auth();
   const user = session?.user;
 
-  const latestRate = await prisma.exchangeRate.findFirst({
-    where: { kind: "OFICIAL" },
-    orderBy: { date: "desc" },
-  });
+  const canEdit = canManageSettings(user?.role);
+
+  // Tasa y tareas en paralelo (un solo viaje al pooler en vez de dos seguidos).
+  const endToday = new Date();
+  endToday.setHours(23, 59, 59, 999);
+  const [latestRate, dueTasks] = await Promise.all([
+    prisma.exchangeRate.findFirst({
+      where: { kind: "OFICIAL" },
+      orderBy: { date: "desc" },
+    }),
+    user?.id
+      ? prisma.task.findMany({
+          where: { assigneeId: user.id, status: "PENDIENTE", dueAt: { lte: endToday } },
+          orderBy: { dueAt: "asc" },
+          take: 50,
+          include: {
+            opportunity: {
+              select: { id: true, client: { select: { legalName: true, brandName: true } } },
+            },
+          },
+        })
+      : Promise.resolve([]),
+  ]);
   const rate = latestRate
     ? { rate: latestRate.rate, date: latestRate.date, source: latestRate.source }
     : null;
-  const canEdit = canManageSettings(user?.role);
-
-  // Tareas vencidas / de hoy del usuario para la campana de notificaciones.
-  const endToday = new Date();
-  endToday.setHours(23, 59, 59, 999);
-  const dueTasks = user?.id
-    ? await prisma.task.findMany({
-        where: { assigneeId: user.id, status: "PENDIENTE", dueAt: { lte: endToday } },
-        orderBy: { dueAt: "asc" },
-        take: 50,
-        include: {
-          opportunity: {
-            select: { id: true, client: { select: { legalName: true, brandName: true } } },
-          },
-        },
-      })
-    : [];
   const headerTasks = dueTasks.map((t) => ({
     id: t.id,
     title: t.title,

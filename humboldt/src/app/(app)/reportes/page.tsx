@@ -44,10 +44,12 @@ import {
   EventTypeChart,
   ExecutiveChart,
   MonthlyStageChart,
-  type CountDatum,
-  type ExecutiveDatum,
-  type MonthlyStageDatum,
-  type PieDatum,
+} from "./report-charts-lazy";
+import type {
+  CountDatum,
+  ExecutiveDatum,
+  MonthlyStageDatum,
+  PieDatum,
 } from "./report-charts";
 
 export const metadata = { title: "Reportes" };

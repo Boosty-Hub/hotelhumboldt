@@ -244,8 +244,8 @@ export function LineRow({
           )}
         </div>
 
-        {/* Acciones de la línea */}
-        <div className="flex items-center gap-0.5">
+        {/* Acciones de la línea — ancho fijo para alinear con el encabezado */}
+        <div className="flex w-20 shrink-0 items-center justify-end gap-0.5">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -369,6 +369,7 @@ export function LineColumnsHeader() {
       <span className="w-24">Unidad</span>
       <span className="w-24 text-right">Precio unit.</span>
       <span className="w-24 text-right">Subtotal</span>
+      <span className="w-20 shrink-0" aria-hidden />
     </div>
   );
 }

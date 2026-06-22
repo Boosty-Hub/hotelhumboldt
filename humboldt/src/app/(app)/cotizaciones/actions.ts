@@ -102,9 +102,13 @@ const createQuoteSchema = z
     paxApproximate: z.boolean().default(false),
     daysCount: z.coerce.number().int().min(1, "Mínimo 1 día").max(30, "Máximo 30 días").default(1),
     spaceIds: z.array(z.string()).optional().default([]), // salones a reservar (tentativo)
+    contactId: z.string().trim().optional().or(z.literal("")), // requerido en el camino "desde cero"
   })
   .refine((d) => d.opportunityId || d.clientId, {
     message: "Selecciona una oportunidad existente o un cliente",
+  })
+  .refine((d) => d.opportunityId || d.contactId, {
+    message: "Registra el contacto del cliente para la cotización",
   });
 
 export type CreateQuoteInput = z.input<typeof createQuoteSchema>;
@@ -125,11 +129,24 @@ export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false;
     if (!opportunityId) {
       const client = await prisma.client.findUnique({ where: { id: data.clientId! } });
       if (!client) return { ok: false, error: "El cliente seleccionado no existe" };
+      // Toda cotización desde cero queda atada a un contacto del cliente.
+      // (El guard explícito evita el footgun de Prisma de `id: undefined` → matchea cualquiera.)
+      if (!data.contactId) {
+        return { ok: false, error: "Registra el contacto del cliente para la cotización" };
+      }
+      const contact = await prisma.contact.findFirst({
+        where: { id: data.contactId, clientId: client.id },
+        select: { id: true },
+      });
+      if (!contact) {
+        return { ok: false, error: "El contacto no existe o no pertenece a este cliente" };
+      }
       const code = await nextOpportunityCode();
       const opp = await prisma.opportunity.create({
         data: {
           code,
           clientId: client.id,
+          contactId: contact.id,
           ownerId: session.user.id,
           title: data.eventName,
           stage: "PROPUESTA",

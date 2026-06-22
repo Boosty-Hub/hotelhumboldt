@@ -18,7 +18,23 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronsUpDown, Check, Loader2, ArrowLeft, FilePlus2, Building2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  ChevronsUpDown,
+  Check,
+  Loader2,
+  ArrowLeft,
+  FilePlus2,
+  Building2,
+  UserPlus,
+} from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +42,7 @@ import {
   checkSpaceAvailability,
   type SpaceAvailability,
 } from "@/app/(app)/cotizaciones/actions";
+import { createWalkInContactAction } from "@/app/(app)/contactos/actions";
 
 export interface OppOption {
   id: string;
@@ -36,10 +53,17 @@ export interface OppOption {
   pax: number | null;
 }
 
+export interface ContactOption {
+  id: string;
+  name: string;
+  title: string | null;
+}
+
 export interface ClientOption {
   id: string;
   legalName: string;
   brandName: string | null;
+  contacts: ContactOption[];
 }
 
 export interface SpaceOption {
@@ -78,6 +102,18 @@ export function NewQuoteForm({
   const [oppOpen, setOppOpen] = useState(false);
   const [clientOpen, setClientOpen] = useState(false);
 
+  // Contacto (obligatorio en el camino "desde cero"). Autoselecciona el principal del cliente.
+  const initialClient = clients.find((c) => c.id === preselectedClientId) ?? null;
+  const [contactId, setContactId] = useState<string | null>(
+    initialClient?.contacts[0]?.id ?? null
+  );
+  const [contactOpen, setContactOpen] = useState(false);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: "", title: "", phone: "", email: "" });
+  const [savingContact, startSaveContact] = useTransition();
+  // Contactos creados inline en esta sesión, agrupados por cliente.
+  const [createdContacts, setCreatedContacts] = useState<Record<string, ContactOption[]>>({});
+
   const [eventName, setEventName] = useState(preselected?.title ?? "");
   const [startDate, setStartDate] = useState(preselected?.expectedEventDate ?? "");
   const [datesTentative, setDatesTentative] = useState(false);
@@ -112,6 +148,57 @@ export function NewQuoteForm({
   const selectedOpp = opportunities.find((o) => o.id === oppId) ?? null;
   const selectedClient = clients.find((c) => c.id === clientId) ?? null;
 
+  // Contactos del cliente elegido + los creados inline en esta sesión.
+  const clientContacts: ContactOption[] = selectedClient
+    ? [...selectedClient.contacts, ...(createdContacts[selectedClient.id] ?? [])]
+    : [];
+  const selectedContact = clientContacts.find((c) => c.id === contactId) ?? null;
+
+  function selectClient(client: ClientOption) {
+    setClientOpen(false);
+    // Re-elegir el MISMO cliente preserva el contacto que el usuario ya había elegido.
+    if (client.id === clientId) return;
+    setClientId(client.id);
+    // Cliente nuevo: autoselecciona el principal (o el último creado inline); si no tiene, queda vacío.
+    const existing = createdContacts[client.id] ?? [];
+    setContactId(client.contacts[0]?.id ?? existing[existing.length - 1]?.id ?? null);
+  }
+
+  function saveNewContact() {
+    if (!selectedClient) return;
+    if (contactForm.name.trim().length < 2) {
+      toast.error("El nombre del contacto debe tener al menos 2 caracteres");
+      return;
+    }
+    const clientForContact = selectedClient;
+    startSaveContact(async () => {
+      const res = await createWalkInContactAction({
+        clientId: clientForContact.id,
+        name: contactForm.name.trim(),
+        title: contactForm.title.trim() || undefined,
+        phone: contactForm.phone.trim() || undefined,
+        email: contactForm.email.trim() || undefined,
+      });
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      const created: ContactOption = {
+        id: res.contactId,
+        name: contactForm.name.trim(),
+        title: contactForm.title.trim() || null,
+      };
+      setCreatedContacts((cur) => ({
+        ...cur,
+        [clientForContact.id]: [...(cur[clientForContact.id] ?? []), created],
+      }));
+      setContactId(created.id);
+      setContactForm({ name: "", title: "", phone: "", email: "" });
+      setContactDialogOpen(false);
+      toast.success("Contacto creado y seleccionado");
+    });
+  }
+
   function selectOpportunity(opp: OppOption) {
     setOppId(opp.id);
     setOppOpen(false);
@@ -131,6 +218,10 @@ export function NewQuoteForm({
       toast.error("Selecciona el cliente");
       return;
     }
+    if (mode === "cliente" && !contactId) {
+      toast.error("Selecciona o crea el contacto del cliente");
+      return;
+    }
     if (eventName.trim().length < 3) {
       toast.error("Indica el nombre del evento (mínimo 3 caracteres)");
       return;
@@ -139,6 +230,7 @@ export function NewQuoteForm({
       const res = await createQuote({
         opportunityId: mode === "oportunidad" ? oppId ?? "" : "",
         clientId: mode === "cliente" ? clientId ?? "" : "",
+        contactId: mode === "cliente" ? contactId ?? "" : "",
         eventName: eventName.trim(),
         startDate,
         datesTentative,
@@ -269,10 +361,7 @@ export function NewQuoteForm({
                         <CommandItem
                           key={c.id}
                           value={`${c.legalName} ${c.brandName ?? ""}`}
-                          onSelect={() => {
-                            setClientId(c.id);
-                            setClientOpen(false);
-                          }}
+                          onSelect={() => selectClient(c)}
                         >
                           <Check
                             className={cn(
@@ -294,6 +383,94 @@ export function NewQuoteForm({
               </PopoverContent>
             </Popover>
           )}
+          {mode === "cliente" && selectedClient && (
+            <div className="space-y-1.5">
+              <Label>
+                Contacto <span className="text-rose-600">*</span>
+              </Label>
+              <div className="flex gap-2">
+                <Popover open={contactOpen} onOpenChange={setContactOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="flex-1 justify-between font-normal"
+                      aria-label="Seleccionar contacto"
+                    >
+                      {selectedContact ? (
+                        <span className="truncate">
+                          {selectedContact.name}
+                          {selectedContact.title && (
+                            <span className="text-muted-foreground">
+                              {" "}
+                              · {selectedContact.title}
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">
+                          {clientContacts.length > 0
+                            ? "Seleccionar contacto…"
+                            : "Sin contactos — creá uno"}
+                        </span>
+                      )}
+                      <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[var(--radix-popover-trigger-width)] p-0"
+                    align="start"
+                  >
+                    <Command>
+                      <CommandInput placeholder="Buscar contacto…" />
+                      <CommandList>
+                        <CommandEmpty>Este cliente no tiene contactos.</CommandEmpty>
+                        <CommandGroup>
+                          {clientContacts.map((ct) => (
+                            <CommandItem
+                              key={ct.id}
+                              value={`${ct.name} ${ct.title ?? ""}`}
+                              onSelect={() => {
+                                setContactId(ct.id);
+                                setContactOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "h-3.5 w-3.5",
+                                  contactId === ct.id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <span className="flex-1 truncate">{ct.name}</span>
+                              {ct.title && (
+                                <span className="ml-2 shrink-0 text-[11px] text-muted-foreground">
+                                  {ct.title}
+                                </span>
+                              )}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setContactDialogOpen(true)}
+                >
+                  <UserPlus className="h-3.5 w-3.5" />
+                  Nuevo
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {clientContacts.length === 0
+                  ? "Este cliente todavía no tiene contactos: creá uno para poder cotizar."
+                  : "La cotización quedará atada a esta persona."}
+              </p>
+            </div>
+          )}
+
           {mode === "cliente" && (
             <p className="text-xs text-muted-foreground">
               Se creará automáticamente una oportunidad en etapa &quot;Propuesta&quot; a tu nombre.
@@ -524,6 +701,78 @@ export function NewQuoteForm({
           {isPending ? "Creando…" : "Crear borrador"}
         </Button>
       </div>
+
+      {/* Crear contacto sin salir del cotizador */}
+      <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Nuevo contacto</DialogTitle>
+            <DialogDescription>
+              {selectedClient
+                ? `Se agregará a los contactos de ${selectedClient.brandName ?? selectedClient.legalName}.`
+                : "Elegí primero un cliente."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="new-contact-name">
+                Nombre <span className="text-rose-600">*</span>
+              </Label>
+              <Input
+                id="new-contact-name"
+                value={contactForm.name}
+                onChange={(e) => setContactForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="María Pérez"
+                autoFocus
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="new-contact-title">Cargo</Label>
+              <Input
+                id="new-contact-title"
+                value={contactForm.title}
+                onChange={(e) => setContactForm((f) => ({ ...f, title: e.target.value }))}
+                placeholder="Gerente de eventos"
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="new-contact-phone">Teléfono</Label>
+                <Input
+                  id="new-contact-phone"
+                  value={contactForm.phone}
+                  onChange={(e) => setContactForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="0414-555-0000"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="new-contact-email">Correo</Label>
+                <Input
+                  id="new-contact-email"
+                  type="email"
+                  value={contactForm.email}
+                  onChange={(e) => setContactForm((f) => ({ ...f, email: e.target.value }))}
+                  placeholder="mperez@empresa.com"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setContactDialogOpen(false)}
+              disabled={savingContact}
+            >
+              Cancelar
+            </Button>
+            <Button type="button" onClick={saveNewContact} disabled={savingContact}>
+              {savingContact ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Crear contacto
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 }

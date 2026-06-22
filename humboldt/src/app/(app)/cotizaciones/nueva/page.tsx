@@ -27,6 +27,12 @@ export default async function NuevaCotizacionPage({
     prisma.client.findMany({
       where: { active: true },
       orderBy: { legalName: "asc" },
+      include: {
+        contacts: {
+          orderBy: [{ isPrimary: "desc" }, { name: "asc" }],
+          select: { id: true, name: true, title: true },
+        },
+      },
     }),
     prisma.space.findMany({
       where: { active: true },
@@ -48,6 +54,7 @@ export default async function NuevaCotizacionPage({
     id: c.id,
     legalName: c.legalName,
     brandName: c.brandName,
+    contacts: c.contacts.map((ct) => ({ id: ct.id, name: ct.name, title: ct.title })),
   }));
 
   return (

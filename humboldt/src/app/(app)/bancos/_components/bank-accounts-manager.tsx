@@ -316,7 +316,7 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
             {form.type === "BANCO" && (
               <div className="space-y-3 rounded-md border border-dashed bg-muted/30 p-3">
                 <p className="text-xs font-medium text-muted-foreground">
-                  Pago móvil (Venezuela)
+                  Pago móvil
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">

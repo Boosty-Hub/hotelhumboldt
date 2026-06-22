@@ -22,6 +22,7 @@ import { changeQuoteStatus } from "../actions";
 
 export interface QuoteRow {
   id: string;
+  publicToken: string;
   baseNumber: string;
   version: number;
   clientName: string;
@@ -46,7 +47,15 @@ export interface QuoteGroup {
  * siguiente paso natural (Borrador → Enviar, Enviada/Vencida → Aprobar).
  * Usa changeQuoteStatus, que valida las transiciones permitidas.
  */
-function StatusAction({ id, status }: { id: string; status: string }) {
+function StatusAction({
+  id,
+  status,
+  publicToken,
+}: {
+  id: string;
+  status: string;
+  publicToken: string;
+}) {
   const router = useRouter();
   const [pending, start] = React.useTransition();
 
@@ -67,12 +76,23 @@ function StatusAction({ id, status }: { id: string; status: string }) {
       onClick={() =>
         start(async () => {
           const res = await changeQuoteStatus(id, next.to);
-          if (res.ok) {
-            toast.success(next.ok);
-            router.refresh();
-          } else {
+          if (!res.ok) {
             toast.error(res.error);
+            return;
           }
+          toast.success(next.ok);
+          // Al enviar, copiamos el link público listo para compartir.
+          if (next.to === "ENVIADA") {
+            try {
+              await navigator.clipboard.writeText(
+                `${window.location.origin}/cotizacion/${publicToken}`
+              );
+              toast.success("Link público copiado — pegalo en WhatsApp o correo.");
+            } catch {
+              toast.message("Cotización enviada. Copiá el link público desde la cotización.");
+            }
+          }
+          router.refresh();
         })
       }
     >
@@ -201,7 +221,11 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
                   <TableCell>
                     <div className="flex items-center gap-1.5">
                       <QuoteStatusBadge status={latest.status} />
-                      <StatusAction id={latest.id} status={latest.status} />
+                      <StatusAction
+                        id={latest.id}
+                        status={latest.status}
+                        publicToken={latest.publicToken}
+                      />
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{latest.signerName}</TableCell>
@@ -244,7 +268,7 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
                       <TableCell>
                         <div className="flex items-center gap-1.5">
                           <QuoteStatusBadge status={v.status} />
-                          <StatusAction id={v.id} status={v.status} />
+                          <StatusAction id={v.id} status={v.status} publicToken={v.publicToken} />
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{v.signerName}</TableCell>

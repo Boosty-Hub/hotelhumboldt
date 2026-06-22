@@ -83,6 +83,7 @@ export default async function CotizacionesPage({
     const validity = validityLabel(quote);
     const row: QuoteRow = {
       id: quote.id,
+      publicToken: quote.publicToken,
       baseNumber,
       version: quote.version,
       clientName: client.brandName ?? client.legalName,

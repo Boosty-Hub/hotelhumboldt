@@ -62,10 +62,11 @@ export async function AppHeader() {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b bg-background px-6">
       <div className="flex items-center gap-2">
-        <HeaderNotifications tasks={headerTasks} />
         <HeaderRate rate={rate} canEdit={canEdit} />
       </div>
-      <DropdownMenu>
+      <div className="flex items-center gap-2">
+        <HeaderNotifications tasks={headerTasks} />
+        <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="gap-2 px-2">
             <Avatar className="h-8 w-8">
@@ -103,7 +104,8 @@ export async function AppHeader() {
             </form>
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+        </DropdownMenu>
+      </div>
     </header>
   );
 }

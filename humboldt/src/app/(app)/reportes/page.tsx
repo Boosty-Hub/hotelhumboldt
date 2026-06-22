@@ -569,7 +569,7 @@ export default async function ReportesPage({
       )}
 
       {/* Oportunidades por mes y etapa */}
-      <Card>
+      <Card className="print:hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-3.5 w-3.5 text-sky-700" />
@@ -585,7 +585,7 @@ export default async function ReportesPage({
       </Card>
 
       {/* Pérdidas y canales */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 print:hidden">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -618,7 +618,7 @@ export default async function ReportesPage({
       </div>
 
       {/* Ejecutivos y tipos de evento */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 print:hidden">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

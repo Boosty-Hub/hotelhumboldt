@@ -139,8 +139,10 @@
   }
   /* Las tarjetas no se cortan a la mitad entre páginas. */
   [data-slot="card"] {
+    display: block !important; /* break-inside es más fiable en bloque que en flex */
     overflow: visible !important;
     break-inside: avoid;
+    page-break-inside: avoid; /* compatibilidad navegadores */
     box-shadow: none !important;
   }
   @page {

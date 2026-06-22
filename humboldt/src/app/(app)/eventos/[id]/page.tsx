@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fmtUsd } from "@/lib/money";
-import { formatDayEs } from "@/lib/dates";
+import { formatDayEs, toDayKey } from "@/lib/dates";
+import { ConfirmDateButton } from "./confirm-date-button";
 import {
   QUOTE_STATUS_COLORS,
   QUOTE_STATUS_LABELS,
@@ -135,6 +136,13 @@ export default async function ExpedienteEventoPage({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {event.datesTentative && (
+            <ConfirmDateButton
+              eventId={event.id}
+              startDateKey={event.startDate ? toDayKey(event.startDate) : null}
+              altDates={event.altDates}
+            />
+          )}
           <Button variant="outline" size="sm" asChild>
             <Link href={`/pipeline/${opp.id}`}>
               <KanbanSquare className="h-3.5 w-3.5" />

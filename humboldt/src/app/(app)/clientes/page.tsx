@@ -124,8 +124,8 @@ export default async function ClientesPage({
         </EmptyState>
       ) : (
         <Card className="py-0">
-          <Table>
-            <TableHeader>
+          <Table containerClassName="max-h-[70vh] overflow-y-auto">
+            <TableHeader className="sticky top-0 z-10 bg-card">
               <TableRow>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Evento</TableHead>
@@ -143,7 +143,7 @@ export default async function ClientesPage({
                   key={c.id}
                   className={cn(!c.active && "opacity-60")}
                 >
-                  <TableCell>
+                  <TableCell className="max-w-[16rem]">
                     <Link
                       href={`/clientes/${c.id}`}
                       className="group flex items-center gap-3"
@@ -173,7 +173,7 @@ export default async function ClientesPage({
                       </div>
                     </Link>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-w-[14rem]">
                     {c.latestEvent ? (
                       <div className="min-w-0">
                         <p className="truncate text-sm">{c.latestEvent}</p>
@@ -193,7 +193,7 @@ export default async function ClientesPage({
                   <TableCell>
                     <ClientTypeBadge type={c.type} />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-w-[12rem]">
                     {c.primaryContact ? (
                       <div className="min-w-0">
                         <p className="truncate text-xs font-medium">

@@ -358,3 +358,17 @@ export function LineRow({
     </div>
   );
 }
+
+/** Encabezado de columnas alineado con LineRow (Descripción · Cant. · Unidad ·
+ *  Precio unit. · Subtotal). Se muestra una vez arriba de las líneas. */
+export function LineColumnsHeader() {
+  return (
+    <div className="flex items-center gap-2 px-3 pb-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <span className="min-w-48 flex-1">Descripción</span>
+      <span className="w-16 text-right">Cant.</span>
+      <span className="w-24">Unidad</span>
+      <span className="w-24 text-right">Precio unit.</span>
+      <span className="w-24 text-right">Subtotal</span>
+    </div>
+  );
+}

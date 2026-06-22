@@ -37,7 +37,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 import { saveQuoteLines } from "@/app/(app)/cotizaciones/actions";
-import { LineRow } from "./line-row";
+import { LineRow, LineColumnsHeader } from "./line-row";
 import { ProductCombobox } from "./product-combobox";
 import { DiscountDialog, type DiscountRequest } from "./discount-dialog";
 import { TotalsSidebar } from "./totals-sidebar";
@@ -389,6 +389,7 @@ export function QuoteEditor(props: QuoteEditorProps) {
 
         {!isCollapsed && (
           <div className="space-y-2 border-t px-4 py-3">
+            {sectionLines.length > 0 && <LineColumnsHeader />}
             {dayGrouped ? (
               <>
                 {Array.from({ length: ayBDays }, (_, i) => i + 1).map((day) => {

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { fmtUsd } from "@/lib/money";
 import { formatDayEs, toDayKey } from "@/lib/dates";
 import { ConfirmDateButton } from "./confirm-date-button";
+import { AttachmentsSection } from "@/app/(app)/pipeline/components/attachments-section";
 import {
   QUOTE_STATUS_COLORS,
   QUOTE_STATUS_LABELS,
@@ -278,6 +279,13 @@ export default async function ExpedienteEventoPage({
               </Link>
             </Button>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Documentos del evento (adjuntos) — compartidos con el pipeline */}
+      <Card>
+        <CardContent className="pt-4">
+          <AttachmentsSection opportunityId={opp.id} />
         </CardContent>
       </Card>
 

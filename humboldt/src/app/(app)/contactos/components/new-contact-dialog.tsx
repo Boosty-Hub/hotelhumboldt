@@ -28,14 +28,25 @@ import { CLIENT_TYPES, CLIENT_TYPE_LABELS } from "@/app/(app)/clientes/_lib/shar
 import { createWalkInContactAction } from "../actions";
 import type { ClientLite } from "./contacts-view";
 
+export interface CreatedContact {
+  contactId: string;
+  clientId: string;
+  name: string;
+  title: string | null;
+  clientName: string;
+}
+
 export function NewContactDialog({
   open,
   onOpenChange,
   clients,
+  onCreated,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   clients: ClientLite[];
+  /** Si se provee, el alta se queda en la página (no redirige) y devuelve el contacto creado. */
+  onCreated?: (c: CreatedContact) => void;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -94,9 +105,25 @@ export function NewContactDialog({
       });
       if (res.ok) {
         toast.success("Contacto guardado.");
+        if (onCreated) {
+          const clientName =
+            clientMode === "nuevo"
+              ? newClientName.trim()
+              : clients.find((c) => c.id === clientId)?.name ?? "";
+          onCreated({
+            contactId: res.contactId,
+            clientId: res.clientId,
+            name: name.trim(),
+            title: title.trim() || null,
+            clientName,
+          });
+          reset();
+          onOpenChange(false);
+          return;
+        }
         reset();
         onOpenChange(false);
-        if (thenQuote) router.push(`/cotizaciones/nueva?cliente=${res.clientId}`);
+        if (thenQuote) router.push(`/cotizaciones/nueva?contacto=${res.contactId}`);
         else router.refresh();
       } else {
         toast.error(res.error);
@@ -240,18 +267,39 @@ export function NewContactDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => submit(false)} disabled={pending}>
-            {pending ? (
-              <Loader2 data-icon="inline-start" className="animate-spin" />
-            ) : (
-              <UserPlus data-icon="inline-start" />
-            )}
-            Guardar
-          </Button>
-          <Button onClick={() => submit(true)} disabled={pending} className="bg-sky-950 hover:bg-sky-900">
-            <FileText data-icon="inline-start" />
-            Guardar y cotizar
-          </Button>
+          {onCreated ? (
+            <Button
+              onClick={() => submit(false)}
+              disabled={pending}
+              className="bg-sky-950 hover:bg-sky-900"
+            >
+              {pending ? (
+                <Loader2 data-icon="inline-start" className="animate-spin" />
+              ) : (
+                <UserPlus data-icon="inline-start" />
+              )}
+              Guardar contacto
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => submit(false)} disabled={pending}>
+                {pending ? (
+                  <Loader2 data-icon="inline-start" className="animate-spin" />
+                ) : (
+                  <UserPlus data-icon="inline-start" />
+                )}
+                Guardar
+              </Button>
+              <Button
+                onClick={() => submit(true)}
+                disabled={pending}
+                className="bg-sky-950 hover:bg-sky-900"
+              >
+                <FileText data-icon="inline-start" />
+                Guardar y cotizar
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

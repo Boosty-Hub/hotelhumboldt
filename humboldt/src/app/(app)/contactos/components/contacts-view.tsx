@@ -147,7 +147,7 @@ export function ContactsView({
                     </TableCell>
                     <TableCell className="text-right">
                       <Button asChild size="sm" variant="outline">
-                        <Link href={`/cotizaciones/nueva?cliente=${c.clientId}`}>
+                        <Link href={`/cotizaciones/nueva?contacto=${c.id}`}>
                           <FileText data-icon="inline-start" />
                           Crear cotización
                         </Link>

@@ -12,6 +12,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { STAGE_DEFAULT_PROBABILITY } from "@/lib/constants";
 import { quoteBaseNumber } from "@/components/quote/quote-utils";
+import { promoteQuoteReservations } from "@/lib/reservations";
 
 export type PublicActionResult = { ok: true } | { ok: false; error: string };
 
@@ -150,13 +151,31 @@ export async function approveQuotePublic(
       );
     }
 
+    // La fecha del evento deja de ser tentativa al aprobar el cliente.
+    if (quote.eventId) {
+      ops.push(
+        prisma.event.update({
+          where: { id: quote.eventId },
+          data: { datesTentative: false },
+        })
+      );
+    }
+
     await prisma.$transaction(ops);
   } catch (e) {
     console.error("approveQuotePublic", e);
     return { ok: false, error: "No se pudo registrar la aprobación. Intenta de nuevo." };
   }
 
+  // Confirma las reservas de salón de la cotización (best-effort).
+  try {
+    await promoteQuoteReservations(quote.id);
+  } catch (err) {
+    console.error("promoteQuoteReservations (público)", err);
+  }
+
   revalidateAfterDecision(token, quote.id);
+  revalidatePath("/calendario");
   return { ok: true };
 }
 

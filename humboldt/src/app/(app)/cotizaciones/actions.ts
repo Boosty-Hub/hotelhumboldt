@@ -549,6 +549,8 @@ export async function changeQuoteStatus(
 
   try {
     const data: Prisma.QuoteUpdateInput = { status: newStatus };
+    // Aprobar o contratar = oportunidad ganada: dispara la cascada de cierre.
+    const isWon = newStatus === "APROBADA" || newStatus === "CONTRATADA";
 
     if (newStatus === "ENVIADA") {
       // Regenera vigencia al enviar
@@ -581,7 +583,8 @@ export async function changeQuoteStatus(
         },
       }),
     ];
-    if (newStatus === "CONTRATADA" && quote.opportunity.stage !== "GANADO") {
+    if (isWon && quote.opportunity.stage !== "GANADO") {
+      const verbo = newStatus === "APROBADA" ? "aprobar" : "contratar";
       ops.push(
         prisma.opportunity.update({
           where: { id: quote.opportunityId },
@@ -592,14 +595,23 @@ export async function changeQuoteStatus(
             userId: session.user.id,
             opportunityId: quote.opportunityId,
             type: "CAMBIO_ETAPA",
-            body: `Oportunidad movida a Ganado al contratar la cotización ${quoteBaseNumber(quote.number)}`,
+            body: `Oportunidad movida a Ganado al ${verbo} la cotización ${quoteBaseNumber(quote.number)}`,
           },
+        })
+      );
+    }
+    // La fecha del evento deja de ser tentativa al cerrar.
+    if (isWon && quote.eventId && quote.event?.datesTentative) {
+      ops.push(
+        prisma.event.update({
+          where: { id: quote.eventId },
+          data: { datesTentative: false },
         })
       );
     }
     await prisma.$transaction(ops);
 
-    if (newStatus === "CONTRATADA") {
+    if (isWon) {
       // Promueve a CONFIRMADA las reservas de la cotización (tentativas hechas
       // al cotizar + líneas de ESPACIOS resueltas por Product.spaceId).
       try {

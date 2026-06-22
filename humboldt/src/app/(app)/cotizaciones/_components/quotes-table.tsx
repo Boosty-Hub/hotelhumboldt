@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ChevronRight, Eye, Layers, Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Check, ChevronRight, Eye, Layers, Pencil } from "lucide-react";
 import { fmtUsd } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { QuoteStatusBadge } from "@/components/quote/quote-status-badge";
+import { changeQuoteStatus } from "../actions";
 
 export interface QuoteRow {
   id: string;
@@ -36,6 +39,47 @@ export interface QuoteRow {
 export interface QuoteGroup {
   baseNumber: string;
   versions: QuoteRow[]; // orden: versión más reciente primero
+}
+
+/**
+ * Acción de estado inline desde la lista: según el estado actual ofrece el
+ * siguiente paso natural (Borrador → Enviar, Enviada/Vencida → Aprobar).
+ * Usa changeQuoteStatus, que valida las transiciones permitidas.
+ */
+function StatusAction({ id, status }: { id: string; status: string }) {
+  const router = useRouter();
+  const [pending, start] = React.useTransition();
+
+  const next =
+    status === "BORRADOR"
+      ? { to: "ENVIADA", label: "Enviar", ok: "Cotización marcada como enviada.", className: "border-sky-200 text-sky-700 hover:bg-sky-50 hover:text-sky-800" }
+      : status === "ENVIADA" || status === "VENCIDA"
+        ? { to: "APROBADA", label: "Aprobar", ok: "Cotización aprobada.", className: "border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800" }
+        : null;
+  if (!next) return null;
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={pending}
+      className={cn("h-6 gap-1 px-1.5", next.className)}
+      onClick={() =>
+        start(async () => {
+          const res = await changeQuoteStatus(id, next.to);
+          if (res.ok) {
+            toast.success(next.ok);
+            router.refresh();
+          } else {
+            toast.error(res.error);
+          }
+        })
+      }
+    >
+      <Check className="size-3" />
+      {next.label}
+    </Button>
+  );
 }
 
 function RowActions({ id }: { id: string }) {
@@ -74,6 +118,7 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
             <TableHead>Número</TableHead>
             <TableHead>Cliente</TableHead>
             <TableHead>Evento</TableHead>
+            <TableHead>Fecha evento</TableHead>
             <TableHead>Emisión</TableHead>
             <TableHead>Vigencia</TableHead>
             <TableHead className="text-right">Total</TableHead>
@@ -142,9 +187,9 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
                   </TableCell>
                   <TableCell className="max-w-48">
                     <p className="truncate">{latest.eventName}</p>
-                    {latest.eventDateLabel && (
-                      <p className="text-xs text-muted-foreground">{latest.eventDateLabel}</p>
-                    )}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-sm">
+                    {latest.eventDateLabel ?? <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{latest.issueDateLabel}</TableCell>
                   <TableCell>
@@ -154,7 +199,10 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
                     {fmtUsd(latest.totalUsd)}
                   </TableCell>
                   <TableCell>
-                    <QuoteStatusBadge status={latest.status} />
+                    <div className="flex items-center gap-1.5">
+                      <QuoteStatusBadge status={latest.status} />
+                      <StatusAction id={latest.id} status={latest.status} />
+                    </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{latest.signerName}</TableCell>
                   <TableCell>
@@ -183,6 +231,9 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
                       <TableCell className="max-w-48">
                         <p className="truncate text-xs text-muted-foreground">{v.eventName}</p>
                       </TableCell>
+                      <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                        {v.eventDateLabel ?? "—"}
+                      </TableCell>
                       <TableCell className="text-muted-foreground">{v.issueDateLabel}</TableCell>
                       <TableCell>
                         <span className={cn("text-sm", v.validityClass)}>{v.validityText}</span>
@@ -191,7 +242,10 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
                         {fmtUsd(v.totalUsd)}
                       </TableCell>
                       <TableCell>
-                        <QuoteStatusBadge status={v.status} />
+                        <div className="flex items-center gap-1.5">
+                          <QuoteStatusBadge status={v.status} />
+                          <StatusAction id={v.id} status={v.status} />
+                        </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{v.signerName}</TableCell>
                       <TableCell>

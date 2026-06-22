@@ -239,6 +239,13 @@ export default async function ClienteDetailPage({
 
   const nextEventDate = nextEvent?.startDate ?? nextOppDate?.expectedEventDate ?? null;
   const nextEventName = nextEvent?.name ?? nextOppDate?.title ?? undefined;
+  // Si hay un evento real, lleva a su expediente; si solo hay oportunidad con
+  // fecha esperada, lleva a esa oportunidad en el pipeline.
+  const nextEventHref = nextEvent
+    ? `/eventos/${nextEvent.id}`
+    : nextOppDate
+    ? `/pipeline?op=${nextOppDate.id}`
+    : undefined;
 
   const validTabs = ["resumen", "oportunidades", "cotizaciones", "notas", "actividad"];
   const activeTab =
@@ -390,6 +397,7 @@ export default async function ClienteDetailPage({
           label="Próximo evento"
           value={nextEventDate ? formatDayEs(nextEventDate, "d MMM yyyy") : "—"}
           hint={nextEventName}
+          href={nextEventHref}
         />
       </div>
 

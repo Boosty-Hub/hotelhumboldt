@@ -44,7 +44,10 @@ export default async function ClientesPage({
     where: showInactive ? {} : { active: true },
     include: {
       contacts: { orderBy: { isPrimary: "desc" }, take: 1 },
-      opportunities: { select: { stage: true, estimatedValue: true } },
+      opportunities: {
+        select: { stage: true, estimatedValue: true, title: true },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 
@@ -56,6 +59,7 @@ export default async function ClientesPage({
       ...c,
       primaryContact: c.contacts[0] ?? null,
       oppCount: c.opportunities.length,
+      latestEvent: c.opportunities[0]?.title ?? null,
       wonRevenue: c.opportunities
         .filter((o) => o.stage === "GANADO")
         .reduce((sum, o) => sum + o.estimatedValue, 0),
@@ -124,6 +128,7 @@ export default async function ClientesPage({
             <TableHeader>
               <TableRow>
                 <TableHead>Cliente</TableHead>
+                <TableHead>Evento</TableHead>
                 <TableHead>RIF</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Contacto principal</TableHead>
@@ -167,6 +172,20 @@ export default async function ClientesPage({
                         ) : null}
                       </div>
                     </Link>
+                  </TableCell>
+                  <TableCell>
+                    {c.latestEvent ? (
+                      <div className="min-w-0">
+                        <p className="truncate text-sm">{c.latestEvent}</p>
+                        {c.oppCount > 1 ? (
+                          <p className="text-xs text-muted-foreground">
+                            +{c.oppCount - 1} evento{c.oppCount - 1 === 1 ? "" : "s"} más
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="font-mono text-xs text-muted-foreground">
                     {c.rif ?? "—"}

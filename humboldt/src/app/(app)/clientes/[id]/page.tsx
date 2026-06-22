@@ -106,15 +106,23 @@ function StatCard({
   label,
   value,
   hint,
+  href,
 }: {
   icon: LucideIcon;
   iconClass: string;
   label: string;
   value: string;
   hint?: string;
+  href?: string;
 }) {
-  return (
-    <Card size="sm">
+  const card = (
+    <Card
+      size="sm"
+      className={cn(
+        href &&
+          "h-full cursor-pointer transition-shadow hover:ring-foreground/25"
+      )}
+    >
       <CardContent className="flex items-center gap-3">
         <div
           className={cn(
@@ -124,15 +132,24 @@ function StatCard({
         >
           <Icon className="h-4.5 w-4.5" />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-[11px] text-muted-foreground">{label}</p>
           <p className="truncate text-base font-bold tabular-nums">{value}</p>
           {hint ? (
             <p className="truncate text-[11px] text-muted-foreground">{hint}</p>
           ) : null}
         </div>
+        {href ? (
+          <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+        ) : null}
       </CardContent>
     </Card>
+  );
+  if (!href) return card;
+  return (
+    <Link href={href} scroll={false} className="block focus-visible:outline-none">
+      {card}
+    </Link>
   );
 }
 
@@ -143,10 +160,13 @@ function fmtDate(d: Date | null | undefined, pattern = "d MMM yyyy"): string {
 
 export default async function ClienteDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
+  const sp = await searchParams;
   const session = await auth();
 
   const client = await prisma.client.findUnique({
@@ -219,6 +239,10 @@ export default async function ClienteDetailPage({
 
   const nextEventDate = nextEvent?.startDate ?? nextOppDate?.expectedEventDate ?? null;
   const nextEventName = nextEvent?.name ?? nextOppDate?.title ?? undefined;
+
+  const validTabs = ["resumen", "oportunidades", "cotizaciones", "notas", "actividad"];
+  const activeTab =
+    typeof sp.tab === "string" && validTabs.includes(sp.tab) ? sp.tab : "resumen";
 
   const clientFormData = {
     id: client.id,
@@ -350,12 +374,15 @@ export default async function ClienteDetailPage({
           iconClass="bg-sky-50 text-sky-600"
           label="Eventos realizados"
           value={String(eventsDone)}
+          hint={`${client.opportunities.length} evento${client.opportunities.length === 1 ? "" : "s"} en total`}
+          href={`/clientes/${client.id}?tab=oportunidades`}
         />
         <StatCard
           icon={FileText}
           iconClass="bg-violet-50 text-violet-600"
           label="Cotizaciones"
           value={String(quotes.length)}
+          href={`/clientes/${client.id}?tab=cotizaciones`}
         />
         <StatCard
           icon={CalendarClock}
@@ -367,7 +394,7 @@ export default async function ClienteDetailPage({
       </div>
 
       {/* Pestañas */}
-      <Tabs defaultValue="resumen">
+      <Tabs defaultValue={activeTab} key={activeTab}>
         <TabsList>
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
           <TabsTrigger value="oportunidades">

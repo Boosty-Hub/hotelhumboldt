@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { differenceInCalendarDays } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import { auth, canViewCosts } from "@/lib/auth";
-import { getCurrentRate } from "@/lib/bcv";
+import { getCurrentRate, getParallelRate } from "@/lib/bcv";
 import { getCommercialParams } from "@/lib/settings";
 import type { Section } from "@/lib/constants";
 import { QuoteEditor } from "@/components/quote/quote-editor";
@@ -56,6 +56,7 @@ export default async function EditarCotizacionPage({
   });
 
   const bcv = await getCurrentRate();
+  const parallel = await getParallelRate();
   const { minMarginPct } = await getCommercialParams();
 
   const eventDays =
@@ -134,6 +135,8 @@ export default async function EditarCotizacionPage({
       canViewCosts={showCosts}
       currentUserName={session?.user?.name ?? "—"}
       bcvRate={bcv?.rate ?? null}
+      parallelRate={parallel?.rate ?? null}
+      initialRateKind={quote.rateKind}
       newerVersion={newer}
       minMarginPct={minMarginPct}
     />

@@ -75,6 +75,8 @@ export interface QuoteEditorProps {
   canViewCosts: boolean;
   currentUserName: string;
   bcvRate: number | null;
+  parallelRate: number | null;
+  initialRateKind: string | null;
   newerVersion: { id: string; version: number } | null;
   minMarginPct: number;
 }
@@ -87,6 +89,10 @@ function newUid() {
 export function QuoteEditor(props: QuoteEditorProps) {
   const router = useRouter();
   const [lines, setLines] = useState<EditorLine[]>(props.initialLines);
+  const [rateKind, setRateKind] = useState<"OFICIAL" | "PARALELA">(
+    props.initialRateKind === "PARALELA" ? "PARALELA" : "OFICIAL"
+  );
+  const activeRate = rateKind === "PARALELA" ? props.parallelRate : props.bcvRate;
   const [dirty, setDirty] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [extraDays, setExtraDays] = useState(0);
@@ -320,7 +326,10 @@ export function QuoteEditor(props: QuoteEditorProps) {
     }));
 
     startSaving(async () => {
-      const res = await saveQuoteLines(props.quoteId, payload);
+      const res = await saveQuoteLines(props.quoteId, payload, {
+        rateUsed: activeRate,
+        rateKind,
+      });
       if (res.ok) {
         setDirty(false);
         toast.success("Cotización guardada y recalculada");
@@ -574,6 +583,12 @@ export function QuoteEditor(props: QuoteEditorProps) {
               params={props.params}
               canViewCosts={props.canViewCosts}
               bcvRate={props.bcvRate}
+              parallelRate={props.parallelRate}
+              rateKind={rateKind}
+              onRateKindChange={(k) => {
+                setRateKind(k);
+                setDirty(true);
+              }}
               minMarginPct={props.minMarginPct}
             />
           </div>

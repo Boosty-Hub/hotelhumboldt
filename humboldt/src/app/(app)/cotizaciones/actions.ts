@@ -322,7 +322,8 @@ const EDITABLE_STATUSES: QuoteStatus[] = ["BORRADOR", "ENVIADA"];
 
 export async function saveQuoteLines(
   quoteId: string,
-  rawLines: SaveLineInput[]
+  rawLines: SaveLineInput[],
+  meta?: { rateUsed: number | null; rateKind: string | null }
 ): Promise<ActionResult> {
   const session = await requireSession();
   const showCosts = canViewCosts(session.user.role);
@@ -478,6 +479,9 @@ export async function saveQuoteLines(
           taxAmount: totals.taxAmount,
           totalUsd: totals.totalUsd,
           depositAmount: totals.depositAmount,
+          ...(meta
+            ? { rateUsed: meta.rateUsed, rateKind: meta.rateKind }
+            : {}),
         },
       }),
     ];

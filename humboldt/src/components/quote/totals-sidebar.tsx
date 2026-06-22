@@ -2,6 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { fmtUsd, fmtBs, fmtPct, usdToBs } from "@/lib/money";
 import type { QuoteTotals, QuoteParams } from "@/lib/quote-calc";
@@ -12,6 +19,9 @@ interface Props {
   params: QuoteParams;
   canViewCosts: boolean;
   bcvRate: number | null;
+  parallelRate?: number | null;
+  rateKind?: "OFICIAL" | "PARALELA";
+  onRateKindChange?: (k: "OFICIAL" | "PARALELA") => void;
   minMarginPct?: number;
 }
 
@@ -33,7 +43,18 @@ function Row({
 }
 
 /** Totales EN VIVO del editor — siempre calculados con calcQuoteTotals. */
-export function TotalsSidebar({ totals, params, canViewCosts, bcvRate, minMarginPct = 20 }: Props) {
+export function TotalsSidebar({
+  totals,
+  params,
+  canViewCosts,
+  bcvRate,
+  parallelRate = null,
+  rateKind = "OFICIAL",
+  onRateKindChange,
+  minMarginPct = 20,
+}: Props) {
+  const activeRate = rateKind === "PARALELA" ? parallelRate : bcvRate;
+  const showSelector = Boolean(onRateKindChange) && parallelRate != null;
   return (
     <div className="space-y-3">
       <Card>
@@ -64,20 +85,45 @@ export function TotalsSidebar({ totals, params, canViewCosts, bcvRate, minMargin
               Si paga en divisas: +{fmtUsd(totals.igtfAmount)} (IGTF {fmtPct(params.igtfPct)})
             </p>
           )}
-          {bcvRate != null && bcvRate > 0 && (
-            <div className="mt-1 flex items-center justify-between rounded-md bg-muted/60 px-2.5 py-1.5 text-xs">
-              <span className="flex items-center gap-1 text-muted-foreground">
-                <Landmark className="h-3 w-3" />
-                Equivale a
-              </span>
-              <span className="text-right">
-                <span className="font-semibold tabular-nums">
-                  {fmtBs(usdToBs(totals.totalUsd, bcvRate))}
-                </span>
-                <span className="block text-[10px] text-muted-foreground">
-                  tasa BCV del día: {fmtBs(bcvRate)}/USD
-                </span>
-              </span>
+          {(bcvRate || parallelRate || showSelector) && (
+            <div className="mt-1 space-y-1.5 rounded-md bg-muted/60 px-2.5 py-1.5 text-xs">
+              {showSelector && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Tasa para Bs</span>
+                  <Select
+                    value={rateKind}
+                    onValueChange={(v) => onRateKindChange?.(v as "OFICIAL" | "PARALELA")}
+                  >
+                    <SelectTrigger className="h-6 w-28 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="OFICIAL">BCV</SelectItem>
+                      <SelectItem value="PARALELA">Paralela</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {activeRate != null && activeRate > 0 ? (
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <Landmark className="h-3 w-3" />
+                    Equivale a
+                  </span>
+                  <span className="text-right">
+                    <span className="font-semibold tabular-nums">
+                      {fmtBs(usdToBs(totals.totalUsd, activeRate))}
+                    </span>
+                    <span className="block text-[10px] text-muted-foreground">
+                      tasa {rateKind === "PARALELA" ? "paralela" : "BCV"}: {fmtBs(activeRate)}/USD
+                    </span>
+                  </span>
+                </div>
+              ) : (
+                <p className="text-[10px] text-muted-foreground">
+                  Sin tasa {rateKind === "PARALELA" ? "paralela" : "BCV"} disponible.
+                </p>
+              )}
             </div>
           )}
         </CardContent>

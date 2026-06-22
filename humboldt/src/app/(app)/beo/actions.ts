@@ -118,6 +118,46 @@ export async function generateBeo(eventId: string): Promise<Result> {
   return { ok: true, id: beo.id };
 }
 
+/**
+ * Genera el BEO a partir de una oportunidad ganada / cotización aprobada.
+ * Si la oportunidad no tiene un evento usable, lo crea desde sus datos y vincula
+ * la última cotización (para que el BEO traiga el menú). Luego delega en generateBeo.
+ */
+export async function generateBeoFromOpportunity(opportunityId: string): Promise<Result> {
+  const session = await auth();
+  if (!session?.user) return { ok: false, error: "No autorizado." };
+  if (!opportunityId) return { ok: false, error: "Oportunidad inválida." };
+
+  const opp = await prisma.opportunity.findUnique({
+    where: { id: opportunityId },
+    include: {
+      events: { include: { beo: { select: { id: true } } }, orderBy: { createdAt: "asc" } },
+      quotes: { orderBy: { createdAt: "desc" }, take: 1, select: { id: true, eventId: true } },
+    },
+  });
+  if (!opp) return { ok: false, error: "La oportunidad no existe." };
+
+  // Evento sin BEO; si no hay, se crea desde la oportunidad.
+  let eventId = opp.events.find((e) => !e.beo)?.id ?? null;
+  if (!eventId) {
+    const created = await prisma.event.create({
+      data: {
+        opportunityId,
+        name: opp.title,
+        startDate: opp.expectedEventDate ?? null,
+        pax: opp.pax ?? null,
+      },
+    });
+    const latest = opp.quotes[0];
+    if (latest && !latest.eventId) {
+      await prisma.quote.update({ where: { id: latest.id }, data: { eventId: created.id } });
+    }
+    eventId = created.id;
+  }
+
+  return generateBeo(eventId);
+}
+
 export async function updateBeo(input: {
   id: string;
   responsable?: string | null;

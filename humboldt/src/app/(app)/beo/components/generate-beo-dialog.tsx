@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { generateBeo } from "../actions";
+import { generateBeoFromOpportunity } from "../actions";
 
 export interface UpcomingEvent {
   id: string;
@@ -55,9 +55,9 @@ export function GenerateBeoDialog({
       )
     : events;
 
-  function pick(eventId: string) {
+  function pick(opportunityId: string) {
     startTransition(async () => {
-      const res = await generateBeo(eventId);
+      const res = await generateBeoFromOpportunity(opportunityId);
       if (res.ok && res.id) {
         toast.success("BEO generado.");
         onOpenChange(false);
@@ -72,10 +72,10 @@ export function GenerateBeoDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Generar BEO desde un evento</DialogTitle>
+          <DialogTitle>Generar BEO desde una cotización ganada</DialogTitle>
           <DialogDescription>
-            Solo eventos ganados sin BEO (oportunidad ganada o cotización aprobada/contratada).
-            Al elegir uno, se autocompleta del evento, su cliente y su cotización.
+            Cotizaciones aprobadas/contratadas y oportunidades ganadas sin BEO. Al elegir una, se
+            autocompleta del cliente y la cotización (si falta el evento, se crea).
           </DialogDescription>
         </DialogHeader>
 
@@ -92,7 +92,7 @@ export function GenerateBeoDialog({
         <div className="max-h-96 space-y-1.5 overflow-y-auto">
           {filtered.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No hay eventos ganados sin BEO.
+              No hay cotizaciones ganadas sin BEO.
             </p>
           ) : (
             filtered.map((e) => (

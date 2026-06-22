@@ -20,19 +20,22 @@ export default async function BeoPage() {
         pax: true,
       },
     }),
-    prisma.event.findMany({
-      // El BEO solo se genera para eventos ganados: oportunidad GANADO o con una
-      // cotización aprobada/contratada.
+    // El BEO se genera desde oportunidades GANADAS / con cotización aprobada
+    // que aún no tienen BEO (ninguno de sus eventos tiene BEO).
+    prisma.opportunity.findMany({
       where: {
-        beo: { is: null },
         OR: [
-          { opportunity: { stage: "GANADO" } },
+          { stage: "GANADO" },
           { quotes: { some: { status: { in: ["APROBADA", "CONTRATADA"] } } } },
         ],
+        events: { none: { beo: { isNot: null } } },
       },
-      orderBy: [{ startDate: "asc" }],
-      take: 60,
-      include: { opportunity: { include: { client: true } } },
+      orderBy: [{ expectedEventDate: "asc" }, { updatedAt: "desc" }],
+      take: 100,
+      include: {
+        client: true,
+        quotes: { orderBy: { createdAt: "desc" }, take: 1, select: { number: true } },
+      },
     }),
   ]);
 
@@ -47,13 +50,13 @@ export default async function BeoPage() {
     pax: b.pax,
   }));
 
-  const upcomingEvents = upcoming.map((e) => ({
-    id: e.id,
-    name: e.name,
-    clientName: e.opportunity.client.brandName || e.opportunity.client.legalName,
-    opportunityCode: e.opportunity.code,
-    startDate: e.startDate ? e.startDate.toISOString() : null,
-    pax: e.pax,
+  const upcomingEvents = upcoming.map((o) => ({
+    id: o.id, // id de la OPORTUNIDAD (el BEO crea el evento si falta)
+    name: o.title,
+    clientName: o.client.brandName || o.client.legalName,
+    opportunityCode: o.quotes[0]?.number ?? o.code,
+    startDate: o.expectedEventDate ? o.expectedEventDate.toISOString() : null,
+    pax: o.pax,
   }));
 
   return <BeoView beos={beoRows} upcomingEvents={upcomingEvents} />;

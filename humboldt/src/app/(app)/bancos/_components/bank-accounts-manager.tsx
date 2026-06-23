@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -32,7 +33,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BANK_ACCOUNT_TYPES, BANK_ACCOUNT_TYPE_LABELS, type BankAccountType } from "@/lib/constants";
+import {
+  BANK_ACCOUNT_TYPES,
+  BANK_ACCOUNT_TYPE_LABELS,
+  PAYMENT_METHODS,
+  PAYMENT_METHOD_LABELS,
+  CURRENCY_METHODS,
+  type BankAccountType,
+  type PaymentMethod,
+} from "@/lib/constants";
 import { createBankAccount, updateBankAccount, toggleBankAccountActive } from "../actions";
 
 export interface AccountRow {
@@ -43,6 +52,7 @@ export interface AccountRow {
   phone: string | null;
   documentId: string | null;
   currency: string;
+  methods: string[];
   type: string;
   active: boolean;
   movimientos: number;
@@ -57,6 +67,7 @@ type FormState = {
   phone: string;
   documentId: string;
   currency: "BS" | "USD";
+  methods: PaymentMethod[];
   type: BankAccountType;
 };
 
@@ -67,6 +78,7 @@ const EMPTY: FormState = {
   phone: "",
   documentId: "",
   currency: "BS",
+  methods: [],
   type: "BANCO",
 };
 
@@ -88,6 +100,9 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
       phone: a.phone ?? "",
       documentId: a.documentId ?? "",
       currency: a.currency === "USD" ? "USD" : "BS",
+      methods: a.methods.filter((m): m is PaymentMethod =>
+        (PAYMENT_METHODS as readonly string[]).includes(m)
+      ),
       type: (BANK_ACCOUNT_TYPES as readonly string[]).includes(a.type)
         ? (a.type as BankAccountType)
         : "BANCO",
@@ -97,6 +112,10 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
 
   function save(e: React.FormEvent) {
     e.preventDefault();
+    if (form.methods.length === 0) {
+      toast.error("Elegí al menos un método de pago para el banco.");
+      return;
+    }
     startTransition(async () => {
       const esBanco = form.type === "BANCO";
       const payload = {
@@ -107,6 +126,7 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
         phone: esBanco ? form.phone : "",
         documentId: esBanco ? form.documentId : "",
         currency: form.currency,
+        methods: form.methods,
         type: form.type,
       };
       const res = form.id
@@ -273,7 +293,16 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
                 <Label>Moneda</Label>
                 <Select
                   value={form.currency}
-                  onValueChange={(v) => setForm((f) => ({ ...f, currency: v as "BS" | "USD" }))}
+                  onValueChange={(v) => {
+                    const currency = v as "BS" | "USD";
+                    const allowed = CURRENCY_METHODS[currency];
+                    setForm((f) => ({
+                      ...f,
+                      currency,
+                      // Al cambiar de moneda, descartá métodos incompatibles.
+                      methods: f.methods.filter((m) => allowed.includes(m)),
+                    }));
+                  }}
                   disabled={pending}
                 >
                   <SelectTrigger className="w-full">
@@ -286,6 +315,37 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
                 </Select>
               </div>
             </div>
+
+            <div className="space-y-1.5">
+              <Label>Métodos de pago que recibe</Label>
+              <div className="grid grid-cols-1 gap-1.5 rounded-md border p-2.5 sm:grid-cols-2">
+                {CURRENCY_METHODS[form.currency].map((m) => {
+                  const checked = form.methods.includes(m);
+                  return (
+                    <label key={m} className="flex items-center gap-2 text-sm">
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            methods:
+                              v === true
+                                ? [...f.methods, m]
+                                : f.methods.filter((x) => x !== m),
+                          }))
+                        }
+                        disabled={pending}
+                      />
+                      {PAYMENT_METHOD_LABELS[m]}
+                    </label>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Al registrar un pago a este banco solo aparecerán estos métodos.
+              </p>
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="acc-bank">Banco (opcional)</Label>
               <Input

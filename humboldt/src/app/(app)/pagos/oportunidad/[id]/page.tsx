@@ -92,7 +92,7 @@ export default async function EstadoCuentaPage({
     prisma.bankAccount.findMany({
       where: { active: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: { id: true, name: true, currency: true, type: true },
+      select: { id: true, name: true, currency: true, type: true, methods: true },
     }),
   ]);
 

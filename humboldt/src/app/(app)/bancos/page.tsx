@@ -33,6 +33,7 @@ export default async function BancosPage() {
     phone: a.phone,
     documentId: a.documentId,
     currency: a.currency,
+    methods: a.methods,
     type: a.type,
     active: a.active,
     movimientos: totalMap.get(a.id) ?? 0,

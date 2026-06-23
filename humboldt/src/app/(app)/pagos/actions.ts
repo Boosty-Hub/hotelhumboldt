@@ -82,13 +82,19 @@ const pagoSchema = z
     currency: z.enum(["USD", "BS"], { message: "Moneda inválida" }),
     amount: z
       .number({ message: "Indica el monto del pago" })
-      .positive("El monto debe ser mayor a 0"),
-    rate: z.number().positive("La tasa debe ser mayor a 0").nullable().optional(),
+      .positive("El monto debe ser mayor a 0")
+      .max(1_000_000_000, "El monto está fuera de rango"),
+    rate: z
+      .number()
+      .positive("La tasa debe ser mayor a 0")
+      .max(1_000_000, "La tasa está fuera de rango")
+      .nullable()
+      .optional(),
     rateKind: z.enum(["OFICIAL", "PARALELA"]).nullable().optional(),
     date: z.string().min(1, "Indica la fecha del pago"),
     reference: z.string().nullable().optional(),
     notes: z.string().nullable().optional(),
-    bankAccountId: z.string().nullable().optional(),
+    bankAccountId: z.string().min(1, "Selecciona el banco donde se recibió el pago"),
     allocations: z.array(allocationSchema).nullable().optional(),
   })
   .refine((d) => d.currency !== "BS" || (d.rate != null && d.rate > 0), {
@@ -123,6 +129,15 @@ export async function registrarPago(input: unknown): Promise<ActionResult> {
       if (inst.quote.opportunityId !== d.opportunityId)
         return { ok: false, error: "La cuota no corresponde a la oportunidad" };
     }
+
+    // El banco define la moneda y los métodos: validar coherencia (server-side).
+    const bank = await prisma.bankAccount.findUnique({ where: { id: d.bankAccountId } });
+    if (!bank || !bank.active)
+      return { ok: false, error: "El banco seleccionado no existe o está inactivo" };
+    if (bank.currency !== d.currency)
+      return { ok: false, error: "La moneda del pago no coincide con la del banco" };
+    if (!bank.methods.includes(d.method))
+      return { ok: false, error: "El método elegido no está habilitado para este banco" };
 
     // Equivalente USD
     const usd =

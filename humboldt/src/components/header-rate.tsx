@@ -24,7 +24,11 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group";
 import { fmtBs } from "@/lib/money";
-import { refreshBcvRateAction, setManualRateAction } from "@/app/(app)/configuracion/actions";
+import {
+  refreshBcvRateAction,
+  setManualRateAction,
+  setParallelRateAction,
+} from "@/app/(app)/configuracion/actions";
 
 export interface HeaderRateInfo {
   rate: number;
@@ -40,14 +44,16 @@ const SOURCE_BADGES: Record<string, { label: string; className: string }> = {
 
 interface HeaderRateProps {
   rate: HeaderRateInfo | null;
+  parallel: HeaderRateInfo | null;
   canEdit: boolean;
 }
 
 /** Tasa de cambio vigente en el header. Clic → modal con detalle y (solo ADMIN) acciones. */
-export function HeaderRate({ rate, canEdit }: HeaderRateProps) {
+export function HeaderRate({ rate, parallel, canEdit }: HeaderRateProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [manualRate, setManualRate] = useState("");
+  const [manualParallel, setManualParallel] = useState("");
   const [refreshing, startRefresh] = useTransition();
   const [saving, startSave] = useTransition();
   const pending = refreshing || saving;
@@ -73,6 +79,20 @@ export function HeaderRate({ rate, canEdit }: HeaderRateProps) {
       if (res.ok) {
         toast.success(res.message ?? "Tasa manual registrada.");
         setManualRate("");
+        router.refresh();
+      } else {
+        toast.error(res.error);
+      }
+    });
+  }
+
+  function handleParallelSave(e: React.FormEvent) {
+    e.preventDefault();
+    startSave(async () => {
+      const res = await setParallelRateAction({ rate: manualParallel });
+      if (res.ok) {
+        toast.success(res.message ?? "Tasa paralela registrada.");
+        setManualParallel("");
         router.refresh();
       } else {
         toast.error(res.error);
@@ -126,6 +146,24 @@ export function HeaderRate({ rate, canEdit }: HeaderRateProps) {
             </p>
           )}
 
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-violet-200 bg-violet-50/60 px-3 py-2 text-sm">
+            <Badge variant="outline" className="border-violet-200 bg-violet-100 text-violet-800">
+              Paralela
+            </Badge>
+            {parallel ? (
+              <>
+                <span className="font-semibold tabular-nums text-violet-900">
+                  {fmtBs(parallel.rate)}
+                </span>
+                <span className="text-muted-foreground">
+                  {format(new Date(parallel.date), "dd/MM/yyyy, h:mm a", { locale: es })}
+                </span>
+              </>
+            ) : (
+              <span className="text-muted-foreground">Sin tasa paralela cargada</span>
+            )}
+          </div>
+
           {canEdit && (
             <div className="space-y-3 border-t pt-3">
               <Button
@@ -163,6 +201,37 @@ export function HeaderRate({ rate, canEdit }: HeaderRateProps) {
                     />
                   </InputGroup>
                   <Button type="submit" disabled={pending || !manualRate}>
+                    {saving ? (
+                      <Loader2 data-icon="inline-start" className="animate-spin" />
+                    ) : (
+                      <PencilLine data-icon="inline-start" />
+                    )}
+                    Guardar
+                  </Button>
+                </div>
+              </form>
+
+              <form onSubmit={handleParallelSave} className="space-y-1.5">
+                <Label htmlFor="header-parallel-rate">Registrar tasa paralela</Label>
+                <div className="flex items-stretch gap-2">
+                  <InputGroup className="flex-1">
+                    <InputGroupAddon>
+                      <InputGroupText>Bs.</InputGroupText>
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      id="header-parallel-rate"
+                      type="number"
+                      inputMode="decimal"
+                      step="any"
+                      min={0}
+                      placeholder="0,00"
+                      value={manualParallel}
+                      onChange={(e) => setManualParallel(e.target.value)}
+                      disabled={pending}
+                      className="text-right tabular-nums"
+                    />
+                  </InputGroup>
+                  <Button type="submit" variant="outline" disabled={pending || !manualParallel}>
                     {saving ? (
                       <Loader2 data-icon="inline-start" className="animate-spin" />
                     ) : (

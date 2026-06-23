@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth, canViewCosts } from "@/lib/auth";
-import { BANK_ACCOUNT_TYPES } from "@/lib/constants";
+import { BANK_ACCOUNT_TYPES, PAYMENT_METHODS, CURRENCY_METHODS } from "@/lib/constants";
 
 export type BancoResult = { ok: true; message?: string } | { ok: false; error: string };
 
@@ -29,6 +29,19 @@ const accountSchema = z.object({
   documentId: z.string().trim().max(40).optional().or(z.literal("")),
   currency: z.enum(["BS", "USD"], "Moneda inválida."),
   type: z.enum(BANK_ACCOUNT_TYPES, "Tipo de cuenta inválido."),
+  methods: z
+    .array(z.enum(PAYMENT_METHODS))
+    .min(1, "Elegí al menos un método de pago para el banco."),
+}).superRefine((d, ctx) => {
+  // Los métodos deben ser coherentes con la moneda del banco.
+  const allowed = CURRENCY_METHODS[d.currency];
+  if (d.methods.some((m) => !allowed.includes(m))) {
+    ctx.addIssue({
+      code: "custom",
+      message: `Hay métodos no compatibles con la moneda ${d.currency}.`,
+      path: ["methods"],
+    });
+  }
 });
 
 export async function createBankAccount(input: {
@@ -39,6 +52,7 @@ export async function createBankAccount(input: {
   documentId?: string;
   currency: string;
   type: string;
+  methods?: string[];
 }): Promise<BancoResult> {
   const guard = await requireFinance();
   if (!guard.ok) return guard;
@@ -54,6 +68,7 @@ export async function createBankAccount(input: {
       documentId: d.documentId || null,
       currency: d.currency,
       type: d.type,
+      methods: d.methods,
     },
   });
   revalidatePath("/bancos");
@@ -69,6 +84,7 @@ export async function updateBankAccount(input: {
   documentId?: string;
   currency: string;
   type: string;
+  methods?: string[];
 }): Promise<BancoResult> {
   const guard = await requireFinance();
   if (!guard.ok) return guard;
@@ -86,6 +102,7 @@ export async function updateBankAccount(input: {
       documentId: d.documentId || null,
       currency: d.currency,
       type: d.type,
+      methods: d.methods,
     },
   });
   revalidatePath("/bancos");

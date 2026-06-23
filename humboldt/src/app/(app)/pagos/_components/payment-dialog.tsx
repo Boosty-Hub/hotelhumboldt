@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/select";
 import { fmtUsd, fmtBs, bsToUsd, round2 } from "@/lib/money";
 import {
-  PAYMENT_METHODS,
   PAYMENT_METHOD_LABELS,
   PAYMENT_TYPES,
   PAYMENT_TYPE_LABELS,
@@ -58,6 +57,7 @@ export interface BankAccountOption {
   name: string;
   currency: string;
   type: string;
+  methods: string[];
 }
 
 export function PaymentDialog({
@@ -127,7 +127,6 @@ function PaymentForm({
   const [target, setTarget] = React.useState<string | null>(presetTargetValue);
   const [tipo, setTipo] = React.useState<string>("ABONO");
   const [metodo, setMetodo] = React.useState<string>("ZELLE");
-  const [moneda, setMoneda] = React.useState<"USD" | "BS">("USD");
   const [monto, setMonto] = React.useState("");
   const [tasa, setTasa] = React.useState(defaultRate ? String(defaultRate) : "");
   const [rateKind, setRateKind] = React.useState<"OFICIAL" | "PARALELA">("OFICIAL");
@@ -135,12 +134,14 @@ function PaymentForm({
   const [referencia, setReferencia] = React.useState("");
   const [notas, setNotas] = React.useState("");
   const [cuotaId, setCuotaId] = React.useState<string>("none");
-  const [bankAccountId, setBankAccountId] = React.useState<string>("none");
+  const [bankAccountId, setBankAccountId] = React.useState<string>("");
   const [imputar, setImputar] = React.useState(false);
   const [allocs, setAllocs] = React.useState<AllocationRow[]>([]);
 
-  // Cuentas de la misma moneda del pago (Bs→cuentas Bs, USD→cuentas USD).
-  const cuentasMoneda = bankAccounts.filter((b) => b.currency === moneda);
+  // El banco define la moneda del pago y los métodos disponibles.
+  const selectedBank = bankAccounts.find((b) => b.id === bankAccountId) ?? null;
+  const moneda: "USD" | "BS" = selectedBank?.currency === "BS" ? "BS" : "USD";
+  const bankMethods = selectedBank?.methods ?? [];
 
   const selected = targets.find((t) => t.value === target) ?? null;
   const cuotasPendientes = (selected?.installments ?? []).filter(
@@ -164,10 +165,14 @@ function PaymentForm({
     return kind === "PARALELA" ? parallelRate : defaultRate;
   }
 
-  function handleMonedaChange(value: "USD" | "BS") {
-    setMoneda(value);
-    setBankAccountId("none"); // las cuentas se filtran por moneda
-    if (value === "BS" && !tasa) {
+  function handleBankChange(id: string) {
+    setBankAccountId(id);
+    const bank = bankAccounts.find((b) => b.id === id) ?? null;
+    if (!bank) return;
+    // El método debe ser uno que el banco acepte.
+    if (!bank.methods.includes(metodo)) setMetodo(bank.methods[0] ?? "");
+    // Banco en Bs: precargá la tasa de la fuente actual si no hay una cargada.
+    if (bank.currency === "BS" && !tasa) {
       const r = rateFor(rateKind);
       if (r) setTasa(String(r));
     }
@@ -182,6 +187,14 @@ function PaymentForm({
   function submit() {
     if (!selected) {
       toast.error("Selecciona una cotización u oportunidad");
+      return;
+    }
+    if (!selectedBank) {
+      toast.error("Selecciona el banco donde se recibió el pago");
+      return;
+    }
+    if (!metodo) {
+      toast.error("Este banco no tiene métodos de pago configurados");
       return;
     }
     if (montoNum <= 0) {
@@ -234,7 +247,7 @@ function PaymentForm({
         date: fecha,
         reference: referencia || null,
         notes: notas || null,
-        bankAccountId: bankAccountId !== "none" ? bankAccountId : null,
+        bankAccountId: selectedBank.id,
         allocations: usdAllocations,
       });
       if (res.ok) {
@@ -268,6 +281,33 @@ function PaymentForm({
           )}
         </div>
 
+        <div className="grid gap-1.5">
+          <Label>
+            Banco donde se recibió <span className="text-rose-600">*</span>
+          </Label>
+          <Select value={bankAccountId} onValueChange={handleBankChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Elegí el banco / cuenta…" />
+            </SelectTrigger>
+            <SelectContent>
+              {bankAccounts.map((b) => (
+                <SelectItem key={b.id} value={b.id}>
+                  {b.name} · {b.currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {bankAccounts.length === 0 ? (
+            <p className="text-[11px] text-amber-700">
+              No hay bancos configurados. Creá uno en Configuración → Bancos.
+            </p>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">
+              El banco define la moneda y los métodos de pago disponibles.
+            </p>
+          )}
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div className="grid gap-1.5">
             <Label>Tipo</Label>
@@ -291,14 +331,14 @@ function PaymentForm({
           </div>
           <div className="grid gap-1.5">
             <Label>Método</Label>
-            <Select value={metodo} onValueChange={setMetodo}>
+            <Select value={metodo} onValueChange={setMetodo} disabled={!selectedBank}>
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue placeholder="Elegí el banco primero" />
               </SelectTrigger>
               <SelectContent>
-                {PAYMENT_METHODS.map((m) => (
+                {bankMethods.map((m) => (
                   <SelectItem key={m} value={m}>
-                    {PAYMENT_METHOD_LABELS[m]}
+                    {PAYMENT_METHOD_LABELS[m as keyof typeof PAYMENT_METHOD_LABELS] ?? m}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -309,18 +349,9 @@ function PaymentForm({
         <div className="grid grid-cols-2 gap-3">
           <div className="grid gap-1.5">
             <Label>Moneda</Label>
-            <Select
-              value={moneda}
-              onValueChange={(v) => handleMonedaChange(v as "USD" | "BS")}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="USD">Dólares (USD)</SelectItem>
-                <SelectItem value="BS">Bolívares (Bs)</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground">
+              {selectedBank ? (moneda === "BS" ? "Bolívares (Bs)" : "Dólares (USD)") : "Elegí un banco"}
+            </div>
           </div>
           <div className="grid gap-1.5">
             <Label>{moneda === "BS" ? "Monto en Bs" : "Monto en USD"}</Label>
@@ -377,32 +408,6 @@ function PaymentForm({
             </div>
           </div>
         )}
-
-        <div className="grid gap-1.5">
-          <Label>¿A qué cuenta entró? (conciliación)</Label>
-          <Select value={bankAccountId} onValueChange={setBankAccountId}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Cuenta de recepción" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Sin especificar</SelectItem>
-              {cuentasMoneda.map((b) => (
-                <SelectItem key={b.id} value={b.id}>
-                  {b.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {bankAccounts.length === 0 ? (
-            <p className="text-[11px] text-muted-foreground">
-              Configurá cuentas en el módulo Bancos para poder conciliar.
-            </p>
-          ) : cuentasMoneda.length === 0 ? (
-            <p className="text-[11px] text-amber-700">
-              No hay cuentas en {moneda}. Creá una en Bancos.
-            </p>
-          ) : null}
-        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="grid gap-1.5">

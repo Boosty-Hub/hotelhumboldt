@@ -198,6 +198,12 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   OBSEQUIO: "Obsequio / Cortesía",
 };
 
+/** Métodos coherentes con la moneda del banco. OBSEQUIO aplica a ambas. */
+export const CURRENCY_METHODS: Record<"BS" | "USD", PaymentMethod[]> = {
+  BS: ["BOLIVARES", "TARJETA_DEBITO", "TARJETA_CREDITO", "OBSEQUIO"],
+  USD: ["ZELLE", "EFECTIVO_DIVISAS", "TRANSFERENCIA", "OBSEQUIO"],
+};
+
 export const PAYMENT_TYPES = ["ABONO", "ANTICIPO", "GARANTIA", "REINTEGRO"] as const;
 export type PaymentType = (typeof PAYMENT_TYPES)[number];
 

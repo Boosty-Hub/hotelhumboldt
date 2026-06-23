@@ -34,9 +34,13 @@ export async function AppHeader() {
   // Tasa y tareas en paralelo (un solo viaje al pooler en vez de dos seguidos).
   const endToday = new Date();
   endToday.setHours(23, 59, 59, 999);
-  const [latestRate, dueTasks] = await Promise.all([
+  const [latestRate, latestParallel, dueTasks] = await Promise.all([
     prisma.exchangeRate.findFirst({
       where: { kind: "OFICIAL" },
+      orderBy: { date: "desc" },
+    }),
+    prisma.exchangeRate.findFirst({
+      where: { kind: "PARALELA" },
       orderBy: { date: "desc" },
     }),
     user?.id
@@ -55,6 +59,9 @@ export async function AppHeader() {
   const rate = latestRate
     ? { rate: latestRate.rate, date: latestRate.date, source: latestRate.source }
     : null;
+  const parallel = latestParallel
+    ? { rate: latestParallel.rate, date: latestParallel.date, source: latestParallel.source }
+    : null;
   const headerTasks = dueTasks.map((t) => ({
     id: t.id,
     title: t.title,
@@ -67,7 +74,7 @@ export async function AppHeader() {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b bg-background px-6 print:hidden">
       <div className="flex items-center gap-2">
-        <HeaderRate rate={rate} canEdit={canEdit} />
+        <HeaderRate rate={rate} parallel={parallel} canEdit={canEdit} />
       </div>
       <div className="flex items-center gap-2">
         <HeaderNotifications tasks={headerTasks} />

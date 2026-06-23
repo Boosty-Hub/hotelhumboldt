@@ -447,6 +447,7 @@ model BankAccount {
   phone         String? // teléfono celular para pago móvil (Venezuela)
   documentId    String? // cédula o RIF del titular para pago móvil
   currency      String   @default("BS") // BS | USD
+  methods       String[] @default([]) // métodos de pago que recibe este banco (PAYMENT_METHODS)
   type          String   @default("BANCO") // BANCO | ZELLE | EFECTIVO
   active        Boolean  @default(true)
   sortOrder     Int      @default(0)

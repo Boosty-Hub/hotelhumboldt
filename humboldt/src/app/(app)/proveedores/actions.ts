@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { auth, canViewCosts, canDeleteQuotes } from "@/lib/auth";
 import { round2 } from "@/lib/money";
 
 export type ActionResult =
@@ -51,6 +51,9 @@ const supplierSchema = z.object({
 export async function saveSupplier(input: unknown): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
+  if (!canViewCosts(session.user.role)) {
+    return { ok: false, error: "No tenés permisos para gestionar proveedores." };
+  }
 
   const parsed = supplierSchema.safeParse(input);
   if (!parsed.success) {
@@ -103,6 +106,9 @@ export async function saveSupplier(input: unknown): Promise<ActionResult> {
 export async function toggleSupplierActive(id: string, active: boolean): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
+  if (!canViewCosts(session.user.role)) {
+    return { ok: false, error: "No tenés permisos para gestionar proveedores." };
+  }
   try {
     await prisma.supplier.update({ where: { id }, data: { active } });
     revalidatePath("/proveedores");
@@ -116,6 +122,9 @@ export async function toggleSupplierActive(id: string, active: boolean): Promise
 export async function deleteSupplier(id: string): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
+  if (!canDeleteQuotes(session.user.role)) {
+    return { ok: false, error: "No tenés permiso para eliminar proveedores." };
+  }
 
   try {
     const [products, quoteLines, eventCosts] = await Promise.all([

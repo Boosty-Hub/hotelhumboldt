@@ -3,11 +3,23 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { auth, canManageSettings } from "@/lib/auth";
 
 export type ActionResult =
   | { ok: true; warning?: string }
   | { ok: false; error: string };
+
+// Permisos: ADMIN o GERENTE pueden modificar la configuración de salones (tarifas).
+async function requireSettingsAccess(): Promise<
+  { ok: true } | { ok: false; error: string }
+> {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!session?.user || (!canManageSettings(role) && role !== "GERENTE")) {
+    return { ok: false, error: "No tienes permisos para modificar la configuración." };
+  }
+  return { ok: true };
+}
 
 const spaceSchema = z.object({
   id: z.string().optional(),
@@ -43,8 +55,8 @@ export type SpaceInput = z.infer<typeof spaceSchema>;
 
 /** Crea o actualiza un salón. */
 export async function saveSpace(input: SpaceInput): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { ok: false, error: "No autorizado." };
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return guard;
 
   const parsed = spaceSchema.safeParse(input);
   if (!parsed.success) {
@@ -100,8 +112,8 @@ export async function saveSpace(input: SpaceInput): Promise<ActionResult> {
 
 /** Elimina un salón (solo si no tiene reservas asociadas). */
 export async function deleteSpace(id: string): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { ok: false, error: "No autorizado." };
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return guard;
   if (!id) return { ok: false, error: "Salón inválido." };
 
   const space = await prisma.space.findUnique({

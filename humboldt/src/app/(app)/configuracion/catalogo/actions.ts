@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { auth, canViewCosts } from "@/lib/auth";
+import { auth, canViewCosts, canManageSettings } from "@/lib/auth";
 import { PRODUCT_TYPES, UNITS } from "@/lib/constants";
 import { round2 } from "@/lib/money";
 import { PRICE_CONTEXTS } from "./catalog-shared";
@@ -26,6 +26,19 @@ function fieldErrorsFrom(error: z.ZodError): Record<string, string> {
 
 function isUniqueError(e: unknown): boolean {
   return e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002";
+}
+
+// Guard de entrada para mutaciones del catálogo (config): ADMIN o GERENTE.
+// Replica la convención de requireSettingsAccess de configuracion/actions.ts.
+async function requireSettingsAccess(): Promise<
+  { ok: true; userId: string; role: string } | { ok: false; error: string }
+> {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!session?.user || (!canManageSettings(role) && role !== "GERENTE")) {
+    return { ok: false, error: "No tienes permisos para modificar la configuración." };
+  }
+  return { ok: true, userId: session.user.id, role: session.user.role };
 }
 
 const norm = (v: number | null | undefined): number | null =>
@@ -50,6 +63,9 @@ const productSchema = z.object({
 });
 
 export async function saveProduct(input: unknown): Promise<ActionResult> {
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return { ok: false, error: guard.error };
+
   const session = await auth();
   if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
 
@@ -177,8 +193,8 @@ export async function saveProduct(input: unknown): Promise<ActionResult> {
 }
 
 export async function toggleProductActive(id: string, active: boolean): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return { ok: false, error: guard.error };
   try {
     await prisma.product.update({ where: { id }, data: { active } });
     revalidatePath("/configuracion/catalogo");
@@ -191,8 +207,8 @@ export async function toggleProductActive(id: string, active: boolean): Promise<
 }
 
 export async function deleteProduct(id: string): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return { ok: false, error: guard.error };
   try {
     const usedInQuotes = await prisma.quoteLine.count({ where: { productId: id } });
     if (usedInQuotes > 0) {
@@ -218,8 +234,8 @@ const categorySchema = z.object({
 });
 
 export async function saveCategory(input: unknown): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return { ok: false, error: guard.error };
 
   const parsed = categorySchema.safeParse(input);
   if (!parsed.success) {
@@ -255,8 +271,8 @@ export async function saveCategory(input: unknown): Promise<ActionResult> {
 }
 
 export async function moveCategory(id: string, direction: "up" | "down"): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return { ok: false, error: guard.error };
 
   try {
     const all = await prisma.productCategory.findMany({
@@ -282,8 +298,8 @@ export async function moveCategory(id: string, direction: "up" | "down"): Promis
 }
 
 export async function deleteCategory(id: string): Promise<ActionResult> {
-  const session = await auth();
-  if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
+  const guard = await requireSettingsAccess();
+  if (!guard.ok) return { ok: false, error: guard.error };
 
   try {
     const count = await prisma.product.count({ where: { categoryId: id } });

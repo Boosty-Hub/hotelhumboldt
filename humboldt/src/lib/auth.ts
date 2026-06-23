@@ -28,7 +28,9 @@ declare module "next-auth" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  session: { strategy: "jwt" },
+  // Sesión de jornada laboral (8 h) con refresco horario, no los 30 días por
+  // defecto: el JWT lleva el rol que autoriza los server actions.
+  session: { strategy: "jwt", maxAge: 60 * 60 * 8, updateAge: 60 * 60 },
   pages: { signIn: "/login" },
   providers: [
     Credentials({
@@ -115,4 +117,9 @@ export function canViewCosts(role: string | undefined): boolean {
 /** ¿Puede administrar configuración y usuarios? */
 export function canManageSettings(role: string | undefined): boolean {
   return role === "ADMIN";
+}
+
+/** ¿Puede borrar cotizaciones (acción destructiva)? Admin y Gerente. */
+export function canDeleteQuotes(role: string | undefined): boolean {
+  return role === "ADMIN" || role === "GERENTE";
 }

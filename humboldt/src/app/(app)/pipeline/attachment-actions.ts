@@ -29,8 +29,33 @@ const ALLOWED_EXACT = new Set([
   "application/vnd.ms-excel",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ]);
+// Tipos renderizables en el navegador: nunca, aunque digan ser "imagen".
+const BLOCKED_MIME = new Set(["image/svg+xml", "text/html", "application/xhtml+xml"]);
 function isAllowed(mime: string): boolean {
+  if (BLOCKED_MIME.has(mime)) return false;
   return mime.startsWith("image/") || ALLOWED_EXACT.has(mime);
+}
+
+/** El tipo lo declara el cliente y es falsificable: validamos el contenido real. */
+function looksLikeMarkup(bytes: Uint8Array): boolean {
+  const head = new TextDecoder("ascii").decode(bytes.subarray(0, 64)).trim().toLowerCase();
+  return (
+    head.startsWith("<") ||
+    head.includes("<svg") ||
+    head.includes("<html") ||
+    head.includes("<!doctype") ||
+    head.includes("<?xml")
+  );
+}
+function magicMatches(bytes: Uint8Array, mime: string): boolean {
+  const sig = (s: number[]) => s.every((v, i) => bytes[i] === v);
+  if (mime === "application/pdf") return sig([0x25, 0x50, 0x44, 0x46]); // %PDF
+  if (ALLOWED_EXACT.has(mime)) {
+    // docx/xlsx = ZIP (PK..), doc/xls antiguos = OLE compound file.
+    return sig([0x50, 0x4b, 0x03, 0x04]) || sig([0x50, 0x4b, 0x05, 0x06]) || sig([0xd0, 0xcf, 0x11, 0xe0]);
+  }
+  // Imágenes: cualquier binario sirve mientras no sea markup (png/jpg/gif/webp/heic…).
+  return true;
 }
 
 function isManager(role?: string): boolean {
@@ -87,6 +112,10 @@ export async function uploadAttachment(formData: FormData): Promise<Result> {
 
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
+    // El tipo declarado es falsificable: validamos el contenido real (anti-spoofing/XSS).
+    if (looksLikeMarkup(bytes) || !magicMatches(bytes, file.type)) {
+      return { ok: false, error: "El contenido del archivo no coincide con su tipo. Subí un PDF, imagen, Word o Excel válido." };
+    }
     await uploadToBucket(path, bytes, file.type);
     await prisma.attachment.create({
       data: {

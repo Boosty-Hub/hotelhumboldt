@@ -7,7 +7,7 @@ import {
   subMonths,
 } from "date-fns";
 import { es } from "date-fns/locale";
-import { auth } from "@/lib/auth";
+import { auth, canViewCosts } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { round2 } from "@/lib/money";
 import { buildMonthlyRows, buildTotals } from "@/lib/report-cohort";
@@ -34,7 +34,9 @@ function capitalize(s: string): string {
 
 export async function GET(req: Request) {
   const session = await auth();
-  if (!session?.user) return new Response("No autorizado", { status: 401 });
+  if (!session?.user || !canViewCosts(session.user.role)) {
+    return new Response("No autorizado", { status: 403 });
+  }
 
   const url = new URL(req.url);
   const now = new Date();

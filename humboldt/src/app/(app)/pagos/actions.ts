@@ -4,7 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
+import { auth, canViewCosts, canDeleteQuotes } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { round2, bsToUsd } from "@/lib/money";
 import { PAYMENT_METHODS, PAYMENT_TYPES } from "@/lib/constants";
@@ -103,7 +103,9 @@ const pagoSchema = z
 
 export async function registrarPago(input: unknown): Promise<ActionResult> {
   try {
-    await requireSession();
+    const session = await requireSession();
+    if (!canViewCosts(session.user.role))
+      return { ok: false, error: "No tenes permiso para registrar movimientos de dinero." };
     const parsed = pagoSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: zodError(parsed.error) };
     const d = parsed.data;
@@ -239,7 +241,9 @@ const facturaSchema = z.object({
 
 export async function registrarFactura(input: unknown): Promise<ActionResult> {
   try {
-    await requireSession();
+    const session = await requireSession();
+    if (!canViewCosts(session.user.role))
+      return { ok: false, error: "No tenes permiso para registrar movimientos de dinero." };
     const parsed = facturaSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: zodError(parsed.error) };
     const d = parsed.data;
@@ -310,7 +314,9 @@ const planSchema = z.object({
 
 export async function guardarPlanCuotas(input: unknown): Promise<ActionResult> {
   try {
-    await requireSession();
+    const session = await requireSession();
+    if (!canViewCosts(session.user.role))
+      return { ok: false, error: "No tenes permiso para registrar movimientos de dinero." };
     const parsed = planSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: zodError(parsed.error) };
     const d = parsed.data;
@@ -383,7 +389,9 @@ export async function guardarPlanCuotas(input: unknown): Promise<ActionResult> {
 
 export async function eliminarCuota(installmentId: string): Promise<ActionResult> {
   try {
-    await requireSession();
+    const session = await requireSession();
+    if (!canDeleteQuotes(session.user.role))
+      return { ok: false, error: "No tenes permiso para eliminar cuotas." };
     const inst = await prisma.paymentInstallment.findUnique({
       where: { id: installmentId },
       include: { payments: true, quote: true },
@@ -408,7 +416,9 @@ export async function asociarPagoACuota(
   installmentId: string | null
 ): Promise<ActionResult> {
   try {
-    await requireSession();
+    const session = await requireSession();
+    if (!canViewCosts(session.user.role))
+      return { ok: false, error: "No tenes permiso para registrar movimientos de dinero." };
     const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
     if (!payment) return { ok: false, error: "El pago no existe" };
 
@@ -457,7 +467,9 @@ const garantiaSchema = z.object({
 
 export async function registrarMovimientoGarantia(input: unknown): Promise<ActionResult> {
   try {
-    await requireSession();
+    const session = await requireSession();
+    if (!canViewCosts(session.user.role))
+      return { ok: false, error: "No tenes permiso para registrar movimientos de dinero." };
     const parsed = garantiaSchema.safeParse(input);
     if (!parsed.success) return { ok: false, error: zodError(parsed.error) };
     const d = parsed.data;

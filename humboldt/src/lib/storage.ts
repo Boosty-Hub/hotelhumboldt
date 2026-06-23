@@ -39,8 +39,14 @@ export async function uploadToBucket(
   }
 }
 
-/** URL firmada temporal para descargar/ver un objeto privado. */
-export async function createSignedUrl(path: string, expiresIn = 120): Promise<string> {
+/** URL firmada temporal para descargar/ver un objeto privado.
+ *  Si se pasa fileName, fuerza la descarga (Content-Disposition: attachment) para
+ *  que tipos peligrosos (SVG/HTML) no se rendericen inline en el navegador. */
+export async function createSignedUrl(
+  path: string,
+  expiresIn = 120,
+  fileName?: string
+): Promise<string> {
   const { url, key } = cfg();
   const res = await fetch(
     `${url}/storage/v1/object/sign/${ATTACHMENT_BUCKET}/${encodeURI(path)}`,
@@ -53,7 +59,8 @@ export async function createSignedUrl(path: string, expiresIn = 120): Promise<st
   if (!res.ok) throw new Error(`No se pudo firmar la URL (${res.status}).`);
   const data = (await res.json()) as { signedURL?: string; signedUrl?: string };
   const signed = data.signedURL ?? data.signedUrl ?? "";
-  return `${url}/storage/v1${signed}`;
+  const download = fileName ? `&download=${encodeURIComponent(fileName)}` : "";
+  return `${url}/storage/v1${signed}${download}`;
 }
 
 /** Borra un objeto del bucket (best-effort: no lanza si ya no existe). */

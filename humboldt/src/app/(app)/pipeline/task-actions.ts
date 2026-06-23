@@ -13,6 +13,10 @@ async function requireUser() {
   return session?.user ?? null;
 }
 
+function isManager(role?: string): boolean {
+  return role === "ADMIN" || role === "GERENTE";
+}
+
 function firstIssue(e: z.ZodError): string {
   return e.issues[0]?.message ?? "Datos inválidos.";
 }
@@ -103,8 +107,19 @@ export async function completeTask(input: { id: string }): Promise<Result> {
   if (!user) return { ok: false, error: "No autorizado." };
   if (!input.id) return { ok: false, error: "Tarea inválida." };
 
-  const task = await prisma.task.findUnique({ where: { id: input.id } });
+  const task = await prisma.task.findUnique({
+    where: { id: input.id },
+    include: { opportunity: { select: { ownerId: true } } },
+  });
   if (!task) return { ok: false, error: "Tarea no encontrada." };
+
+  const canManage =
+    isManager(user.role) ||
+    user.id === task.assigneeId ||
+    user.id === task.creatorId ||
+    user.id === task.opportunity.ownerId;
+  if (!canManage) return { ok: false, error: "No tenés permiso para esta tarea." };
+
   if (task.status === "COMPLETADA") return { ok: true, id: task.id };
 
   await prisma.$transaction(async (tx) => {
@@ -156,6 +171,19 @@ export async function snoozeTask(input: { id: string; dueAt: string }): Promise<
   const due = new Date(parsed.data.dueAt);
   if (Number.isNaN(due.getTime())) return { ok: false, error: "Fecha inválida." };
 
+  const task = await prisma.task.findUnique({
+    where: { id: parsed.data.id },
+    include: { opportunity: { select: { ownerId: true } } },
+  });
+  if (!task) return { ok: false, error: "Tarea no encontrada." };
+
+  const canManage =
+    isManager(user.role) ||
+    user.id === task.assigneeId ||
+    user.id === task.creatorId ||
+    user.id === task.opportunity.ownerId;
+  if (!canManage) return { ok: false, error: "No tenés permiso para esta tarea." };
+
   await prisma.task.update({
     where: { id: parsed.data.id },
     data: { dueAt: due, status: "PENDIENTE" },
@@ -169,6 +197,19 @@ export async function cancelTask(input: { id: string }): Promise<Result> {
   const user = await requireUser();
   if (!user) return { ok: false, error: "No autorizado." };
   if (!input.id) return { ok: false, error: "Tarea inválida." };
+
+  const task = await prisma.task.findUnique({
+    where: { id: input.id },
+    include: { opportunity: { select: { ownerId: true } } },
+  });
+  if (!task) return { ok: false, error: "Tarea no encontrada." };
+
+  const canManage =
+    isManager(user.role) ||
+    user.id === task.assigneeId ||
+    user.id === task.creatorId ||
+    user.id === task.opportunity.ownerId;
+  if (!canManage) return { ok: false, error: "No tenés permiso para esta tarea." };
 
   await prisma.task.update({
     where: { id: input.id },

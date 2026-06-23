@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { auth, canDeleteQuotes } from "@/lib/auth";
 import { CLIENT_TYPES } from "./_lib/shared";
 
 // ─────────────────────────── Tipos de resultado ───────────────────────────
@@ -200,6 +200,10 @@ export async function deleteClientAction(clientId: string): Promise<ActionResult
   const user = await requireUser();
   if (!user) return { ok: false, error: "No autorizado. Inicia sesión de nuevo." };
 
+  if (!canDeleteQuotes(user.role)) {
+    return { ok: false, error: "No tenés permiso para eliminar clientes." };
+  }
+
   const client = await prisma.client.findUnique({
     where: { id: clientId },
     include: { _count: { select: { opportunities: true } } },
@@ -336,6 +340,10 @@ export async function setPrimaryContactAction(contactId: string): Promise<Action
 export async function deleteContactAction(contactId: string): Promise<ActionResult> {
   const user = await requireUser();
   if (!user) return { ok: false, error: "No autorizado. Inicia sesión de nuevo." };
+
+  if (!canDeleteQuotes(user.role)) {
+    return { ok: false, error: "No tenés permiso para eliminar contactos." };
+  }
 
   const contact = await prisma.contact.findUnique({ where: { id: contactId } });
   if (!contact) return { ok: false, error: "El contacto no existe." };

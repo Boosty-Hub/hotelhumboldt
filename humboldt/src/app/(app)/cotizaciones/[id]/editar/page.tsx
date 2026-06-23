@@ -111,6 +111,7 @@ export default async function EditarCotizacionPage({
   return (
     <QuoteEditor
       quoteId={quote.id}
+      opportunityId={quote.opportunityId}
       eventId={quote.eventId}
       number={quote.number}
       version={quote.version}

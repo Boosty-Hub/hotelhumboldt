@@ -35,6 +35,7 @@ import {
   Building2,
   TrendingUp,
   FolderOpen,
+  KanbanSquare,
 } from "lucide-react";
 import { saveQuoteLines } from "@/app/(app)/cotizaciones/actions";
 import { LineRow, LineColumnsHeader } from "./line-row";
@@ -60,6 +61,7 @@ const SECTION_ICONS: Record<Section, React.ComponentType<{ className?: string }>
 
 export interface QuoteEditorProps {
   quoteId: string;
+  opportunityId: string;
   eventId: string | null;
   number: string;
   version: number;
@@ -510,6 +512,12 @@ export function QuoteEditor(props: QuoteEditorProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/pipeline?op=${props.opportunityId}`}>
+                <KanbanSquare className="h-3.5 w-3.5" />
+                Ver en pipeline
+              </Link>
+            </Button>
             <CopyLinkButton publicToken={props.publicToken} />
             <Button variant="outline" asChild>
               <Link href={`/cotizaciones/${props.quoteId}`}>

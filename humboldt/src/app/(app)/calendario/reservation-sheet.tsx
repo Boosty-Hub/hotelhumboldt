@@ -62,6 +62,7 @@ import {
   updateReservationStatus,
   type ReservationLogEntry,
 } from "./actions";
+import { confirmEventDate } from "@/app/(app)/eventos/[id]/actions";
 import { RESERVATION_STATUS_COLORS, type CalendarSpaceDTO, type ReservationDTO } from "./types";
 
 const LOG_ACTION_LABELS: Record<string, string> = {
@@ -179,16 +180,21 @@ export function ReservationSheet({
 
   function confirmStatusChange() {
     if (!pendingStatus) return;
+    const status = pendingStatus;
     startTransition(async () => {
-      const res = await updateReservationStatus(r.id, pendingStatus);
-      if (res.ok) {
-        toast.success(res.message ?? "Estado actualizado.");
-        setPendingStatus(null);
-        onOpenChange(false);
-      } else {
+      const res = await updateReservationStatus(r.id, status);
+      if (!res.ok) {
         toast.error(res.error);
         setPendingStatus(null);
+        return;
       }
+      // Confirmar la reserva fija también la fecha del evento como definitiva.
+      if (status === "CONFIRMADA" && r.eventId) {
+        await confirmEventDate({ eventId: r.eventId });
+      }
+      toast.success(res.message ?? "Estado actualizado.");
+      setPendingStatus(null);
+      onOpenChange(false);
     });
   }
 
@@ -542,7 +548,7 @@ export function ReservationSheet({
               {pendingStatus === "CANCELADA"
                 ? `La reserva de “${r.eventName}” en ${space?.name ?? "el salón"} dejará de mostrarse en el calendario y el día quedará disponible.`
                 : pendingStatus === "CONFIRMADA"
-                  ? `La reserva de “${r.eventName}” bloqueará ${space?.name ?? "el salón"} ese día. Se verificará que no exista otra reserva confirmada.`
+                  ? `La reserva de “${r.eventName}” bloqueará ${space?.name ?? "el salón"} ese día y la fecha del evento quedará definitiva (ya no tentativa). Se verificará que no exista otra reserva confirmada.`
                   : `La reserva de “${r.eventName}” volverá al estado tentativo.`}
             </AlertDialogDescription>
           </AlertDialogHeader>

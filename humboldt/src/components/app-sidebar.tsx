@@ -17,8 +17,10 @@ import {
   Settings,
   FileSignature,
   Landmark,
+  ArrowLeft,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { ConfigSidebar } from "@/app/(app)/configuracion/config-sidebar";
 
 interface NavItem {
   href: string;
@@ -58,8 +60,19 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   },
 ];
 
-export function AppSidebar({ role }: { role: string }) {
+export function AppSidebar({
+  role,
+  isAdmin,
+  isManager,
+}: {
+  role: string;
+  isAdmin: boolean;
+  isManager: boolean;
+}) {
   const pathname = usePathname();
+  // En Configuración el menú lateral SE REEMPLAZA por el de configuración
+  // (no se muestran dos sidebars). El usuario vuelve con "Volver al sistema".
+  const inConfig = pathname.startsWith("/configuracion");
 
   return (
     <aside className="hidden md:flex w-60 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground print:hidden">
@@ -75,7 +88,19 @@ export function AppSidebar({ role }: { role: string }) {
 
       {/* Navegación */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-        {NAV_GROUPS.map((group) => {
+        {inConfig ? (
+          <>
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4 shrink-0" />
+              Volver al sistema
+            </Link>
+            <ConfigSidebar isAdmin={isAdmin} isManager={isManager} />
+          </>
+        ) : (
+          NAV_GROUPS.map((group) => {
           const items = group.items.filter(
             (i) => !i.adminOnly || role === "ADMIN" || role === "GERENTE"
           );
@@ -111,7 +136,8 @@ export function AppSidebar({ role }: { role: string }) {
               </ul>
             </div>
           );
-        })}
+        })
+        )}
       </nav>
     </aside>
   );

@@ -59,7 +59,7 @@ export function ConfigSidebar({
     a === "all" || (a === "manager" && isManager) || (a === "admin" && isAdmin);
 
   return (
-    <nav className="space-y-5">
+    <div className="space-y-5">
       {CONFIG_GROUPS.map((group) => {
         const items = group.items.filter((i) => canSee(i.access));
         if (items.length === 0) return null;
@@ -94,6 +94,6 @@ export function ConfigSidebar({
           </div>
         );
       })}
-    </nav>
+    </div>
   );
 }

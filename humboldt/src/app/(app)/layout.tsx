@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { auth, canManageSettings } from "@/lib/auth";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
 
@@ -11,9 +11,13 @@ export default async function AppLayout({
   const session = await auth();
   if (!session?.user) redirect("/login");
 
+  const role = session.user.role;
+  const isAdmin = canManageSettings(role);
+  const isManager = isAdmin || role === "GERENTE";
+
   return (
     <div className="flex h-screen overflow-hidden print:block print:h-auto print:overflow-visible">
-      <AppSidebar role={session.user.role} />
+      <AppSidebar role={role} isAdmin={isAdmin} isManager={isManager} />
       <div className="flex flex-1 flex-col overflow-hidden print:block print:overflow-visible">
         <AppHeader />
         <main className="flex-1 overflow-y-auto bg-muted/30 p-6 print:overflow-visible print:bg-white print:p-0">

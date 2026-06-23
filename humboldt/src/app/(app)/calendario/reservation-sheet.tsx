@@ -7,6 +7,7 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import {
   Building2,
+  CalendarCheck,
   CalendarDays,
   Clock,
   ExternalLink,
@@ -410,6 +411,17 @@ export function ReservationSheet({
             </div>
 
             <Separator />
+
+            {r.status === "TENTATIVA" && (
+              <Button
+                className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
+                onClick={() => setPendingStatus("CONFIRMADA")}
+                disabled={isPending}
+              >
+                <CalendarCheck data-icon="inline-start" />
+                Confirmar reserva
+              </Button>
+            )}
 
             {/* Cambio de estado */}
             <div className="space-y-1.5">

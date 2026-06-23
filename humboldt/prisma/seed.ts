@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
+import { randomBytes } from "crypto";
 
 const prisma = new PrismaClient();
 const DATA_DIR = join(__dirname, "seed-data");
@@ -73,8 +74,11 @@ interface SeedOpportunity {
 // ── Mapeo de estados del tracker → etapas del pipeline ───────────────
 function mapStage(status: string | null): { stage: string; probability: number } {
   const s = (status ?? "").toLowerCase();
+  // Sin cotización migrada NO inventamos un "Ganado": un ganado real nace de
+  // aprobar/contratar una cotización dentro del sistema. Los estados "cerrados"
+  // del tracker entran como NEGOCIACION (oportunidad avanzada pero abierta).
   if (s.includes("realizado") || s.includes("pagado") || s.includes("ejecutada") || s.includes("aprobado"))
-    return { stage: "GANADO", probability: 100 };
+    return { stage: "NEGOCIACION", probability: 60 };
   if (s.includes("rechazado") || s.includes("perdido") || s.includes("suspendido"))
     return { stage: "PERDIDO", probability: 0 };
   if (s.includes("negociaci")) return { stage: "NEGOCIACION", probability: 60 };
@@ -93,9 +97,18 @@ async function main() {
   console.log("🌱 Sembrando base de datos del Hotel Humboldt...");
 
   // ── 1. Usuarios (ejecutivos reales del tracker) ────────────────────
-  const passwordHash = await bcrypt.hash("humboldt2026", 10);
+  // Contraseña del seed: NUNCA hardcodear. En producción es obligatoria por env
+  // (SEED_PASSWORD). En desarrollo, si no se define, se genera una aleatoria por
+  // usuario y se imprime UNA vez para la entrega inicial.
+  const isProd = process.env.NODE_ENV === "production";
+  const sharedSeedPassword = process.env.SEED_PASSWORD;
+  if (isProd && !sharedSeedPassword) {
+    throw new Error("SEED_PASSWORD es obligatoria en producción — abortando seed.");
+  }
+
   const usersData = [
-    { name: "Administrador", email: "admin@hotelhumboldt.com", role: "ADMIN" },
+    // El admin genérico solo existe fuera de producción; en prod, cuentas nominales.
+    ...(isProd ? [] : [{ name: "Administrador", email: "admin@hotelhumboldt.com", role: "ADMIN" }]),
     { name: "Gerente de Ventas", email: "gerencia@hotelhumboldt.com", role: "GERENTE" },
     { name: "Frenecis", email: "frenecis@hotelhumboldt.com", role: "EJECUTIVO" },
     { name: "Kristian Jaén", email: "kjaen@hotelhumboldt.com", role: "EJECUTIVO" },
@@ -103,15 +116,24 @@ async function main() {
     { name: "Malvis", email: "malvis@hotelhumboldt.com", role: "EJECUTIVO" },
   ];
   const users: Record<string, string> = {};
+  const generatedCreds: { email: string; password: string }[] = [];
   for (const u of usersData) {
+    // Password única por usuario: la de env (compartida) o una aleatoria fuerte.
+    const plainPassword = sharedSeedPassword ?? randomBytes(12).toString("base64url");
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
     const user = await prisma.user.upsert({
       where: { email: u.email },
-      update: {},
+      update: {}, // no pisa la contraseña de usuarios ya existentes
       create: { ...u, passwordHash },
     });
     users[u.name.split(" ")[0].toLowerCase()] = user.id;
+    if (!sharedSeedPassword) generatedCreds.push({ email: u.email, password: plainPassword });
   }
-  console.log(`✔ ${usersData.length} usuarios (contraseña: humboldt2026)`);
+  console.log(`✔ ${usersData.length} usuarios`);
+  if (!isProd && generatedCreds.length) {
+    console.log("⚠ Credenciales generadas (solo dev, para usuarios NUEVOS — guardalas, no se vuelven a mostrar):");
+    for (const c of generatedCreds) console.log(`   ${c.email}  ·  ${c.password}`);
+  }
 
   // ── 2. Configuración comercial ─────────────────────────────────────
   const settings: { key: string; value: string; type: string; enabled: boolean; label: string; category: string }[] = [

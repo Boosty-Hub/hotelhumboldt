@@ -12,6 +12,7 @@ import { QuoteDocument } from "@/components/quote/quote-document";
 import { QuoteStatusBadge } from "@/components/quote/quote-status-badge";
 import { CopyLinkButton } from "@/components/quote/copy-link-button";
 import { PrintButton } from "@/components/quote/print-button";
+import { AutoPrint } from "@/components/quote/auto-print";
 import { StatusActions } from "@/components/quote/status-actions";
 
 export const metadata = { title: "Documento de cotización" };
@@ -37,10 +38,13 @@ const PRINT_CSS = `
 
 export default async function DocumentoCotizacionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
+  const autoPrint = (await searchParams).print === "1";
 
   const quote = await prisma.quote.findUnique({
     where: { id },
@@ -113,6 +117,7 @@ export default async function DocumentoCotizacionPage({
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       <style dangerouslySetInnerHTML={{ __html: PRINT_CSS }} />
+      {autoPrint && <AutoPrint />}
 
       {/* ── Barra de acciones (no se imprime) ── */}
       <div className="print-hidden flex flex-wrap items-center justify-between gap-3">

@@ -106,6 +106,13 @@ export async function approveQuotePublic(
   if (!guard.ok) return guard;
   const quote = guard.quote;
 
+  // Defensa en profundidad: no se aprueba una cotización sin ítems (protege
+  // registros vacíos que hayan quedado en ENVIADA antes de validar el envío).
+  const lineCount = await prisma.quoteLine.count({ where: { quoteId: quote.id } });
+  if (lineCount === 0) {
+    return { ok: false, error: "Esta cotización no tiene ítems. Contacta a tu ejecutivo." };
+  }
+
   const base = quoteBaseNumber(quote.number);
   const approverName = parsed.data.approverName;
   const note = parsed.data.note || null;

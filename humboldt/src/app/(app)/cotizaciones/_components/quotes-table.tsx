@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Check, ChevronRight, Eye, Layers, Pencil } from "lucide-react";
+import { Check, ChevronRight, Eye, FileText, Layers, Link2, Pencil, Trash2 } from "lucide-react";
 import { fmtUsd } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +17,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { QuoteStatusBadge } from "@/components/quote/quote-status-badge";
-import { changeQuoteStatus } from "../actions";
+import { changeQuoteStatus, deleteQuote } from "../actions";
 
 export interface QuoteRow {
   id: string;
@@ -102,24 +110,137 @@ function StatusAction({
   );
 }
 
-function RowActions({ id }: { id: string }) {
+/** Copia el link público /cotizacion/{token} al portapapeles (versión compacta para la fila). */
+function ShareLinkButton({ publicToken }: { publicToken: string }) {
+  const [copied, setCopied] = React.useState(false);
+  return (
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      type="button"
+      aria-label="Copiar link para compartir"
+      title="Copiar link para compartir"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(
+            `${window.location.origin}/cotizacion/${publicToken}`
+          );
+          setCopied(true);
+          toast.success("Link público copiado — pegalo en WhatsApp o correo.");
+          setTimeout(() => setCopied(false), 2000);
+        } catch {
+          toast.error("No se pudo copiar el link.");
+        }
+      }}
+    >
+      {copied ? <Check className="h-3 w-3 text-emerald-600" /> : <Link2 className="h-3 w-3" />}
+    </Button>
+  );
+}
+
+/** Borra la cotización tras confirmación. La validación de seguridad vive en el server action. */
+function DeleteQuoteButton({
+  id,
+  baseNumber,
+  version,
+}: {
+  id: string;
+  baseNumber: string;
+  version: number;
+}) {
+  const router = useRouter();
+  const [open, setOpen] = React.useState(false);
+  const [pending, start] = React.useTransition();
+
+  const label = version > 1 ? `${baseNumber} v${version}` : baseNumber;
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        type="button"
+        aria-label="Borrar cotización"
+        title="Borrar cotización"
+        className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+        onClick={() => setOpen(true)}
+      >
+        <Trash2 className="h-3 w-3" />
+      </Button>
+      <Dialog open={open} onOpenChange={(next) => !pending && setOpen(next)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="size-4 text-rose-600" />
+              Borrar cotización
+            </DialogTitle>
+            <DialogDescription>
+              Vas a borrar <span className="font-medium text-foreground">«{label}»</span>. Esta
+              acción no se puede deshacer. Si tiene pagos o facturas asociados, se bloqueará.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" disabled={pending} onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={pending}
+              onClick={() =>
+                start(async () => {
+                  const res = await deleteQuote(id);
+                  if (!res.ok) {
+                    toast.error(res.error);
+                    return;
+                  }
+                  toast.success("Cotización eliminada.");
+                  setOpen(false);
+                  router.refresh();
+                })
+              }
+            >
+              {pending ? "Borrando…" : "Borrar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+function RowActions({ row, canDelete }: { row: QuoteRow; canDelete: boolean }) {
   return (
     <div className="flex items-center justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
       <Button variant="ghost" size="icon-sm" asChild>
-        <Link href={`/cotizaciones/${id}/editar`} aria-label="Editar cotización">
+        <Link href={`/cotizaciones/${row.id}/editar`} aria-label="Editar cotización">
           <Pencil className="h-3 w-3" />
         </Link>
       </Button>
       <Button variant="ghost" size="icon-sm" asChild>
-        <Link href={`/cotizaciones/${id}`} aria-label="Ver documento">
+        <Link href={`/cotizaciones/${row.id}`} aria-label="Ver documento">
           <Eye className="h-3 w-3" />
         </Link>
       </Button>
+      <ShareLinkButton publicToken={row.publicToken} />
+      <Button variant="ghost" size="icon-sm" asChild>
+        <Link href={`/cotizaciones/${row.id}?print=1`} aria-label="PDF / Imprimir" title="PDF / Imprimir">
+          <FileText className="h-3 w-3" />
+        </Link>
+      </Button>
+      {canDelete && (
+        <DeleteQuoteButton id={row.id} baseNumber={row.baseNumber} version={row.version} />
+      )}
     </div>
   );
 }
 
-export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
+export function QuotesTable({
+  groups,
+  canDelete,
+}: {
+  groups: QuoteGroup[];
+  canDelete: boolean;
+}) {
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
 
   const toggle = (base: string) =>
@@ -230,7 +351,7 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
                   </TableCell>
                   <TableCell className="text-muted-foreground">{latest.signerName}</TableCell>
                   <TableCell>
-                    <RowActions id={latest.id} />
+                    <RowActions row={latest} canDelete={canDelete} />
                   </TableCell>
                 </TableRow>
 
@@ -273,7 +394,7 @@ export function QuotesTable({ groups }: { groups: QuoteGroup[] }) {
                       </TableCell>
                       <TableCell className="text-muted-foreground">{v.signerName}</TableCell>
                       <TableCell>
-                        <RowActions id={v.id} />
+                        <RowActions row={v} canDelete={canDelete} />
                       </TableCell>
                     </TableRow>
                   ))}

@@ -4,6 +4,7 @@ import { formatDayEs } from "@/lib/dates";
 import { es } from "date-fns/locale";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
+import { auth, canDeleteQuotes } from "@/lib/auth";
 import { QUOTE_STATUSES, type QuoteStatus } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { FilePlus2, FileText } from "lucide-react";
@@ -48,6 +49,9 @@ export default async function CotizacionesPage({
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const estado = typeof sp.estado === "string" ? sp.estado : "";
+
+  const session = await auth();
+  const canDelete = canDeleteQuotes(session?.user?.role);
 
   const where: Prisma.QuoteWhereInput = {};
   if (QUOTE_STATUSES.includes(estado as QuoteStatus)) where.status = estado;
@@ -153,7 +157,7 @@ export default async function CotizacionesPage({
           )}
         </div>
       ) : (
-        <QuotesTable groups={groups} />
+        <QuotesTable groups={groups} canDelete={canDelete} />
       )}
     </div>
   );

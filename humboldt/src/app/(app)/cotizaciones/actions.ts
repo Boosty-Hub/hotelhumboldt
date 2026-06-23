@@ -11,7 +11,7 @@ import { nanoid } from "nanoid";
 import { addDays } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
-import { auth, canViewCosts } from "@/lib/auth";
+import { auth, canViewCosts, canDeleteQuotes } from "@/lib/auth";
 import { getCommercialParams, getSetting } from "@/lib/settings";
 import { calcQuoteTotals, isPriceOverride, lineCost, lineSubtotal } from "@/lib/quote-calc";
 import { round2 } from "@/lib/money";
@@ -552,7 +552,7 @@ export async function changeQuoteStatus(
   }
   const quote = await prisma.quote.findUnique({
     where: { id: quoteId },
-    include: { opportunity: true, event: true },
+    include: { opportunity: true, event: true, _count: { select: { lines: true } } },
   });
   if (!quote) return { ok: false, error: "Cotización no encontrada" };
 
@@ -561,6 +561,16 @@ export async function changeQuoteStatus(
     return {
       ok: false,
       error: `No se puede pasar de "${quote.status}" a "${newStatus}"`,
+    };
+  }
+
+  // No se envía/aprueba/contrata una cotización vacía: mandar un presupuesto sin
+  // ítems al cliente no tiene sentido (y dejaba registros ENVIADA con total 0).
+  const REQUIRES_CONTENT = ["ENVIADA", "APROBADA", "CONTRATADA"];
+  if (REQUIRES_CONTENT.includes(newStatus) && quote._count.lines === 0) {
+    return {
+      ok: false,
+      error: "La cotización no tiene líneas. Agregá al menos un ítem antes de enviarla o aprobarla.",
     };
   }
 
@@ -776,4 +786,88 @@ export async function createNewVersion(quoteId: string): Promise<{ ok: false; er
 
   revalidateQuotePaths(quoteId);
   redirect(`/cotizaciones/${newId}/editar`);
+}
+
+// ─────────────────────────── Borrar cotización ───────────────────────────
+
+// Solo se borra lo que no tiene plata atada. Pagos/facturas/imputaciones lo
+// bloquean (son registros financieros). Estados cerrados (Aprobada/Contratada)
+// tampoco: esos ya cerraron la oportunidad.
+const DELETABLE_STATUSES: QuoteStatus[] = ["BORRADOR", "ENVIADA", "VENCIDA", "RECHAZADA"];
+
+export async function deleteQuote(quoteId: string): Promise<ActionResult> {
+  const session = await requireSession();
+  if (!canDeleteQuotes(session.user.role)) {
+    return { ok: false, error: "No tenés permiso para borrar cotizaciones." };
+  }
+
+  const quote = await prisma.quote.findUnique({
+    where: { id: quoteId },
+    select: {
+      number: true,
+      version: true,
+      status: true,
+      opportunityId: true,
+      _count: { select: { payments: true, invoices: true, allocations: true } },
+    },
+  });
+  if (!quote) return { ok: false, error: "Cotización no encontrada" };
+
+  if (!DELETABLE_STATUSES.includes(quote.status as QuoteStatus)) {
+    return {
+      ok: false,
+      error: `No se puede borrar una cotización ${quote.status.toLowerCase()}. Solo borradores, enviadas, vencidas o rechazadas.`,
+    };
+  }
+  if (quote._count.payments > 0 || quote._count.invoices > 0 || quote._count.allocations > 0) {
+    return {
+      ok: false,
+      error: "No se puede borrar: la cotización tiene pagos o facturas asociados. Anulalos primero.",
+    };
+  }
+
+  const opportunityId = quote.opportunityId;
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Reservas de salón originadas por la cotización: la FK es SetNull, así que
+      // sin esto quedarían huérfanas ocupando el calendario. En estos estados son
+      // tentativas, se sueltan.
+      await tx.spaceReservation.deleteMany({ where: { quoteId } });
+      // Borra la cotización: líneas, cuotas y actividades caen en cascada.
+      await tx.quote.delete({ where: { id: quoteId } });
+      // Deja rastro en el historial de la oportunidad (la cotización ya no existe).
+      await tx.activity.create({
+        data: {
+          userId: session.user.id,
+          opportunityId,
+          type: "SISTEMA",
+          body: `Cotización ${quote.number} (v${quote.version}) eliminada por ${session.user.name ?? "un usuario"}.`,
+        },
+      });
+      // Resincroniza el valor estimado de la oportunidad con su cotización
+      // vigente restante (mismo criterio que al guardar líneas).
+      const remaining = await tx.quote.findFirst({
+        where: { opportunityId },
+        orderBy: [{ issueDate: "desc" }, { version: "desc" }],
+        select: { totalUsd: true },
+      });
+      if (remaining) {
+        await tx.opportunity.update({
+          where: { id: opportunityId },
+          data: { estimatedValue: remaining.totalUsd },
+        });
+      }
+    });
+  } catch (e) {
+    console.error("deleteQuote", e);
+    return { ok: false, error: "No se pudo borrar la cotización. Intenta de nuevo." };
+  }
+
+  revalidatePath("/cotizaciones");
+  revalidatePath("/pipeline");
+  revalidatePath("/calendario");
+  revalidatePath("/clientes");
+  revalidatePath("/");
+  return { ok: true };
 }

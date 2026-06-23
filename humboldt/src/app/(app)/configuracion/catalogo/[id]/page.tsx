@@ -76,7 +76,7 @@ export default async function ProductoDetallePage({
   return (
     <div className="space-y-4">
       <Link
-        href="/catalogo"
+        href="/configuracion/catalogo"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" />

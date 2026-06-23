@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import { Landmark, Percent, Target } from "lucide-react";
+import { auth, canManageSettings } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
   Card,
@@ -13,6 +15,10 @@ import { PARAM_NOTES, PARAM_ORDER, suffixFor } from "../config-meta";
 export const metadata = { title: "Parámetros comerciales" };
 
 export default async function ParametrosPage() {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!canManageSettings(role) && role !== "GERENTE") redirect("/configuracion/catalogo");
+
   const settings = await prisma.setting.findMany();
 
   const numericSettings = settings

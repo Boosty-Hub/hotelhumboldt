@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { History } from "lucide-react";
+import { auth, canManageSettings } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getCurrentRate, getParallelRate } from "@/lib/bcv";
 import { fmtBs } from "@/lib/money";
@@ -32,6 +34,10 @@ const KIND_BADGES: Record<string, { label: string; className: string }> = {
 };
 
 export default async function TasaPage() {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!canManageSettings(role) && role !== "GERENTE") redirect("/configuracion/catalogo");
+
   const [rate, parallel, rateHistory] = await Promise.all([
     getCurrentRate(),
     getParallelRate(),

@@ -92,7 +92,7 @@ export default async function CatalogoPage({
     if (inactivos) params.set("inactivos", "1");
     if (p > 1) params.set("pagina", String(p));
     const qs = params.toString();
-    return qs ? `/catalogo?${qs}` : "/catalogo";
+    return qs ? `/configuracion/catalogo?${qs}` : "/configuracion/catalogo";
   };
 
   const desde = total === 0 ? 0 : (pagina - 1) * PAGE_SIZE + 1;

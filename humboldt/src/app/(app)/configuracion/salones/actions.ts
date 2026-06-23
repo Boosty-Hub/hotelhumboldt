@@ -93,7 +93,7 @@ export async function saveSpace(input: SpaceInput): Promise<ActionResult> {
     return { ok: false, error: "No se pudo guardar el salón. Intente de nuevo." };
   }
 
-  revalidatePath("/salones");
+  revalidatePath("/configuracion/salones");
   revalidatePath("/calendario");
   return { ok: true };
 }
@@ -123,7 +123,7 @@ export async function deleteSpace(id: string): Promise<ActionResult> {
     return { ok: false, error: "No se pudo eliminar el salón. Intente de nuevo." };
   }
 
-  revalidatePath("/salones");
+  revalidatePath("/configuracion/salones");
   revalidatePath("/calendario");
   return { ok: true };
 }

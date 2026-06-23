@@ -82,7 +82,7 @@ export async function saveSupplier(input: unknown): Promise<ActionResult> {
       });
       revalidatePath("/proveedores");
       revalidatePath(`/proveedores/${updated.id}`);
-      revalidatePath("/catalogo");
+      revalidatePath("/configuracion/catalogo");
       return { ok: true, id: updated.id };
     }
     const created = await prisma.supplier.create({ data: payload });

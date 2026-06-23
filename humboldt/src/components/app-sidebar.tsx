@@ -8,12 +8,10 @@ import {
   KanbanSquare,
   FileText,
   CalendarDays,
-  Building2,
   Users,
   Contact,
   ClipboardList,
   Truck,
-  UtensilsCrossed,
   Wallet,
   BarChart3,
   Settings,
@@ -45,8 +43,6 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     items: [
       { href: "/clientes", label: "Clientes", icon: Users },
       { href: "/contactos", label: "Contactos", icon: Contact },
-      { href: "/salones", label: "Salones", icon: Building2 },
-      { href: "/catalogo", label: "Catálogo", icon: UtensilsCrossed },
       { href: "/proveedores", label: "Proveedores", icon: Truck },
       { href: "/documentos", label: "Documentos", icon: FileSignature },
       { href: "/pagos", label: "Pagos", icon: Wallet },
@@ -57,7 +53,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     title: "Análisis",
     items: [
       { href: "/reportes", label: "Reportes", icon: BarChart3 },
-      { href: "/configuracion", label: "Configuración", icon: Settings, adminOnly: true },
+      { href: "/configuracion", label: "Configuración", icon: Settings },
     ],
   },
 ];

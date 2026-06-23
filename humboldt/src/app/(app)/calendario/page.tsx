@@ -152,7 +152,7 @@ export default async function CalendarioPage({
               </p>
             </div>
             <Button asChild>
-              <Link href="/salones">Ir a Salones</Link>
+              <Link href="/configuracion/salones">Ir a Salones</Link>
             </Button>
           </CardContent>
         </Card>

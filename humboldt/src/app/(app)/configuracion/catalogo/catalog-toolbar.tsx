@@ -44,7 +44,7 @@ export function CatalogToolbar({
     if (merged.tipo) params.set("tipo", merged.tipo);
     if (merged.inactivos) params.set("inactivos", "1");
     const qs = params.toString();
-    router.replace(qs ? `/catalogo?${qs}` : "/catalogo");
+    router.replace(qs ? `/configuracion/catalogo?${qs}` : "/configuracion/catalogo");
   };
 
   // Búsqueda con debounce (server-side)

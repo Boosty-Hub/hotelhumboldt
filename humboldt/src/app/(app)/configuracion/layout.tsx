@@ -13,12 +13,14 @@ export default async function ConfiguracionLayout({
   const session = await auth();
   if (!session?.user) redirect("/login");
   const role = session.user.role;
-  // Solo Admin y Gerente acceden a Configuración
-  if (!canManageSettings(role) && role !== "GERENTE") redirect("/");
+  // El módulo es accesible para todos los roles: Catálogo y Salones son operativos.
+  // Las páginas de ajustes (parámetros, hotel, tasa, usuarios, tipos/canales) se
+  // protegen individualmente y se ocultan del sidebar a quien no corresponda.
   const isAdmin = canManageSettings(role);
+  const isManager = isAdmin || role === "GERENTE";
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex items-center gap-2.5">
         <span className="flex size-9 items-center justify-center rounded-lg bg-sky-950 text-white">
           <Settings className="size-4.5" />
@@ -26,7 +28,9 @@ export default async function ConfiguracionLayout({
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Configuración</h1>
           <p className="text-sm text-muted-foreground">
-            Parámetros comerciales, datos del hotel, usuarios, catálogos y tasa de cambio.
+            {isManager
+              ? "Parámetros comerciales, datos del hotel, usuarios, catálogo, salones y tasa de cambio."
+              : "Catálogo de productos y salones del hotel."}
           </p>
         </div>
       </div>
@@ -34,7 +38,7 @@ export default async function ConfiguracionLayout({
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Sidebar de configuración */}
         <aside className="lg:w-64 lg:shrink-0">
-          <ConfigSidebar isAdmin={isAdmin} />
+          <ConfigSidebar isAdmin={isAdmin} isManager={isManager} />
         </aside>
 
         {/* Contenido del módulo activo */}

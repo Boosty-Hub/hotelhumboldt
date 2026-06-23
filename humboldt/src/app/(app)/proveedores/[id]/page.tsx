@@ -33,7 +33,7 @@ import {
   calcMarginPct,
   MIN_MARGIN_WARN_PCT,
   unitLabel,
-} from "../../catalogo/catalog-shared";
+} from "../../configuracion/catalogo/catalog-shared";
 import { SupplierDetailActions } from "../supplier-detail-actions";
 import {
   SUPPLIER_COST_STATUS_COLORS,
@@ -229,7 +229,7 @@ export default async function ProveedorDetallePage({
                     <TableRow key={p.id} className={cn(!p.active && "opacity-50")}>
                       <TableCell className="max-w-80 pl-4">
                         <Link
-                          href={`/catalogo/${p.id}`}
+                          href={`/configuracion/catalogo/${p.id}`}
                           className="flex items-center gap-1.5 font-medium hover:underline"
                         >
                           <span className="truncate">{p.name}</span>

@@ -179,7 +179,7 @@ export async function createReservation(
   }
 
   revalidatePath("/calendario");
-  revalidatePath("/salones");
+  revalidatePath("/configuracion/salones");
   return {
     ok: true,
     warning,
@@ -260,7 +260,7 @@ export async function createMaintenanceBlock(
   }
 
   revalidatePath("/calendario");
-  revalidatePath("/salones");
+  revalidatePath("/configuracion/salones");
   return {
     ok: true,
     warning,
@@ -362,7 +362,7 @@ export async function updateReservationDetails(
   );
 
   revalidatePath("/calendario");
-  revalidatePath("/salones");
+  revalidatePath("/configuracion/salones");
   return { ok: true, warning, message: "Reserva actualizada." };
 }
 
@@ -454,7 +454,7 @@ export async function deleteReservation(id: string): Promise<CalendarActionResul
   await prisma.spaceReservation.delete({ where: { id } });
 
   revalidatePath("/calendario");
-  revalidatePath("/salones");
+  revalidatePath("/configuracion/salones");
   return { ok: true, message: "Reserva eliminada." };
 }
 

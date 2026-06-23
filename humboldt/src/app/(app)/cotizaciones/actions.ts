@@ -272,7 +272,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false;
   revalidatePath("/cotizaciones");
   revalidatePath("/pipeline");
   revalidatePath("/calendario");
-  revalidatePath("/salones");
+  revalidatePath("/configuracion/salones");
   redirect(`/cotizaciones/${quoteId}/editar`);
 }
 

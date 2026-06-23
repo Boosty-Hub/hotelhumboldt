@@ -131,7 +131,7 @@ export function ProductsTable({
           </div>
           {hasFilters ? (
             <Button asChild variant="outline">
-              <Link href="/catalogo">Limpiar filtros</Link>
+              <Link href="/configuracion/catalogo">Limpiar filtros</Link>
             </Button>
           ) : (
             <Button
@@ -179,7 +179,7 @@ export function ProductsTable({
               return (
                 <TableRow
                   key={p.id}
-                  onClick={() => router.push(`/catalogo/${p.id}`)}
+                  onClick={() => router.push(`/configuracion/catalogo/${p.id}`)}
                   className={cn("cursor-pointer", !p.active && "opacity-50")}
                 >
                   <TableCell className="max-w-80">
@@ -282,7 +282,7 @@ export function ProductsTable({
                           <Pencil className="h-3.5 w-3.5" />
                           Editar
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => router.push(`/catalogo/${p.id}`)}>
+                        <DropdownMenuItem onClick={() => router.push(`/configuracion/catalogo/${p.id}`)}>
                           <History className="h-3.5 w-3.5" />
                           Ver historial de precios
                         </DropdownMenuItem>

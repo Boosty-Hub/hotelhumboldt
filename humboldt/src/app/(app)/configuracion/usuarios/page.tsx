@@ -9,7 +9,7 @@ export default async function UsuariosPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   // Gestión de usuarios es exclusiva de ADMIN
-  if (!canManageSettings(session.user.role)) redirect("/configuracion/parametros");
+  if (!canManageSettings(session.user.role)) redirect("/configuracion/catalogo");
 
   const rows = await prisma.user.findMany({
     orderBy: { name: "asc" },

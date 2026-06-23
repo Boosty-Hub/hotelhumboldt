@@ -107,7 +107,7 @@ export async function saveProduct(input: unknown): Promise<ActionResult> {
         });
         return product;
       });
-      revalidatePath("/catalogo");
+      revalidatePath("/configuracion/catalogo");
       revalidatePath("/proveedores");
       return { ok: true, id: created.id };
     }
@@ -164,8 +164,8 @@ export async function saveProduct(input: unknown): Promise<ActionResult> {
       }
     });
 
-    revalidatePath("/catalogo");
-    revalidatePath(`/catalogo/${existing.id}`);
+    revalidatePath("/configuracion/catalogo");
+    revalidatePath(`/configuracion/catalogo/${existing.id}`);
     revalidatePath("/proveedores");
     return { ok: true, id: existing.id };
   } catch {
@@ -181,8 +181,8 @@ export async function toggleProductActive(id: string, active: boolean): Promise<
   if (!session?.user) return { ok: false, error: "Sesión expirada. Inicie sesión de nuevo." };
   try {
     await prisma.product.update({ where: { id }, data: { active } });
-    revalidatePath("/catalogo");
-    revalidatePath(`/catalogo/${id}`);
+    revalidatePath("/configuracion/catalogo");
+    revalidatePath(`/configuracion/catalogo/${id}`);
     revalidatePath("/proveedores");
     return { ok: true, id };
   } catch {
@@ -202,7 +202,7 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
       };
     }
     await prisma.product.delete({ where: { id } });
-    revalidatePath("/catalogo");
+    revalidatePath("/configuracion/catalogo");
     revalidatePath("/proveedores");
     return { ok: true };
   } catch {
@@ -237,14 +237,14 @@ export async function saveCategory(input: unknown): Promise<ActionResult> {
         where: { id: data.id },
         data: { name: data.name },
       });
-      revalidatePath("/catalogo");
+      revalidatePath("/configuracion/catalogo");
       return { ok: true, id: data.id };
     }
     const max = await prisma.productCategory.aggregate({ _max: { sortOrder: true } });
     const created = await prisma.productCategory.create({
       data: { name: data.name, sortOrder: (max._max.sortOrder ?? 0) + 1 },
     });
-    revalidatePath("/catalogo");
+    revalidatePath("/configuracion/catalogo");
     return { ok: true, id: created.id };
   } catch (e) {
     if (isUniqueError(e)) {
@@ -274,7 +274,7 @@ export async function moveCategory(id: string, direction: "up" | "down"): Promis
         prisma.productCategory.update({ where: { id: c.id }, data: { sortOrder: i } })
       )
     );
-    revalidatePath("/catalogo");
+    revalidatePath("/configuracion/catalogo");
     return { ok: true, id };
   } catch {
     return { ok: false, error: "No se pudo reordenar la categoría" };
@@ -294,7 +294,7 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
       };
     }
     await prisma.productCategory.delete({ where: { id } });
-    revalidatePath("/catalogo");
+    revalidatePath("/configuracion/catalogo");
     return { ok: true };
   } catch {
     return { ok: false, error: "No se pudo eliminar la categoría" };

@@ -59,7 +59,7 @@ export function ProductDetailActions({
       const res = await deleteProduct(product.id);
       if (res.ok) {
         toast.success(`Producto «${product.name}» eliminado`);
-        router.push("/catalogo");
+        router.push("/configuracion/catalogo");
       } else {
         toast.error(res.error);
       }

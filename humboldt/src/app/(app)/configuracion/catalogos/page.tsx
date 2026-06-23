@@ -1,9 +1,15 @@
+import { redirect } from "next/navigation";
+import { auth, canManageSettings } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CatalogColumn } from "../components/catalog-column";
 
 export const metadata = { title: "Catálogos" };
 
 export default async function CatalogosPage() {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!canManageSettings(role) && role !== "GERENTE") redirect("/configuracion/catalogo");
+
   const [eventTypes, channels] = await Promise.all([
     prisma.eventTypeOption.findMany({ orderBy: { name: "asc" } }),
     prisma.channelOption.findMany({ orderBy: { name: "asc" } }),

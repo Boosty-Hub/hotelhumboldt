@@ -267,6 +267,7 @@ export async function createContactAction(
 
   revalidatePath("/clientes");
   revalidatePath(`/clientes/${clientId}`);
+  revalidatePath("/contactos");
   return { ok: true };
 }
 
@@ -311,6 +312,7 @@ export async function updateContactAction(
 
   revalidatePath("/clientes");
   revalidatePath(`/clientes/${contact.clientId}`);
+  revalidatePath("/contactos");
   return { ok: true };
 }
 
@@ -334,6 +336,7 @@ export async function setPrimaryContactAction(contactId: string): Promise<Action
 
   revalidatePath("/clientes");
   revalidatePath(`/clientes/${contact.clientId}`);
+  revalidatePath("/contactos");
   return { ok: true };
 }
 
@@ -352,6 +355,7 @@ export async function deleteContactAction(contactId: string): Promise<ActionResu
 
   revalidatePath("/clientes");
   revalidatePath(`/clientes/${contact.clientId}`);
+  revalidatePath("/contactos");
   return { ok: true };
 }
 

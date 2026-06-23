@@ -204,6 +204,17 @@ export const CURRENCY_METHODS: Record<"BS" | "USD", PaymentMethod[]> = {
   USD: ["ZELLE", "EFECTIVO_DIVISAS", "TRANSFERENCIA", "OBSEQUIO"],
 };
 
+/** Moneda que fija cada método de pago (BOTH = no fuerza moneda, ej. obsequio). */
+export const METHOD_CURRENCY: Record<PaymentMethod, "BS" | "USD" | "BOTH"> = {
+  BOLIVARES: "BS",
+  TARJETA_DEBITO: "BS",
+  TARJETA_CREDITO: "BS",
+  TRANSFERENCIA: "USD",
+  ZELLE: "USD",
+  EFECTIVO_DIVISAS: "USD",
+  OBSEQUIO: "BOTH",
+};
+
 export const PAYMENT_TYPES = ["ABONO", "ANTICIPO", "GARANTIA", "REINTEGRO"] as const;
 export type PaymentType = (typeof PAYMENT_TYPES)[number];
 

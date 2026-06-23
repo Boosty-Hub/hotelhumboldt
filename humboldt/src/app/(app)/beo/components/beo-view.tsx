@@ -2,9 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { format, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
 import { ArrowDownUp, ClipboardList, FilePlus2, Search } from "lucide-react";
+import { formatDayEs } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -163,7 +162,7 @@ export function BeoView({
                       </Link>
                     </TableCell>
                     <TableCell className="text-sm">
-                      {b.eventDate ? format(parseISO(b.eventDate), "dd/MM/yyyy", { locale: es }) : "—"}
+                      {b.eventDate ? formatDayEs(new Date(b.eventDate), "dd/MM/yyyy") : "—"}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">{b.pax ?? "—"}</TableCell>
                     <TableCell className="text-right">

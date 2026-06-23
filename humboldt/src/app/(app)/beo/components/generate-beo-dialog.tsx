@@ -3,8 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { format, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
+import { formatDayEs } from "@/lib/dates";
 import { CalendarDays, Search } from "lucide-react";
 import {
   Dialog,
@@ -112,7 +111,7 @@ export function GenerateBeoDialog({
                 </div>
                 <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">
                   <CalendarDays className="size-3" />
-                  {e.startDate ? format(parseISO(e.startDate), "dd/MM/yyyy", { locale: es }) : "Sin fecha"}
+                  {e.startDate ? formatDayEs(new Date(e.startDate), "dd/MM/yyyy") : "Sin fecha"}
                 </span>
               </button>
             ))

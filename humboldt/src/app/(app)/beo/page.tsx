@@ -31,12 +31,15 @@ export default async function BeoPage() {
       take: 100,
       include: {
         client: true,
-        // El número que se muestra es el de la cotización ganada/aprobada (no el último borrador).
+        // La cotización ganada/aprobada aporta el número y, vía su evento, la fecha real.
         quotes: {
           where: { status: { in: ["APROBADA", "CONTRATADA"] } },
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: { number: true },
+          select: {
+            number: true,
+            event: { select: { startDate: true, name: true, pax: true } },
+          },
         },
       },
     }),
@@ -53,14 +56,20 @@ export default async function BeoPage() {
     pax: b.pax,
   }));
 
-  const upcomingEvents = upcoming.map((o) => ({
-    id: o.id, // id de la OPORTUNIDAD (el BEO crea el evento si falta)
-    name: o.title,
-    clientName: o.client.brandName || o.client.legalName,
-    opportunityCode: o.quotes[0]?.number ?? o.code,
-    startDate: o.expectedEventDate ? o.expectedEventDate.toISOString() : null,
-    pax: o.pax,
-  }));
+  const upcomingEvents = upcoming.map((o) => {
+    const wonQuote = o.quotes[0];
+    const ev = wonQuote?.event ?? null;
+    // La fecha real es la del evento de la cotización ganada; la oportunidad es el respaldo.
+    const startDate = ev?.startDate ?? o.expectedEventDate;
+    return {
+      id: o.id, // id de la OPORTUNIDAD (el BEO crea el evento si falta)
+      name: ev?.name || o.title,
+      clientName: o.client.brandName || o.client.legalName,
+      opportunityCode: wonQuote?.number ?? o.code,
+      startDate: startDate ? startDate.toISOString() : null,
+      pax: ev?.pax ?? o.pax,
+    };
+  });
 
   return <BeoView beos={beoRows} upcomingEvents={upcomingEvents} />;
 }

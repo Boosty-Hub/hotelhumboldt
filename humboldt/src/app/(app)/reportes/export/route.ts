@@ -3,7 +3,6 @@ import {
   eachMonthOfInterval,
   endOfMonth,
   format,
-  isSameMonth,
   startOfMonth,
   subMonths,
 } from "date-fns";
@@ -11,7 +10,7 @@ import { es } from "date-fns/locale";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { round2 } from "@/lib/money";
-import { buildMonthlyRows, buildTotals, WON_QUOTE_STATUSES } from "@/lib/report-cohort";
+import { buildMonthlyRows, buildTotals } from "@/lib/report-cohort";
 import { getGoals } from "@/lib/settings";
 import { segmentOfEventType } from "@/lib/segments";
 import { isGarantiaMovement } from "../../pagos/data";

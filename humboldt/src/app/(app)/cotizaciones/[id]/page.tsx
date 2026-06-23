@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { format, isSameDay } from "date-fns";
+import { isSameDay } from "date-fns";
 import { formatDayEs } from "@/lib/dates";
-import { es } from "date-fns/locale";
 import { prisma } from "@/lib/prisma";
 import { calcQuoteTotals } from "@/lib/quote-calc";
 import { SETTING_KEYS } from "@/lib/constants";

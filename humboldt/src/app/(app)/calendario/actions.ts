@@ -316,7 +316,7 @@ export async function updateReservationDetails(
 
   const confirmed = others.filter((r) => r.status === "CONFIRMADA");
   if (confirmed.length > 0) {
-    const detail = confirmed.slice(0, 3).map((r) => `“${r.event.name}”`).join(", ");
+    const detail = confirmed.slice(0, 3).map((r) => `“${r.event?.name ?? "Mantenimiento"}”`).join(", ");
     return {
       ok: false,
       error: `${space.name} ya tiene reserva CONFIRMADA ese día: ${detail}. Elija otra fecha u otro salón.`,
@@ -326,7 +326,7 @@ export async function updateReservationDetails(
   let warning: string | undefined;
   const tentative = others.filter((r) => r.status === "TENTATIVA");
   if (tentative.length > 0) {
-    const detail = tentative.slice(0, 3).map((r) => `“${r.event.name}”`).join(", ");
+    const detail = tentative.slice(0, 3).map((r) => `“${r.event?.name ?? "Mantenimiento"}”`).join(", ");
     warning = `Atención: se solapa con tentativa${tentative.length > 1 ? "s" : ""}: ${detail}.`;
   }
 
@@ -404,7 +404,7 @@ export async function updateReservationStatus(
     if (clash) {
       return {
         ok: false,
-        error: `No se puede confirmar: “${clash.event.name}” ya está confirmado en ${reservation.space.name} ese día.`,
+        error: `No se puede confirmar: “${clash.event?.name ?? "Mantenimiento"}” ya está confirmado en ${reservation.space.name} ese día.`,
       };
     }
   }

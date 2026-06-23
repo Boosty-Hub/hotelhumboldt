@@ -2,9 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { format } from "date-fns";
 import { formatDayEs } from "@/lib/dates";
-import { es } from "date-fns/locale";
 import { CalendarDays, UsersRound } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

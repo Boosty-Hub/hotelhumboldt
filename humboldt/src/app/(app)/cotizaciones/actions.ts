@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { nanoid } from "nanoid";
-import { addDays, differenceInCalendarDays } from "date-fns";
+import { addDays } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import { auth, canViewCosts } from "@/lib/auth";

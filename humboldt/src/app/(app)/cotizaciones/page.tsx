@@ -4,7 +4,6 @@ import { formatDayEs } from "@/lib/dates";
 import { es } from "date-fns/locale";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
-import { fmtUsd } from "@/lib/money";
 import { QUOTE_STATUSES, type QuoteStatus } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { FilePlus2, FileText } from "lucide-react";

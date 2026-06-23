@@ -38,7 +38,7 @@ import {
   BANK_ACCOUNT_TYPE_LABELS,
   PAYMENT_METHODS,
   PAYMENT_METHOD_LABELS,
-  CURRENCY_METHODS,
+  METHOD_CURRENCY,
   type BankAccountType,
   type PaymentMethod,
 } from "@/lib/constants";
@@ -87,6 +87,28 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY);
 
+  // La moneda del banco la fija el método elegido (no se elige a mano).
+  const lockedMethod = form.methods.find((m) => METHOD_CURRENCY[m] !== "BOTH");
+  const effectiveCurrency: "BS" | "USD" = lockedMethod
+    ? (METHOD_CURRENCY[lockedMethod] as "BS" | "USD")
+    : form.currency;
+
+  function toggleMethod(m: PaymentMethod) {
+    setForm((f) => {
+      if (f.methods.includes(m)) {
+        return { ...f, methods: f.methods.filter((x) => x !== m) };
+      }
+      const cur = METHOD_CURRENCY[m];
+      if (cur === "BOTH") return { ...f, methods: [...f.methods, m] };
+      // Fija la moneda según el método y descarta los de otra moneda (un banco = una moneda).
+      const compatible = f.methods.filter((x) => {
+        const c = METHOD_CURRENCY[x];
+        return c === "BOTH" || c === cur;
+      });
+      return { ...f, currency: cur, methods: [...compatible, m] };
+    });
+  }
+
   function openNew() {
     setForm(EMPTY);
     setOpen(true);
@@ -125,7 +147,7 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
         // El pago móvil solo aplica a cuentas bancarias.
         phone: esBanco ? form.phone : "",
         documentId: esBanco ? form.documentId : "",
-        currency: form.currency,
+        currency: effectiveCurrency,
         methods: form.methods,
         type: form.type,
       };
@@ -291,58 +313,43 @@ export function BankAccountsManager({ accounts }: { accounts: AccountRow[] }) {
               </div>
               <div className="space-y-1.5">
                 <Label>Moneda</Label>
-                <Select
-                  value={form.currency}
-                  onValueChange={(v) => {
-                    const currency = v as "BS" | "USD";
-                    const allowed = CURRENCY_METHODS[currency];
-                    setForm((f) => ({
-                      ...f,
-                      currency,
-                      // Al cambiar de moneda, descartá métodos incompatibles.
-                      methods: f.methods.filter((m) => allowed.includes(m)),
-                    }));
-                  }}
-                  disabled={pending}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BS">Bolívares (Bs)</SelectItem>
-                    <SelectItem value="USD">Dólares (USD)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground">
+                  {effectiveCurrency === "BS" ? "Bolívares (Bs)" : "Dólares (USD)"}
+                </div>
               </div>
             </div>
 
             <div className="space-y-1.5">
               <Label>Métodos de pago que recibe</Label>
               <div className="grid grid-cols-1 gap-1.5 rounded-md border p-2.5 sm:grid-cols-2">
-                {CURRENCY_METHODS[form.currency].map((m) => {
+                {PAYMENT_METHODS.map((m) => {
                   const checked = form.methods.includes(m);
+                  const cur = METHOD_CURRENCY[m];
+                  // Bloquea métodos de otra moneda cuando ya hay una fijada por un método.
+                  const blocked =
+                    cur !== "BOTH" && lockedMethod != null && cur !== effectiveCurrency;
                   return (
-                    <label key={m} className="flex items-center gap-2 text-sm">
+                    <label
+                      key={m}
+                      className={`flex items-center gap-2 text-sm${blocked ? " opacity-40" : ""}`}
+                    >
                       <Checkbox
                         checked={checked}
-                        onCheckedChange={(v) =>
-                          setForm((f) => ({
-                            ...f,
-                            methods:
-                              v === true
-                                ? [...f.methods, m]
-                                : f.methods.filter((x) => x !== m),
-                          }))
-                        }
-                        disabled={pending}
+                        onCheckedChange={() => toggleMethod(m)}
+                        disabled={pending || blocked}
                       />
-                      {PAYMENT_METHOD_LABELS[m]}
+                      <span className="flex-1">{PAYMENT_METHOD_LABELS[m]}</span>
+                      {cur !== "BOTH" && (
+                        <span className="shrink-0 text-[10px] text-muted-foreground">
+                          {cur === "BS" ? "Bs" : "USD"}
+                        </span>
+                      )}
                     </label>
                   );
                 })}
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Al registrar un pago a este banco solo aparecerán estos métodos.
+                La moneda del banco la define el método. Un banco recibe métodos de una sola moneda.
               </p>
             </div>
 

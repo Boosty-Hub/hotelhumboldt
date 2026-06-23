@@ -41,6 +41,7 @@ import { KanbanColumn } from "./kanban-column";
 import { OpportunityCard } from "./opportunity-card";
 import { OpportunitySheet } from "./opportunity-sheet";
 import { NewOpportunityDialog } from "./new-opportunity-dialog";
+import { EditOpportunityDialog } from "./edit-opportunity-dialog";
 import { LostReasonDialog } from "./lost-reason-dialog";
 import { PipelineTable } from "./pipeline-table";
 
@@ -59,6 +60,7 @@ export function PipelineBoard({
   channels,
   clients,
   currentUserId,
+  canDelete = false,
   initialSelectedId = null,
   initialTaskId = null,
 }: {
@@ -68,6 +70,7 @@ export function PipelineBoard({
   channels: string[];
   clients: BasicClient[];
   currentUserId: string;
+  canDelete?: boolean;
   initialSelectedId?: string | null;
   initialTaskId?: string | null;
 }) {
@@ -85,6 +88,7 @@ export function PipelineBoard({
   const router = useRouter();
   const pathname = usePathname();
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId);
+  const [editingOpp, setEditingOpp] = useState<PipelineOpportunity | null>(null);
   // Abre el detalle cuando cambia el deep-link ?op= (ej. al pulsar una notificación
   // estando ya en /pipeline). useState solo toma el valor inicial al montar.
   useEffect(() => {
@@ -448,6 +452,13 @@ export function PipelineBoard({
         onStageChange={handleStageChange}
         onPatch={patchOpp}
         highlightTaskId={highlightTaskId}
+        canDelete={canDelete}
+        onDeleted={(id) => {
+          setOpps((prev) => prev.filter((o) => o.id !== id));
+          setSelectedId(null);
+          setHighlightTaskId(null);
+        }}
+        onEdit={(o) => setEditingOpp(o)}
       />
 
       {/* Dialog motivo de pérdida (obligatorio) */}
@@ -468,6 +479,19 @@ export function PipelineBoard({
         eventTypes={eventTypes}
         channels={channels}
         currentUserId={currentUserId}
+      />
+
+      {/* Dialog editar oportunidad */}
+      <EditOpportunityDialog
+        open={!!editingOpp}
+        onOpenChange={(o) => {
+          if (!o) setEditingOpp(null);
+        }}
+        opp={editingOpp}
+        users={users}
+        eventTypes={eventTypes}
+        channels={channels}
+        onSaved={() => router.refresh()}
       />
     </div>
   );

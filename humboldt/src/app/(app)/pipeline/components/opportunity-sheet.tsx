@@ -13,7 +13,9 @@ import {
   ExternalLink,
   FileText,
   Megaphone,
+  Pencil,
   Send,
+  Trash2,
   UsersRound,
 } from "lucide-react";
 import {
@@ -23,6 +25,16 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,7 +52,7 @@ import {
   type QuoteStatus,
   type Stage,
 } from "@/lib/constants";
-import { addOpportunityNote, updateOpportunityDetails } from "../actions";
+import { addOpportunityNote, deleteOpportunity, updateOpportunityDetails } from "../actions";
 import { initials, type PipelineOpportunity } from "../types";
 import { ACTIVITY_TYPE_ICONS, ACTIVITY_TYPE_LABELS } from "./pipeline-meta";
 import { TaskSection } from "./task-section";
@@ -73,6 +85,9 @@ export function OpportunitySheet({
   onStageChange,
   onPatch,
   highlightTaskId,
+  canDelete = false,
+  onDeleted,
+  onEdit,
 }: {
   opp: PipelineOpportunity | null;
   open: boolean;
@@ -80,8 +95,13 @@ export function OpportunitySheet({
   onStageChange: (opp: PipelineOpportunity, stage: Stage) => void;
   onPatch: (id: string, patch: Partial<PipelineOpportunity>) => void;
   highlightTaskId?: string | null;
+  canDelete?: boolean;
+  onDeleted?: (id: string) => void;
+  onEdit?: (opp: PipelineOpportunity) => void;
 }) {
   const [pending, startTransition] = useTransition();
+  const [deletePending, startDelete] = useTransition();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [prob, setProb] = useState(opp?.probability ?? 0);
   const [obs, setObs] = useState(opp?.observations ?? "");
   const [note, setNote] = useState("");
@@ -147,6 +167,19 @@ export function OpportunitySheet({
     });
   };
 
+  const handleDelete = () => {
+    startDelete(async () => {
+      const res = await deleteOpportunity(opp.id);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Oportunidad eliminada");
+      setConfirmDelete(false);
+      onDeleted?.(opp.id);
+    });
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -172,6 +205,17 @@ export function OpportunitySheet({
               )}
             </span>
           </SheetDescription>
+          {onEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-1 h-7 w-fit gap-1.5 text-xs"
+              onClick={() => onEdit(opp)}
+            >
+              <Pencil className="size-3.5" />
+              Editar oportunidad
+            </Button>
+          )}
         </SheetHeader>
 
         <div className="flex-1 space-y-5 overflow-y-auto p-6 pt-4">
@@ -443,7 +487,62 @@ export function OpportunitySheet({
               </p>
             )}
           </div>
+
+          {/* Zona de riesgo: borrado real (solo ADMIN/GERENTE) */}
+          {canDelete && (
+            <>
+              <Separator />
+              <div>
+                <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-rose-600">
+                  Zona de riesgo
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                  disabled={deletePending}
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 className="size-3.5" />
+                  Eliminar oportunidad
+                </Button>
+                <p className="mt-1.5 text-[10px] text-muted-foreground">
+                  Borra de verdad (no la manda a Perdido, que falsea las estadísticas). Se bloquea si
+                  tiene pagos o facturas.
+                </p>
+              </div>
+            </>
+          )}
         </div>
+
+        <AlertDialog open={confirmDelete} onOpenChange={(o) => !deletePending && setConfirmDelete(o)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <Trash2 className="size-4 text-rose-600" />
+                Eliminar oportunidad
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Vas a eliminar <span className="font-medium text-foreground">«{opp.title}»</span> (
+                {opp.code}) y todo lo asociado: cotizaciones, eventos, tareas y adjuntos. Esta acción
+                no se puede deshacer. Se bloquea si la oportunidad tiene pagos o facturas.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deletePending}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDelete();
+                }}
+                disabled={deletePending}
+                className="bg-destructive text-white hover:bg-destructive/90"
+              >
+                {deletePending ? "Borrando…" : "Eliminar"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </SheetContent>
     </Sheet>
   );

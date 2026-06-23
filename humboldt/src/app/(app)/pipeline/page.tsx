@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { auth, canDeleteQuotes } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fmtUsd } from "@/lib/money";
 import { PipelineBoard } from "./components/pipeline-board";
@@ -63,6 +63,7 @@ export default async function PipelinePage({
         channels={channels.map((c) => c.name)}
         clients={clients}
         currentUserId={session?.user?.id ?? ""}
+        canDelete={canDeleteQuotes(session?.user?.role)}
         initialSelectedId={initialSelectedId}
         initialTaskId={initialTaskId}
       />

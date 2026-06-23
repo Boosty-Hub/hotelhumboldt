@@ -4,7 +4,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { auth, canDeleteQuotes } from "@/lib/auth";
+import { removeFromBucket } from "@/lib/storage";
 import { pickerDateToUtcDay } from "@/lib/dates";
 import { notifyReleaseOpportunityReservations } from "@/lib/reservations";
 import {
@@ -311,4 +312,153 @@ export async function addOpportunityNote(input: {
 
   revalidatePath("/pipeline");
   return { ok: true, id: parsed.data.id };
+}
+
+// ─────────────────────── Eliminar oportunidad ───────────────────────
+
+// Borrado real (no "mandar a Perdido", que ensucia las estadísticas). Se bloquea
+// si hay dinero atado (pagos/facturas). El resto cae en cascada o se limpia a mano.
+export async function deleteOpportunity(opportunityId: string): Promise<ActionResult> {
+  const session = await requireSession();
+  if (!session) return { ok: false, error: "No autorizado" };
+  if (!canDeleteQuotes(session.user.role)) {
+    return { ok: false, error: "No tenés permiso para eliminar oportunidades." };
+  }
+
+  const opp = await prisma.opportunity.findUnique({
+    where: { id: opportunityId },
+    select: {
+      code: true,
+      title: true,
+      clientId: true,
+      _count: { select: { payments: true, invoices: true } },
+      attachments: { select: { path: true } },
+    },
+  });
+  if (!opp) return { ok: false, error: "La oportunidad no existe." };
+
+  if (opp._count.payments > 0 || opp._count.invoices > 0) {
+    return {
+      ok: false,
+      error: "No se puede borrar: la oportunidad tiene pagos o facturas. Anulalos primero.",
+    };
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Reservas de salón originadas por las cotizaciones o eventos de la oportunidad
+      // (las de cotización quedan en SetNull al borrar la quote; las soltamos antes).
+      await tx.spaceReservation.deleteMany({
+        where: { OR: [{ quote: { opportunityId } }, { event: { opportunityId } }] },
+      });
+      // Cotizaciones: cascada de líneas, cuotas y actividades de la quote.
+      await tx.quote.deleteMany({ where: { opportunityId } });
+      // La oportunidad: cascada de eventos (→ staff/beo/costos), tareas, actividades y adjuntos.
+      await tx.opportunity.delete({ where: { id: opportunityId } });
+      // Rastro de auditoría en la ficha del cliente (que sobrevive).
+      await tx.clientNote.create({
+        data: {
+          clientId: opp.clientId,
+          authorId: session.user.id,
+          body: `Oportunidad ${opp.code} «${opp.title}» eliminada por ${session.user.name ?? "un usuario"}.`,
+        },
+      });
+    });
+  } catch (e) {
+    console.error("deleteOpportunity", e);
+    return { ok: false, error: "No se pudo borrar la oportunidad. Intenta de nuevo." };
+  }
+
+  // Archivos de adjuntos en el storage (best-effort, fuera de la transacción).
+  for (const a of opp.attachments) {
+    try {
+      await removeFromBucket(a.path);
+    } catch (err) {
+      console.error("removeFromBucket (deleteOpportunity)", err);
+    }
+  }
+
+  revalidatePath("/pipeline");
+  revalidatePath("/clientes");
+  revalidatePath(`/clientes/${opp.clientId}`);
+  revalidatePath("/cotizaciones");
+  revalidatePath("/calendario");
+  revalidatePath("/");
+  return { ok: true };
+}
+
+// ─────────────────────── Editar oportunidad (campos núcleo) ───────────────────────
+
+const editOppSchema = z.object({
+  id: z.string().min(1, "Oportunidad inválida"),
+  title: z
+    .string({ message: "El título es obligatorio" })
+    .trim()
+    .min(3, "El título debe tener al menos 3 caracteres")
+    .max(160, "El título es demasiado largo"),
+  eventType: optional(z.string().trim().min(1)),
+  segment: optional(z.string().trim().min(1)),
+  channel: optional(z.string().trim().min(1)),
+  expectedEventDate: optional(z.coerce.date({ message: "Fecha inválida" })),
+  pax: optional(
+    z.number({ message: "Pax debe ser un número" }).int("Pax debe ser entero").positive("Pax debe ser mayor que cero")
+  ),
+  estimatedValue: optional(
+    z.number({ message: "El valor estimado debe ser un número" }).min(0, "El valor no puede ser negativo")
+  ),
+  roomsCount: optional(z.number().int().min(0)),
+  vgCount: optional(z.number().int().min(0)),
+  ownerId: z.string({ message: "Selecciona un responsable" }).min(1, "Selecciona un responsable"),
+});
+
+export async function updateOpportunity(input: {
+  id: string;
+  title: string;
+  eventType?: string | null;
+  segment?: string | null;
+  channel?: string | null;
+  expectedEventDate?: Date | null;
+  pax?: number | null;
+  estimatedValue?: number | null;
+  roomsCount?: number | null;
+  vgCount?: number | null;
+  ownerId: string;
+}): Promise<ActionResult> {
+  const session = await requireSession();
+  if (!session) return { ok: false, error: "No autorizado" };
+
+  const parsed = editOppSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+  const d = parsed.data;
+
+  const opp = await prisma.opportunity.findUnique({ where: { id: d.id }, select: { id: true } });
+  if (!opp) return { ok: false, error: "La oportunidad no existe" };
+
+  const owner = await prisma.user.findUnique({ where: { id: d.ownerId }, select: { id: true } });
+  if (!owner) return { ok: false, error: "El responsable seleccionado no existe" };
+
+  try {
+    await prisma.opportunity.update({
+      where: { id: d.id },
+      data: {
+        title: d.title,
+        eventType: d.eventType ?? null,
+        segment: d.segment ?? null,
+        channel: d.channel ?? null,
+        expectedEventDate: d.expectedEventDate ? pickerDateToUtcDay(d.expectedEventDate) : null,
+        pax: d.pax ?? null,
+        estimatedValue: d.estimatedValue ?? 0,
+        roomsCount: d.roomsCount ?? 0,
+        vgCount: d.vgCount ?? 0,
+        ownerId: d.ownerId,
+      },
+    });
+  } catch {
+    return { ok: false, error: "No se pudo guardar la oportunidad. Intenta de nuevo." };
+  }
+
+  revalidatePath("/pipeline");
+  revalidatePath("/clientes");
+  revalidatePath("/");
+  return { ok: true, id: d.id };
 }

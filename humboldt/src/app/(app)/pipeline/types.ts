@@ -29,8 +29,6 @@ export type PipelineOpportunity = Prisma.OpportunityGetPayload<{
   include: typeof OPPORTUNITY_INCLUDE;
 }>;
 
-export type PipelineActivity = PipelineOpportunity["activities"][number];
-
 export type PipelineTask = PipelineOpportunity["tasks"][number];
 
 export interface BasicUser {

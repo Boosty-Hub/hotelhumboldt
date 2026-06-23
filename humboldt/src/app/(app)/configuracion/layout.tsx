@@ -20,7 +20,7 @@ export default async function ConfiguracionLayout({
   const isManager = isAdmin || role === "GERENTE";
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center gap-2.5">
         <span className="flex size-9 items-center justify-center rounded-lg bg-sky-950 text-white">
           <Settings className="size-4.5" />
@@ -35,9 +35,9 @@ export default async function ConfiguracionLayout({
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 lg:flex-row">
+      <div className="flex flex-col gap-6 md:flex-row">
         {/* Sidebar de configuración */}
-        <aside className="lg:w-64 lg:shrink-0">
+        <aside className="md:w-56 md:shrink-0">
           <ConfigSidebar isAdmin={isAdmin} isManager={isManager} />
         </aside>
 

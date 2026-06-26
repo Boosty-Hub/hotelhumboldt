@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { confirmEventDate } from "./actions";
 
@@ -71,12 +71,13 @@ export function ConfirmDateButton({
 
           <div className="space-y-2">
             <Label htmlFor="confirm-date">Fecha del evento</Label>
-            <Input
+            <DatePicker
               id="confirm-date"
-              type="date"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={setDate}
               disabled={pending}
+              clearable
+              className="w-full"
             />
             {altDates && (
               <p className="text-xs text-muted-foreground">

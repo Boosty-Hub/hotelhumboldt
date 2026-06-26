@@ -16,6 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -263,10 +264,10 @@ function PlanForm({ row, close }: { row: CxcRow; close: () => void }) {
               </div>
               <div className="grid gap-1">
                 <Label className="text-[11px]">Primera fecha</Label>
-                <Input
-                  type="date"
+                <DatePicker
                   value={firstDate}
-                  onChange={(e) => setFirstDate(e.target.value)}
+                  onChange={setFirstDate}
+                  className="w-full"
                 />
               </div>
               <Button type="button" variant="secondary" onClick={generarPlan}>
@@ -328,14 +329,13 @@ function PlanForm({ row, close }: { row: CxcRow; close: () => void }) {
                     <div className="flex items-center gap-2">
                       <div className="grid flex-1 gap-1">
                         <Label className="text-[10px] text-muted-foreground">Vence</Label>
-                        <Input
-                          type="date"
-                          className="h-7"
+                        <DatePicker
+                          className="h-7 w-full"
                           value={r.dueDate}
-                          onChange={(e) =>
+                          onChange={(v) =>
                             setRows((rs) =>
                               rs.map((x, i) =>
-                                i === idx ? { ...x, dueDate: e.target.value } : x
+                                i === idx ? { ...x, dueDate: v } : x
                               )
                             )
                           }

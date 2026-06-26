@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -271,12 +272,12 @@ export function ReservationSheet({
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="edit-date">Fecha</Label>
-                  <Input
+                  <DatePicker
                     id="edit-date"
-                    type="date"
                     value={editDate}
-                    onChange={(e) => setEditDate(e.target.value)}
+                    onChange={setEditDate}
                     disabled={isPending}
+                    className="w-full"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">

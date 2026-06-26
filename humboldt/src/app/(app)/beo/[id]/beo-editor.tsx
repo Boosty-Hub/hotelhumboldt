@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,6 +54,32 @@ export interface BeoData {
 
 type MenuEdit = { section: string; itemsText: string };
 
+/**
+ * Normaliza una hora escrita a mano ("08:00 AM", "8 pm", "20:00") al formato
+ * HH:mm (24h) que requiere <input type="time">. Devuelve "" si no se puede
+ * interpretar, para que el campo quede vacío y se vuelva a elegir.
+ */
+function to24h(raw: string | null | undefined): string {
+  const s = (raw ?? "").trim();
+  if (!s) return "";
+  // Ya en 24h (HH:mm o H:mm)
+  const m24 = s.match(/^(\d{1,2}):(\d{2})$/);
+  if (m24) {
+    const h = Number(m24[1]);
+    if (h <= 23 && Number(m24[2]) <= 59) return `${String(h).padStart(2, "0")}:${m24[2]}`;
+  }
+  // 12h con AM/PM: "8:00 AM", "08:00 p.m.", "8 am"
+  const m12 = s.match(/^(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\.?$/i);
+  if (m12) {
+    let h = Number(m12[1]);
+    const min = m12[2] ? Number(m12[2]) : 0;
+    if (h === 12) h = 0;
+    if (m12[3].toLowerCase() === "p") h += 12;
+    if (h <= 23 && min <= 59) return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+  }
+  return "";
+}
+
 export function BeoEditor({ beo }: { beo: BeoData }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -63,21 +90,69 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
   const [clientName, setClientName] = useState(beo.clientName);
   const [spaceName, setSpaceName] = useState(beo.spaceName);
   const [eventDate, setEventDate] = useState(beo.eventDate);
-  const [startTime, setStartTime] = useState(beo.startTime);
+  const [startTime, setStartTime] = useState(to24h(beo.startTime));
   const [pax, setPax] = useState(beo.pax != null ? String(beo.pax) : "");
-  const [schedule, setSchedule] = useState<BeoScheduleItem[]>(beo.schedule);
+  const [schedule, setSchedule] = useState<BeoScheduleItem[]>(
+    beo.schedule.map((r) => ({ ...r, time: to24h(r.time) }))
+  );
   const [menu, setMenu] = useState<MenuEdit[]>(
     beo.menu.map((m) => ({ section: m.section, itemsText: (m.items ?? []).join("\n") }))
   );
   const [departments, setDepartments] = useState<BeoDepartmentReq[]>(beo.departments);
   const [generalNotes, setGeneralNotes] = useState(beo.generalNotes);
 
+  // Snapshot del estado editable para detectar cambios sin guardar. El PDF (orden
+  // pública) renderiza lo GUARDADO en la BD: ocultamos "Ver / Imprimir PDF" mientras
+  // haya cambios pendientes y reaparece al guardar, para no imprimir datos viejos.
+  const snapshot = useMemo(
+    () =>
+      JSON.stringify({
+        responsable,
+        eventName,
+        clientName,
+        spaceName,
+        eventDate,
+        startTime,
+        pax,
+        schedule,
+        menu,
+        departments,
+        generalNotes,
+      }),
+    [
+      responsable,
+      eventName,
+      clientName,
+      spaceName,
+      eventDate,
+      startTime,
+      pax,
+      schedule,
+      menu,
+      departments,
+      generalNotes,
+    ]
+  );
+  const [savedSnapshot, setSavedSnapshot] = useState(snapshot);
+  const dirty = snapshot !== savedSnapshot;
+
   const [logs, setLogs] = useState<BeoLogEntry[]>([]);
   useEffect(() => {
     getBeoLog(beo.id).then(setLogs).catch(() => {});
   }, [beo.id]);
 
+  // Aviso del navegador al salir con cambios sin guardar.
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
+
   function save() {
+    const snap = snapshot; // lo que se está por persistir
     startTransition(async () => {
       const res = await updateBeo({
         id: beo.id,
@@ -97,6 +172,7 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
         generalNotes: generalNotes || null,
       });
       if (res.ok) {
+        setSavedSnapshot(snap); // ya no hay cambios pendientes → reaparece el PDF
         toast.success("BEO guardado.");
         getBeoLog(beo.id).then(setLogs).catch(() => {});
         router.refresh();
@@ -107,6 +183,10 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
   }
 
   function emit() {
+    if (dirty) {
+      toast.warning("Guardá los cambios antes de emitir el BEO.");
+      return;
+    }
     const next = status === "EMITIDO" ? "BORRADOR" : "EMITIDO";
     startTransition(async () => {
       const res = await setBeoStatus({ id: beo.id, status: next });
@@ -144,6 +224,11 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
               <Badge variant="outline" className={cn(BEO_STATUS_COLORS[status as BeoStatus])}>
                 {BEO_STATUS_LABELS[status as BeoStatus] ?? status}
               </Badge>
+              {dirty && (
+                <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800">
+                  Cambios sin guardar
+                </Badge>
+              )}
             </div>
             <p className="text-sm text-muted-foreground">{eventName || "Evento"}</p>
           </div>
@@ -153,12 +238,14 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
             <Link2 data-icon="inline-start" />
             Copiar link
           </Button>
-          <Button asChild variant="outline">
-            <Link href={`/orden/${beo.publicToken}`} target="_blank">
-              <Printer data-icon="inline-start" />
-              Ver / Imprimir PDF
-            </Link>
-          </Button>
+          {!dirty && (
+            <Button asChild variant="outline">
+              <Link href={`/orden/${beo.publicToken}`} target="_blank">
+                <Printer data-icon="inline-start" />
+                Ver / Imprimir PDF
+              </Link>
+            </Button>
+          )}
           <Button variant="outline" onClick={emit} disabled={pending}>
             <Send data-icon="inline-start" />
             {status === "EMITIDO" ? "Volver a borrador" : "Emitir"}
@@ -180,11 +267,11 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
           <Field label="Espacio / Salón" value={spaceName} onChange={setSpaceName} />
           <div className="space-y-1.5">
             <Label htmlFor="b-date">Fecha</Label>
-            <Input id="b-date" type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+            <DatePicker id="b-date" value={eventDate} onChange={setEventDate} className="w-full" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="b-time">Hora</Label>
-            <Input id="b-time" value={startTime} onChange={(e) => setStartTime(e.target.value)} placeholder="08:00 AM" />
+            <Input id="b-time" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="b-pax">PAX</Label>
@@ -214,11 +301,11 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
             <p className="text-xs text-muted-foreground">Sin líneas. Agregá el run-of-show del evento.</p>
           )}
           {schedule.map((row, i) => (
-            <div key={i} className="grid grid-cols-[90px_1fr_auto] items-start gap-2">
+            <div key={i} className="grid grid-cols-[120px_1fr_auto] items-start gap-2">
               <Input
+                type="time"
                 value={row.time}
                 onChange={(e) => setSchedule((s) => s.map((r, j) => (j === i ? { ...r, time: e.target.value } : r)))}
-                placeholder="Hora"
               />
               <Input
                 value={row.description}

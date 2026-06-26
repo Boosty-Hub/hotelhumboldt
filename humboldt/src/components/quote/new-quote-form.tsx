@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -372,12 +373,12 @@ export function NewQuoteForm({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <Label htmlFor="start-date">Fecha del evento</Label>
-              <Input
+              <DatePicker
                 id="start-date"
-                type="date"
                 value={startDate}
                 min={format(new Date(), "yyyy-MM-dd")}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={setStartDate}
+                className="w-full"
               />
             </div>
             <div className="space-y-1.5">

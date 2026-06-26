@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
@@ -174,7 +175,7 @@ function InvoiceForm({
           </div>
           <div className="grid gap-1.5">
             <Label>Fecha</Label>
-            <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+            <DatePicker value={fecha} onChange={setFecha} className="w-full" />
           </div>
           <div className="grid gap-1.5">
             <Label>Tipo</Label>

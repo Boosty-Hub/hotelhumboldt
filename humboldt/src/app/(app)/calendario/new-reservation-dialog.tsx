@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -363,27 +364,24 @@ export function NewReservationDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="res-from">Desde *</Label>
-              <Input
+              <DatePicker
                 id="res-from"
-                type="date"
                 value={from}
-                onChange={(e) => {
-                  const v = e.target.value;
+                onChange={(v) => {
                   setFrom(v);
                   if (v && (!to || to < v)) setTo(v);
                 }}
-                required
+                className="w-full"
               />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="res-to">Hasta *</Label>
-              <Input
+              <DatePicker
                 id="res-to"
-                type="date"
                 value={to}
                 min={from || undefined}
-                onChange={(e) => setTo(e.target.value)}
-                required
+                onChange={setTo}
+                className="w-full"
               />
             </div>
           </div>

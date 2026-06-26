@@ -11,7 +11,7 @@ import { nanoid } from "nanoid";
 import { addDays } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
-import { auth, canViewCosts, canDeleteQuotes } from "@/lib/auth";
+import { auth, canViewCosts, canDeleteQuotes, canApplyQuoteDiscount } from "@/lib/auth";
 import { getCommercialParams, getSetting } from "@/lib/settings";
 import { calcQuoteTotals, isPriceOverride, lineCost, lineSubtotal } from "@/lib/quote-calc";
 import { round2 } from "@/lib/money";
@@ -123,6 +123,8 @@ export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false;
   const data = parsed.data;
 
   let quoteId: string;
+  let reservedCount = 0;
+  let blockedCount = 0;
   try {
     // 1) Oportunidad: existente o nueva desde cero
     let opportunityId = data.opportunityId || null;
@@ -256,10 +258,12 @@ export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false;
     // si un salón ya está confirmado esas fechas, simplemente no se reserva.
     if (data.spaceIds.length > 0) {
       try {
-        await reserveQuoteSpaces(quoteId, data.spaceIds, {
+        const r = await reserveQuoteSpaces(quoteId, data.spaceIds, {
           id: session.user.id,
           name: session.user.name,
         });
+        reservedCount = r.reservedSpaces.length;
+        blockedCount = r.blocked.length;
       } catch (err) {
         console.error("reserveQuoteSpaces", err);
       }
@@ -273,7 +277,15 @@ export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false;
   revalidatePath("/pipeline");
   revalidatePath("/calendario");
   revalidatePath("/configuracion/salones");
-  redirect(`/cotizaciones/${quoteId}/editar`);
+  // Avisar al editor cuántos salones se reservaron (toast + link al calendario del mes del evento).
+  const notice = new URLSearchParams();
+  if (reservedCount > 0) notice.set("reservadas", String(reservedCount));
+  if (blockedCount > 0) notice.set("bloqueadas", String(blockedCount));
+  if ((reservedCount > 0 || blockedCount > 0) && data.startDate) {
+    notice.set("mes", data.startDate.slice(0, 7));
+  }
+  const qs = notice.toString();
+  redirect(`/cotizaciones/${quoteId}/editar${qs ? `?${qs}` : ""}`);
 }
 
 export type SpaceAvailability = {
@@ -340,7 +352,12 @@ const EDITABLE_STATUSES: QuoteStatus[] = ["BORRADOR", "ENVIADA"];
 export async function saveQuoteLines(
   quoteId: string,
   rawLines: SaveLineInput[],
-  meta?: { rateUsed: number | null; rateKind: string | null }
+  meta?: {
+    rateUsed: number | null;
+    rateKind: string | null;
+    discountPct?: number;
+    discountReason?: string | null;
+  }
 ): Promise<ActionResult> {
   const session = await requireSession();
   const showCosts = canViewCosts(session.user.role);
@@ -458,17 +475,46 @@ export async function saveQuoteLines(
       };
     });
 
+    // Descuento de gerencia: SOLO ADMIN/GERENTE lo controla. Un rol sin permiso
+    // no puede aplicarlo ni alterarlo → se preserva el descuento ya guardado.
+    const canDiscount = canApplyQuoteDiscount(session.user.role);
+    let discountPct: number;
+    let discountReason: string | null;
+    let discountByName: string | null;
+    if (canDiscount) {
+      discountPct = Math.min(Math.max(meta?.discountPct ?? 0, 0), 100);
+      if (discountPct > 0) {
+        const reason = (meta?.discountReason ?? "").trim();
+        if (reason.length < 3) {
+          return { ok: false, error: "El descuento de gerencia requiere un motivo." };
+        }
+        discountReason = reason;
+        discountByName = session.user.name ?? "Gerencia";
+      } else {
+        discountReason = null;
+        discountByName = null;
+      }
+    } else {
+      discountPct = quote.managerDiscountPct;
+      discountReason = quote.managerDiscountReason;
+      discountByName = quote.managerDiscountByName;
+    }
+
     // Totales SIEMPRE en el servidor con el snapshot de parámetros de la cotización
-    const totals = calcQuoteTotals(rows, {
-      taxPct: quote.taxPct,
-      taxEnabled: quote.taxEnabled,
-      servicePct: quote.servicePct,
-      serviceEnabled: quote.serviceEnabled,
-      depositPct: quote.depositPct,
-      depositEnabled: quote.depositEnabled,
-      igtfPct: quote.igtfPct,
-      igtfEnabled: quote.igtfEnabled,
-    });
+    const totals = calcQuoteTotals(
+      rows,
+      {
+        taxPct: quote.taxPct,
+        taxEnabled: quote.taxEnabled,
+        servicePct: quote.servicePct,
+        serviceEnabled: quote.serviceEnabled,
+        depositPct: quote.depositPct,
+        depositEnabled: quote.depositEnabled,
+        igtfPct: quote.igtfPct,
+        igtfEnabled: quote.igtfEnabled,
+      },
+      discountPct
+    );
 
     // ¿Es esta la versión vigente del presupuesto? Solo la vigente sincroniza
     // el valor estimado de la oportunidad (no una versión anterior superada).
@@ -496,6 +542,10 @@ export async function saveQuoteLines(
           taxAmount: totals.taxAmount,
           totalUsd: totals.totalUsd,
           depositAmount: totals.depositAmount,
+          managerDiscountPct: discountPct,
+          managerDiscountReason: discountReason,
+          managerDiscountByName: discountByName,
+          discountAmount: totals.discountAmount,
           ...(meta
             ? { rateUsed: meta.rateUsed, rateKind: meta.rateKind }
             : {}),

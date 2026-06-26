@@ -88,7 +88,8 @@ export default async function DocumentoCotizacionPage({
       depositEnabled: quote.depositEnabled,
       igtfPct: quote.igtfPct,
       igtfEnabled: quote.igtfEnabled,
-    }
+    },
+    quote.managerDiscountPct
   );
 
   // Etiquetas de fecha/hora del evento
@@ -188,6 +189,8 @@ export default async function DocumentoCotizacionPage({
             subtotalTransfers: totals.subtotalTransfers,
             subtotalFood: totals.subtotalFood,
             subtotalSpaces: totals.subtotalSpaces,
+            discountPct: totals.discountPct,
+            discountAmount: totals.discountAmount,
             taxableBase: totals.taxableBase,
             serviceAmount: totals.serviceAmount,
             taxAmount: totals.taxAmount,

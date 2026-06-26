@@ -211,6 +211,13 @@ model Quote {
   totalUsd          Float @default(0)
   depositAmount     Float @default(0) // garantía: depósito reembolsable SEPARADO
 
+  // Descuento de gerencia a nivel cotización (solo ADMIN/GERENTE).
+  // El % se aplica sobre el subtotal de venta ANTES de servicio e IVA.
+  managerDiscountPct    Float   @default(0)
+  managerDiscountReason String?
+  managerDiscountByName String? // snapshot de quién lo autorizó
+  discountAmount        Float   @default(0) // monto descontado (calculado, para listados)
+
   // Tasa elegida al cotizar (para el equivalente en Bs del documento)
   rateUsed Float? // Bs/USD usado en la cotización
   rateKind String? // OFICIAL | PARALELA

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { differenceInCalendarDays } from "date-fns";
 import { prisma } from "@/lib/prisma";
-import { auth, canViewCosts } from "@/lib/auth";
+import { auth, canViewCosts, canApplyQuoteDiscount } from "@/lib/auth";
 import { getCurrentRate, getParallelRate } from "@/lib/bcv";
 import { getCommercialParams } from "@/lib/settings";
 import type { Section } from "@/lib/constants";
@@ -22,6 +22,7 @@ export default async function EditarCotizacionPage({
   const { id } = await params;
   const session = await auth();
   const showCosts = canViewCosts(session?.user?.role);
+  const canApplyDiscount = canApplyQuoteDiscount(session?.user?.role);
 
   const quote = await prisma.quote.findUnique({
     where: { id },
@@ -140,6 +141,9 @@ export default async function EditarCotizacionPage({
       initialRateKind={quote.rateKind}
       newerVersion={newer}
       minMarginPct={minMarginPct}
+      canApplyDiscount={canApplyDiscount}
+      initialDiscountPct={quote.managerDiscountPct}
+      initialDiscountReason={quote.managerDiscountReason ?? ""}
     />
   );
 }

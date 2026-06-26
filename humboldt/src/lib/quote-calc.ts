@@ -40,7 +40,9 @@ export interface QuoteTotals {
   subtotalTransfers: number; // exento de IVA
   subtotalFood: number; // AyB sin servicio
   subtotalSpaces: number;
-  taxableBase: number; // Misc + AyB + Espacios
+  discountPct: number; // % de descuento de gerencia aplicado (0 = sin descuento)
+  discountAmount: number; // monto descontado sobre el subtotal de venta
+  taxableBase: number; // Misc + AyB + Espacios — NETO (tras descuento)
   serviceAmount: number; // servicio % sobre AyB
   taxAmount: number; // IVA sobre la base
   totalUsd: number; // lo que paga el cliente por el evento
@@ -64,7 +66,11 @@ export function lineCost(line: CalcLine): number {
   return round2(line.unitCost * qty);
 }
 
-export function calcQuoteTotals(lines: CalcLine[], p: QuoteParams): QuoteTotals {
+export function calcQuoteTotals(
+  lines: CalcLine[],
+  p: QuoteParams,
+  discountPct = 0
+): QuoteTotals {
   let subtotalMisc = 0;
   let subtotalTransfers = 0;
   let subtotalFood = 0;
@@ -96,10 +102,18 @@ export function calcQuoteTotals(lines: CalcLine[], p: QuoteParams): QuoteTotals 
   subtotalSpaces = round2(subtotalSpaces);
   totalCost = round2(totalCost);
 
-  const taxableBase = round2(subtotalMisc + subtotalFood + subtotalSpaces);
-  const serviceAmount = p.serviceEnabled
-    ? round2(subtotalFood * (p.servicePct / 100))
-    : 0;
+  // Descuento de gerencia: % sobre la BASE GRAVADA (Misc + AyB + Espacios),
+  // ANTES de servicio e IVA. Los Traslados son exentos y quedan fuera del
+  // descuento, así el desglose del documento cuadra. Clamp 0–100.
+  const pct = Math.min(Math.max(discountPct, 0), 100);
+  const grossTaxable = round2(subtotalMisc + subtotalFood + subtotalSpaces);
+  const discountAmount = round2(grossTaxable * (pct / 100));
+  const factor = 1 - pct / 100;
+
+  // Montos netos (tras descuento) sobre los que se calculan servicio e IVA.
+  const netFood = subtotalFood * factor;
+  const taxableBase = round2(grossTaxable * factor);
+  const serviceAmount = p.serviceEnabled ? round2(netFood * (p.servicePct / 100)) : 0;
   const taxAmount = p.taxEnabled ? round2(taxableBase * (p.taxPct / 100)) : 0;
   const totalUsd = round2(taxableBase + subtotalTransfers + serviceAmount + taxAmount);
   const depositAmount = p.depositEnabled
@@ -108,16 +122,19 @@ export function calcQuoteTotals(lines: CalcLine[], p: QuoteParams): QuoteTotals 
   const totalWithDeposit = round2(totalUsd + depositAmount);
   const igtfAmount = p.igtfEnabled ? round2(totalUsd * (p.igtfPct / 100)) : 0;
 
-  const grossMargin = round2(taxableBase + subtotalTransfers - totalCost);
-  const revenueBeforeTax = taxableBase + subtotalTransfers;
+  // Margen sobre los ingresos NETOS realmente cobrados (post-descuento).
+  const netRevenue = round2(taxableBase + subtotalTransfers);
+  const grossMargin = round2(netRevenue - totalCost);
   const grossMarginPct =
-    revenueBeforeTax > 0 ? round2((grossMargin / revenueBeforeTax) * 100) : 0;
+    netRevenue > 0 ? round2((grossMargin / netRevenue) * 100) : 0;
 
   return {
     subtotalMisc,
     subtotalTransfers,
     subtotalFood,
     subtotalSpaces,
+    discountPct: pct,
+    discountAmount,
     taxableBase,
     serviceAmount,
     taxAmount,

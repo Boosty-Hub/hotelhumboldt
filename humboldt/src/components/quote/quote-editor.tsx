@@ -4,9 +4,9 @@
 // Los totales en vivo usan calcQuoteTotals (la misma función que el servidor
 // usa al guardar; el cliente nunca es la fuente de verdad).
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -81,6 +81,9 @@ export interface QuoteEditorProps {
   initialRateKind: string | null;
   newerVersion: { id: string; version: number } | null;
   minMarginPct: number;
+  canApplyDiscount: boolean;
+  initialDiscountPct: number;
+  initialDiscountReason: string;
 }
 
 let uidCounter = 0;
@@ -90,6 +93,8 @@ function newUid() {
 
 export function QuoteEditor(props: QuoteEditorProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const reservationNoticeShown = useRef(false);
   const [lines, setLines] = useState<EditorLine[]>(props.initialLines);
   const [rateKind, setRateKind] = useState<"OFICIAL" | "PARALELA">(
     props.initialRateKind === "PARALELA" ? "PARALELA" : "OFICIAL"
@@ -99,6 +104,8 @@ export function QuoteEditor(props: QuoteEditorProps) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [extraDays, setExtraDays] = useState(0);
   const [discountReq, setDiscountReq] = useState<DiscountRequest | null>(null);
+  const [discountPct, setDiscountPct] = useState(props.initialDiscountPct);
+  const [discountReason, setDiscountReason] = useState(props.initialDiscountReason);
   const [isSaving, startSaving] = useTransition();
 
   const readOnly = props.status !== "BORRADOR" && props.status !== "ENVIADA";
@@ -112,6 +119,42 @@ export function QuoteEditor(props: QuoteEditorProps) {
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
+
+  // ── Aviso de reservas de salón creadas al crear la cotización (toast + link) ──
+  useEffect(() => {
+    if (reservationNoticeShown.current) return;
+    const reservadas = Number(searchParams.get("reservadas") ?? 0);
+    const bloqueadas = Number(searchParams.get("bloqueadas") ?? 0);
+    const mes = searchParams.get("mes") ?? "";
+    if (reservadas === 0 && bloqueadas === 0) return;
+    reservationNoticeShown.current = true;
+    const verCalendario = mes
+      ? { label: "Ver calendario", onClick: () => router.push(`/calendario?mes=${mes}`) }
+      : undefined;
+    if (reservadas > 0) {
+      toast.success(
+        `${reservadas} ${reservadas === 1 ? "salón reservado" : "salones reservados"} tentativamente`,
+        {
+          description:
+            bloqueadas > 0
+              ? `${bloqueadas} no se reservó por estar ya ocupado.`
+              : "Bloqueados en el calendario para las fechas del evento.",
+          action: verCalendario,
+          duration: 8000,
+        }
+      );
+    } else {
+      toast.warning(
+        `Ningún salón se reservó: ${bloqueadas} ya ${
+          bloqueadas === 1 ? "estaba ocupado" : "estaban ocupados"
+        }`,
+        { action: verCalendario, duration: 8000 }
+      );
+    }
+    // Limpiar los params para no repetir el aviso al refrescar.
+    router.replace(`/cotizaciones/${props.quoteId}/editar`, { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Mutaciones locales ──
   const patchLine = useCallback((uid: string, patch: Partial<EditorLine>) => {
@@ -266,9 +309,10 @@ export function QuoteEditor(props: QuoteEditorProps) {
           unitCost: l.unitCost,
           costQuantity: l.costQuantity,
         })),
-        props.params
+        props.params,
+        discountPct
       ),
-    [lines, props.params]
+    [lines, props.params, discountPct]
   );
 
   const sectionSubtotals = useMemo(() => {
@@ -301,6 +345,10 @@ export function QuoteEditor(props: QuoteEditorProps) {
       editDiscount(unauthorized.uid);
       return;
     }
+    if (discountPct > 0 && !discountReason.trim()) {
+      toast.error("El descuento de gerencia requiere un motivo.");
+      return;
+    }
 
     const payload: SaveLineInput[] = lines.map((l, idx) => ({
       id: l.id,
@@ -331,6 +379,8 @@ export function QuoteEditor(props: QuoteEditorProps) {
       const res = await saveQuoteLines(props.quoteId, payload, {
         rateUsed: activeRate,
         rateKind,
+        discountPct,
+        discountReason: discountReason.trim() || null,
       });
       if (res.ok) {
         setDirty(false);
@@ -341,7 +391,7 @@ export function QuoteEditor(props: QuoteEditorProps) {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lines, props.quoteId, props.canViewCosts, multiDay, router]);
+  }, [lines, props.quoteId, props.canViewCosts, multiDay, router, discountPct, discountReason]);
 
   // Ctrl+S / Cmd+S
   useEffect(() => {
@@ -519,13 +569,17 @@ export function QuoteEditor(props: QuoteEditorProps) {
               </Link>
             </Button>
             <CopyLinkButton publicToken={props.publicToken} />
-            <Button variant="outline" asChild>
-              <Link href={`/cotizaciones/${props.quoteId}`}>
-                <Eye className="h-3.5 w-3.5" />
-                Ver documento
-              </Link>
-            </Button>
-            {props.canViewCosts && (
+            {/* El PDF y el análisis leen lo GUARDADO en la BD: se ocultan mientras
+                haya cambios sin guardar para no mostrar datos viejos. Reaparecen al guardar. */}
+            {!dirty && (
+              <Button variant="outline" asChild>
+                <Link href={`/cotizaciones/${props.quoteId}`}>
+                  <Eye className="h-3.5 w-3.5" />
+                  Ver documento
+                </Link>
+              </Button>
+            )}
+            {!dirty && props.canViewCosts && (
               <Button variant="outline" asChild>
                 <Link href={`/cotizaciones/${props.quoteId}/costos`}>
                   <TrendingUp className="h-3.5 w-3.5" />
@@ -598,6 +652,14 @@ export function QuoteEditor(props: QuoteEditorProps) {
                 setDirty(true);
               }}
               minMarginPct={props.minMarginPct}
+              canApplyDiscount={props.canApplyDiscount}
+              discountPct={discountPct}
+              discountReason={discountReason}
+              onDiscountChange={(pct, reason) => {
+                setDiscountPct(pct);
+                setDiscountReason(reason);
+                setDirty(true);
+              }}
             />
           </div>
         </div>

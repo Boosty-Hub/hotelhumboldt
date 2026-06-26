@@ -9,10 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { fmtUsd, fmtBs, fmtPct, usdToBs } from "@/lib/money";
 import type { QuoteTotals, QuoteParams } from "@/lib/quote-calc";
-import { ShieldCheck, Landmark, TrendingUp } from "lucide-react";
+import { ShieldCheck, Landmark, TrendingUp, BadgePercent } from "lucide-react";
+
+/** Normaliza el texto del input de % a un número 0–100. */
+function parsePct(v: string): number {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(Math.max(n, 0), 100);
+}
 
 interface Props {
   totals: QuoteTotals;
@@ -23,6 +31,11 @@ interface Props {
   rateKind?: "OFICIAL" | "PARALELA";
   onRateKindChange?: (k: "OFICIAL" | "PARALELA") => void;
   minMarginPct?: number;
+  /** Descuento de gerencia: solo se muestra el control si es true (ADMIN/GERENTE). */
+  canApplyDiscount?: boolean;
+  discountPct?: number;
+  discountReason?: string;
+  onDiscountChange?: (pct: number, reason: string) => void;
 }
 
 function Row({
@@ -52,6 +65,10 @@ export function TotalsSidebar({
   rateKind = "OFICIAL",
   onRateKindChange,
   minMarginPct = 20,
+  canApplyDiscount = false,
+  discountPct = 0,
+  discountReason = "",
+  onDiscountChange,
 }: Props) {
   const activeRate = rateKind === "PARALELA" ? parallelRate : bcvRate;
   const showSelector = Boolean(onRateKindChange) && parallelRate != null;
@@ -66,6 +83,16 @@ export function TotalsSidebar({
           <Row label="Alimentos y Bebidas" value={fmtUsd(totals.subtotalFood)} />
           <Row label="Espacios" value={fmtUsd(totals.subtotalSpaces)} />
           <Row label="Traslados (exento IVA)" value={fmtUsd(totals.subtotalTransfers)} />
+          {totals.discountAmount > 0 && (
+            <div className="flex items-baseline justify-between text-sm">
+              <span className="text-emerald-700 dark:text-emerald-400">
+                Descuento gerencia ({fmtPct(totals.discountPct)})
+              </span>
+              <span className="font-medium tabular-nums text-emerald-700 dark:text-emerald-400">
+                −{fmtUsd(totals.discountAmount)}
+              </span>
+            </div>
+          )}
           <Separator className="my-2" />
           {params.serviceEnabled && (
             <Row
@@ -76,6 +103,42 @@ export function TotalsSidebar({
           {params.taxEnabled && (
             <Row label={`IVA ${fmtPct(params.taxPct)}`} value={fmtUsd(totals.taxAmount)} />
           )}
+          {canApplyDiscount && (
+            <div className="mt-1 space-y-2 rounded-md border border-dashed border-violet-300 bg-violet-50/50 p-2.5 dark:border-violet-800 dark:bg-violet-950/20">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-violet-900 dark:text-violet-200">
+                <BadgePercent className="h-3.5 w-3.5" />
+                Descuento de gerencia
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative w-20 shrink-0">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    value={discountPct || ""}
+                    onChange={(e) => onDiscountChange?.(parsePct(e.target.value), discountReason)}
+                    className="h-7 pr-5 text-sm"
+                    aria-label="Porcentaje de descuento de gerencia"
+                  />
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                    %
+                  </span>
+                </div>
+                <Input
+                  value={discountReason}
+                  onChange={(e) => onDiscountChange?.(discountPct, e.target.value)}
+                  placeholder="Motivo (obligatorio)"
+                  className="h-7 flex-1 text-sm"
+                  aria-label="Motivo del descuento"
+                />
+              </div>
+              {discountPct > 0 && !discountReason.trim() && (
+                <p className="text-[11px] text-rose-600">Indicá el motivo del descuento.</p>
+              )}
+            </div>
+          )}
+
           <div className="mt-2 flex items-baseline justify-between rounded-lg bg-sky-950 px-3 py-2.5 text-white">
             <span className="text-sm font-semibold">Total USD</span>
             <span className="text-xl font-bold tabular-nums">{fmtUsd(totals.totalUsd)}</span>

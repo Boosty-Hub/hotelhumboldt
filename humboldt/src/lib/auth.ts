@@ -123,3 +123,8 @@ export function canManageSettings(role: string | undefined): boolean {
 export function canDeleteQuotes(role: string | undefined): boolean {
   return role === "ADMIN" || role === "GERENTE";
 }
+
+/** ¿Puede aplicar descuentos de gerencia a nivel cotización? Admin y Gerente. */
+export function canApplyQuoteDiscount(role: string | undefined): boolean {
+  return role === "ADMIN" || role === "GERENTE";
+}

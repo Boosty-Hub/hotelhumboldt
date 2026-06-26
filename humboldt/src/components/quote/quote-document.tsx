@@ -52,6 +52,8 @@ export interface QuoteDocumentProps {
     subtotalTransfers: number;
     subtotalFood: number;
     subtotalSpaces: number;
+    discountPct: number;
+    discountAmount: number;
     taxableBase: number;
     serviceAmount: number;
     taxAmount: number;
@@ -283,7 +285,14 @@ export function QuoteDocument(props: QuoteDocumentProps) {
             )}
           </div>
 
-          {/* Sub Total USD — base del IVA (Misceláneos + AyB + Salones) */}
+          {totals.discountAmount > 0 && (
+            <div className="mt-1 flex items-baseline justify-between font-medium text-emerald-700">
+              <span>Descuento de gerencia ({fmtPct(totals.discountPct)})</span>
+              <span className="tabular-nums">−{fmtUsd(totals.discountAmount)}</span>
+            </div>
+          )}
+
+          {/* Sub Total USD — base del IVA (Misceláneos + AyB + Salones, ya con descuento) */}
           {totals.taxableBase > 0 && (
             <div className="mt-1.5 flex items-baseline justify-between bg-sky-50 px-2 py-1 font-semibold text-sky-950">
               <span>Sub Total USD</span>

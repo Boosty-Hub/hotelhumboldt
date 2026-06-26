@@ -375,9 +375,10 @@ export function OpportunitySheet({
             {opp.quotes.length > 0 ? (
               <div className="space-y-1.5">
                 {opp.quotes.map((q) => (
-                  <div
+                  <Link
                     key={q.id}
-                    className="flex items-center justify-between gap-2 rounded-lg border bg-background px-2.5 py-2"
+                    href={`/cotizaciones/${q.id}/editar`}
+                    className="flex items-center justify-between gap-2 rounded-lg border bg-background px-2.5 py-2 transition-colors hover:border-sky-200 hover:bg-muted/50"
                   >
                     <div className="flex min-w-0 items-center gap-2">
                       <FileText className="size-3.5 shrink-0 text-muted-foreground" />
@@ -392,7 +393,7 @@ export function OpportunitySheet({
                     <span className="text-xs font-semibold tabular-nums">
                       {fmtUsd(q.totalUsd)}
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (

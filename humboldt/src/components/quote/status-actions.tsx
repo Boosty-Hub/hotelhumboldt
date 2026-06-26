@@ -23,7 +23,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Send,
   ThumbsUp,
   ThumbsDown,
   FileSignature,
@@ -41,19 +40,12 @@ interface Props {
 }
 
 type PendingAction =
-  | { kind: "ENVIADA" }
   | { kind: "APROBADA" }
   | { kind: "RECHAZADA" }
   | { kind: "CONTRATADA" }
   | { kind: "VERSION" };
 
 const CONFIRM_COPY: Record<string, { title: string; description: string; cta: string }> = {
-  ENVIADA: {
-    title: "¿Marcar como enviada?",
-    description:
-      "Se regenerará la fecha de vigencia de la cotización. Asegúrate de haber enviado el documento o el link público al cliente.",
-    cta: "Marcar enviada",
-  },
   APROBADA: {
     title: "Registrar aprobación del cliente",
     description:
@@ -111,7 +103,6 @@ export function StatusActions({ quoteId, status, hasUnsavedChanges }: Props) {
       const res = await changeQuoteStatus(quoteId, action.kind, note.trim() || undefined);
       if (res.ok) {
         const messages: Record<string, string> = {
-          ENVIADA: "Cotización marcada como enviada",
           APROBADA: "Aprobación registrada",
           RECHAZADA: "Rechazo registrado",
           CONTRATADA: "¡Evento contratado! La oportunidad pasó a Ganado.",
@@ -125,22 +116,15 @@ export function StatusActions({ quoteId, status, hasUnsavedChanges }: Props) {
     });
   }
 
-  const canSend = status === "BORRADOR" || status === "VENCIDA";
   const canDecide = status === "ENVIADA" || status === "VENCIDA";
   const canContract = status === "ENVIADA" || status === "APROBADA";
 
-  const primary =
-    canSend ? (
-      <Button size="default" onClick={() => open({ kind: "ENVIADA" })} disabled={isPending}>
-        <Send className="h-3.5 w-3.5" />
-        Marcar enviada
-      </Button>
-    ) : canContract ? (
-      <Button size="default" onClick={() => open({ kind: "CONTRATADA" })} disabled={isPending}>
-        <FileSignature className="h-3.5 w-3.5" />
-        Contratar
-      </Button>
-    ) : null;
+  const primary = canContract ? (
+    <Button size="default" onClick={() => open({ kind: "CONTRATADA" })} disabled={isPending}>
+      <FileSignature className="h-3.5 w-3.5" />
+      Contratar
+    </Button>
+  ) : null;
 
   const copy = pending ? CONFIRM_COPY[pending.kind] : null;
 

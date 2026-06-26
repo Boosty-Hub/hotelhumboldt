@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ChevronRight, Plus, Users, SearchX } from "lucide-react";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { dateTimeFilter, parseDateRange } from "@/lib/list-query";
 import { fmtUsd } from "@/lib/money";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -39,20 +41,31 @@ export default async function ClientesPage({
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const orden: "nombre" | "revenue" = sp.orden === "revenue" ? "revenue" : "nombre";
   const showInactive = sp.inactivos === "1";
+  const range = parseDateRange(sp);
 
-  const clients = await prisma.client.findMany({
-    where: showInactive ? {} : { active: true },
-    include: {
-      contacts: { orderBy: { isPrimary: "desc" }, take: 1 },
-      opportunities: {
-        select: { stage: true, estimatedValue: true, title: true },
-        orderBy: { createdAt: "desc" },
+  const where: Prisma.ClientWhereInput = {};
+  if (!showInactive) where.active = true;
+  // El rango desde–hasta filtra por la fecha de registro del cliente.
+  const createdAt = dateTimeFilter(range);
+  if (createdAt) where.createdAt = createdAt;
+
+  const [clients, totalClients] = await Promise.all([
+    prisma.client.findMany({
+      where,
+      include: {
+        contacts: { orderBy: { isPrimary: "desc" }, take: 1 },
+        opportunities: {
+          select: { stage: true, estimatedValue: true, title: true },
+          orderBy: { createdAt: "desc" },
+        },
       },
-    },
-  });
+    }),
+    prisma.client.count(),
+  ]);
 
-  // Búsqueda en memoria: SQLite `contains` es case-sensitive y el catálogo
-  // de clientes es pequeño; así logramos búsqueda insensible a acentos.
+  // Búsqueda en memoria (insensible a acentos): PostgreSQL `mode:"insensitive"`
+  // ignora mayúsculas pero NO acentos; con normalize() igualamos "á"≈"a". El
+  // catálogo de clientes es chico, así que filtrar en memoria es barato.
   const nq = normalize(q);
   const rows = clients
     .map((c) => ({
@@ -102,24 +115,24 @@ export default async function ClientesPage({
         {newClientButton}
       </div>
 
-      <ClientsToolbar q={q} orden={orden} showInactive={showInactive} />
+      <ClientsToolbar orden={orden} showInactive={showInactive} />
 
-      {clients.length === 0 ? (
+      {totalClients === 0 ? (
         <EmptyState
           icon={Users}
           title="Aún no hay clientes"
-          description="Registra tu primer cliente para empezar a crear oportunidades y cotizaciones de eventos."
+          description="Registrá tu primer cliente para empezar a crear oportunidades y cotizaciones de eventos."
         >
           {newClientButton}
         </EmptyState>
       ) : rows.length === 0 ? (
         <EmptyState
           icon={SearchX}
-          title={`Sin resultados para «${q}»`}
-          description="Prueba con otra razón social, marca o RIF, o limpia la búsqueda."
+          title={q ? `Sin resultados para «${q}»` : "Sin resultados"}
+          description="Probá con otra búsqueda, otro rango de fechas, o limpiá los filtros."
         >
           <Button variant="outline" asChild>
-            <Link href="/clientes">Limpiar búsqueda</Link>
+            <Link href="/clientes">Limpiar filtros</Link>
           </Button>
         </EmptyState>
       ) : (

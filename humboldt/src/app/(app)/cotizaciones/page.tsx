@@ -5,10 +5,11 @@ import { es } from "date-fns/locale";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import { auth, canDeleteQuotes } from "@/lib/auth";
-import { QUOTE_STATUSES, type QuoteStatus } from "@/lib/constants";
+import { QUOTE_STATUSES, QUOTE_STATUS_LABELS, type QuoteStatus } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { FilePlus2, FileText } from "lucide-react";
-import { QuotesToolbar } from "@/components/quote/quotes-toolbar";
+import { ListFilters } from "@/components/shared/list-filters";
+import { dateTimeFilter, hasDateRange, parseDateRange, parseDir } from "@/lib/list-query";
 import { quoteBaseNumber } from "@/components/quote/quote-utils";
 import { QuotesTable, type QuoteGroup, type QuoteRow } from "./_components/quotes-table";
 
@@ -49,12 +50,17 @@ export default async function CotizacionesPage({
   const sp = await searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const estado = typeof sp.estado === "string" ? sp.estado : "";
+  const range = parseDateRange(sp);
+  const dir = parseDir(sp, "desc");
 
   const session = await auth();
   const canDelete = canDeleteQuotes(session?.user?.role);
 
   const where: Prisma.QuoteWhereInput = {};
   if (QUOTE_STATUSES.includes(estado as QuoteStatus)) where.status = estado;
+  // El rango desde–hasta filtra por la fecha del evento de la cotización.
+  const eventDate = dateTimeFilter(range);
+  if (eventDate) where.event = { startDate: eventDate };
   if (q) {
     where.OR = [
       { number: { contains: q, mode: "insensitive" } },
@@ -72,10 +78,10 @@ export default async function CotizacionesPage({
       event: true,
       signer: true,
     },
-    orderBy: [{ issueDate: "desc" }, { version: "desc" }],
+    orderBy: [{ issueDate: dir }, { version: "desc" }],
   });
 
-  const hasFilters = Boolean(q || estado);
+  const hasFilters = Boolean(q || estado || hasDateRange(range));
 
   // Agrupar versiones por número base: una línea por cotización, con las
   // versiones anteriores desplegables.
@@ -130,7 +136,15 @@ export default async function CotizacionesPage({
         </Button>
       </div>
 
-      <QuotesToolbar />
+      <ListFilters
+        searchPlaceholder="Buscar por número, cliente o evento…"
+        searchAriaLabel="Buscar cotizaciones"
+        statusOptions={QUOTE_STATUSES.map((s) => ({ value: s, label: QUOTE_STATUS_LABELS[s] }))}
+        statusAllLabel="Todos los estados"
+        statusAriaLabel="Filtrar por estado"
+        dateRange={{ label: "Fecha del evento" }}
+        direction={{ ascLabel: "Más antiguas", descLabel: "Más recientes", defaultDir: "desc" }}
+      />
 
       {quotes.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed bg-card py-16 text-center">
@@ -143,8 +157,8 @@ export default async function CotizacionesPage({
             </p>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {hasFilters
-                ? "Prueba con otra búsqueda u otro estado."
-                : "Crea la primera cotización para empezar a vender eventos."}
+                ? "Probá con otra búsqueda, estado o rango de fechas."
+                : "Creá la primera cotización para empezar a vender eventos."}
             </p>
           </div>
           {!hasFilters && (

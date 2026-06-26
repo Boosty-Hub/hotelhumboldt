@@ -1,13 +1,42 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+import { dateTimeFilter, hasDateRange, parseDateRange, parseDir } from "@/lib/list-query";
+import { BEO_STATUSES, type BeoStatus } from "./constants";
 import { BeoView } from "./components/beo-view";
 
 export const metadata = { title: "BEO — Órdenes de evento" };
 export const dynamic = "force-dynamic";
 
-export default async function BeoPage() {
-  const [beos, upcoming] = await Promise.all([
+/** Búsqueda insensible a acentos y mayúsculas. */
+function norm(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
+export default async function BeoPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const q = typeof sp.q === "string" ? sp.q.trim() : "";
+  const estado = typeof sp.estado === "string" ? sp.estado : "";
+  const range = parseDateRange(sp);
+  const dir = parseDir(sp, "desc");
+
+  // Estado y rango de fecha se filtran en la DB; la búsqueda de texto se hace en
+  // memoria (insensible a acentos + substring del Nº, que es Int y no admite contains).
+  const where: Prisma.BeoWhereInput = {};
+  if (BEO_STATUSES.includes(estado as BeoStatus)) where.status = estado;
+  const eventDate = dateTimeFilter(range);
+  if (eventDate) where.eventDate = eventDate;
+
+  const [beos, total, upcoming] = await Promise.all([
     prisma.beo.findMany({
-      orderBy: { number: "desc" },
+      where,
+      orderBy: { number: dir },
       take: 300,
       select: {
         id: true,
@@ -20,6 +49,7 @@ export default async function BeoPage() {
         pax: true,
       },
     }),
+    prisma.beo.count(),
     // El BEO solo sale de oportunidades con una cotización GANADA/APROBADA
     // que aún no tienen BEO (ninguno de sus eventos tiene BEO).
     prisma.opportunity.findMany({
@@ -45,16 +75,25 @@ export default async function BeoPage() {
     }),
   ]);
 
-  const beoRows = beos.map((b) => ({
-    id: b.id,
-    number: b.number,
-    status: b.status,
-    eventName: b.eventName ?? "—",
-    clientName: b.clientName ?? "—",
-    spaceName: b.spaceName,
-    eventDate: b.eventDate ? b.eventDate.toISOString() : null,
-    pax: b.pax,
-  }));
+  const nq = norm(q);
+  const beoRows = beos
+    .map((b) => ({
+      id: b.id,
+      number: b.number,
+      status: b.status,
+      eventName: b.eventName ?? "—",
+      clientName: b.clientName ?? "—",
+      spaceName: b.spaceName,
+      eventDate: b.eventDate ? b.eventDate.toISOString() : null,
+      pax: b.pax,
+    }))
+    .filter(
+      (b) =>
+        !nq ||
+        norm(b.eventName).includes(nq) ||
+        norm(b.clientName).includes(nq) ||
+        String(b.number).includes(q)
+    );
 
   const upcomingEvents = upcoming.map((o) => {
     const wonQuote = o.quotes[0];
@@ -71,5 +110,15 @@ export default async function BeoPage() {
     };
   });
 
-  return <BeoView beos={beoRows} upcomingEvents={upcomingEvents} />;
+  const hasFilters = Boolean(q || estado || hasDateRange(range));
+
+  return (
+    <BeoView
+      beos={beoRows}
+      upcomingEvents={upcomingEvents}
+      total={total}
+      filtered={beoRows.length}
+      hasFilters={hasFilters}
+    />
+  );
 }

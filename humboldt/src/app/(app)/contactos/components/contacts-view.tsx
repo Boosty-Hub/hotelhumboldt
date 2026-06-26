@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { FileText, Mail, Phone, Search, UserPlus } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { FileText, Mail, Phone, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -15,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ListFilters } from "@/components/shared/list-filters";
 import { NewContactDialog } from "./new-contact-dialog";
 
 export interface ContactRow {
@@ -33,34 +36,42 @@ export interface ClientLite {
   name: string;
 }
 
-function norm(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
-}
-
 export function ContactsView({
   contacts,
   clients,
+  total,
+  filtered,
+  onlyPrimary,
+  hasFilters,
 }: {
   contacts: ContactRow[];
   clients: ClientLite[];
+  /** Total de contactos sin filtros (para el contador del encabezado). */
+  total: number;
+  /** Cantidad de contactos tras aplicar los filtros (para "X de Y"). */
+  filtered: number;
+  /** Filtro "solo principales" activo. */
+  onlyPrimary: boolean;
+  /** ¿Hay algún filtro activo? Distingue "sin contactos" de "sin coincidencias". */
+  hasFilters: boolean;
 }) {
-  const [search, setSearch] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const [, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
 
-  const q = norm(search.trim());
-  const filtered = q
-    ? contacts.filter(
-        (c) =>
-          norm(c.name).includes(q) ||
-          norm(c.clientName).includes(q) ||
-          norm(c.title ?? "").includes(q) ||
-          norm(c.email ?? "").includes(q) ||
-          norm(c.phone ?? "").includes(q)
-      )
-    : contacts;
+  // Solo el switch "principales" es propio de esta vista; búsqueda y orden los
+  // maneja ListFilters. Lee la URL viva para no pisar al otro escritor.
+  function apply(updates: Record<string, string | null>) {
+    const params = new URLSearchParams(window.location.search);
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === null || value === "") params.delete(key);
+      else params.set(key, value);
+    }
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  }
 
   return (
     <div className="space-y-4">
@@ -68,8 +79,10 @@ export function ContactsView({
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Contactos</h1>
           <p className="text-sm text-muted-foreground">
-            {contacts.length} {contacts.length === 1 ? "contacto" : "contactos"} · personas a las que
-            les cotizamos
+            {hasFilters
+              ? `${filtered} de ${total} ${total === 1 ? "contacto" : "contactos"}`
+              : `${total} ${total === 1 ? "contacto" : "contactos"}`}{" "}
+            · personas a las que les cotizamos
           </p>
         </div>
         <Button onClick={() => setOpen(true)} className="bg-sky-950 hover:bg-sky-900">
@@ -78,23 +91,31 @@ export function ContactsView({
         </Button>
       </div>
 
-      <div className="relative w-full max-w-72">
-        <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por nombre, cliente, correo…"
-          className="pl-8"
-        />
-      </div>
+      <ListFilters
+        searchPlaceholder="Buscar por nombre, cliente, correo…"
+        searchAriaLabel="Buscar contactos"
+        direction={{ ascLabel: "Nombre (A–Z)", descLabel: "Nombre (Z–A)", defaultDir: "asc" }}
+        extraParams={["principales"]}
+      >
+        <div className="flex items-center gap-2">
+          <Switch
+            id="principales"
+            checked={onlyPrimary}
+            onCheckedChange={(checked) => apply({ principales: checked ? "1" : null })}
+          />
+          <Label htmlFor="principales" className="text-xs text-muted-foreground">
+            Solo principales
+          </Label>
+        </div>
+      </ListFilters>
 
       <Card>
         <CardContent className="p-0">
-          {filtered.length === 0 ? (
+          {contacts.length === 0 ? (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              {contacts.length === 0
-                ? "Todavía no hay contactos. Agregá el primero con el botón de arriba."
-                : "Ningún contacto coincide con la búsqueda."}
+              {hasFilters
+                ? "Ningún contacto coincide con los filtros."
+                : "Todavía no hay contactos. Agregá el primero con el botón de arriba."}
             </p>
           ) : (
             <Table>
@@ -107,7 +128,7 @@ export function ContactsView({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((c) => (
+                {contacts.map((c) => (
                   <TableRow key={c.id}>
                     <TableCell>
                       <div className="flex items-center gap-1.5">

@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ArrowDownWideNarrow, Loader2, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useTransition } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowDownWideNarrow } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -13,25 +12,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ListFilters } from "@/components/shared/list-filters";
 
 export function ClientsToolbar({
-  q,
   orden,
   showInactive,
 }: {
-  q: string;
   orden: "nombre" | "revenue";
   showInactive: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [search, setSearch] = useState(q);
-  const [pending, startTransition] = useTransition();
-  const firstRender = useRef(true);
+  const [, startTransition] = useTransition();
 
+  // Búsqueda y rango de fechas los maneja ListFilters; aquí solo el orden y el
+  // switch de inactivos, que son propios de Clientes. Lee la URL viva para no
+  // pisar cambios concurrentes del otro escritor (ListFilters).
   function apply(updates: Record<string, string | null>) {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     for (const [key, value] of Object.entries(updates)) {
       if (value === null || value === "") params.delete(key);
       else params.set(key, value);
@@ -41,43 +39,14 @@ export function ClientsToolbar({
     });
   }
 
-  // Búsqueda con debounce (server-side vía searchParams)
-  useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-    const t = setTimeout(() => {
-      const params = new URLSearchParams(window.location.search);
-      if ((params.get("q") ?? "") !== search.trim()) {
-        apply({ q: search.trim() || null });
-      }
-    }, 300);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
-
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="relative w-full max-w-xs">
-        {pending ? (
-          <Loader2 className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-muted-foreground" />
-        ) : (
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-        )}
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por razón social, marca o RIF…"
-          className="pl-8"
-          aria-label="Buscar clientes"
-        />
-      </div>
-
-      <Select
-        value={orden}
-        onValueChange={(v) => apply({ orden: v === "nombre" ? null : v })}
-      >
+    <ListFilters
+      searchPlaceholder="Buscar por razón social, marca o RIF…"
+      searchAriaLabel="Buscar clientes"
+      dateRange={{ label: "Registrado" }}
+      extraParams={["orden", "inactivos"]}
+    >
+      <Select value={orden} onValueChange={(v) => apply({ orden: v === "nombre" ? null : v })}>
         <SelectTrigger aria-label="Ordenar clientes">
           <ArrowDownWideNarrow className="h-3.5 w-3.5 text-muted-foreground" />
           <SelectValue placeholder="Ordenar" />
@@ -98,6 +67,6 @@ export function ClientsToolbar({
           Mostrar inactivos
         </Label>
       </div>
-    </div>
+    </ListFilters>
   );
 }

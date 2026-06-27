@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -37,15 +37,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { createReservation, createMaintenanceBlock } from "./actions";
-import type { CalendarSpaceDTO, EventOptionDTO, OpportunityOptionDTO } from "./types";
+import type { CalendarSpaceDTO, ContactOptionDTO, OpenQuoteOptionDTO } from "./types";
 
 interface NewReservationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   month: string; // yyyy-MM visible
   spaces: CalendarSpaceDTO[];
-  events: EventOptionDTO[];
-  opportunities: OpportunityOptionDTO[];
+  contacts: ContactOptionDTO[];
+  openQuotes: OpenQuoteOptionDTO[];
   presetDate?: string | null; // yyyy-MM-dd al abrir desde una celda
   presetSpaceId?: string | null;
 }
@@ -131,8 +131,8 @@ export function NewReservationDialog({
   onOpenChange,
   month,
   spaces,
-  events,
-  opportunities,
+  contacts,
+  openQuotes,
   presetDate,
   presetSpaceId,
 }: NewReservationDialogProps) {
@@ -142,10 +142,9 @@ export function NewReservationDialog({
   const [spaceId, setSpaceId] = useState<string>("");
   const [reservationType, setReservationType] = useState<"evento" | "mantenimiento">("evento");
   const [maintTitle, setMaintTitle] = useState("");
-  const [mode, setMode] = useState<"existente" | "nuevo">("existente");
-  const [eventId, setEventId] = useState<string | null>(null);
-  const [newEventName, setNewEventName] = useState("");
-  const [opportunityId, setOpportunityId] = useState<string | null>(null);
+  const [contactId, setContactId] = useState<string | null>(null);
+  const [quoteId, setQuoteId] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
   const [from, setFrom] = useState(defaultDate);
   const [to, setTo] = useState(defaultDate);
   const [startTime, setStartTime] = useState("");
@@ -161,10 +160,9 @@ export function NewReservationDialog({
     setSpaceId(presetSpaceId ?? "");
     setReservationType("evento");
     setMaintTitle("");
-    setMode(events.length > 0 ? "existente" : "nuevo");
-    setEventId(null);
-    setNewEventName("");
-    setOpportunityId(null);
+    setContactId(null);
+    setQuoteId(null);
+    setTitle("");
     setFrom(startDate);
     setTo(startDate);
     setStartTime("");
@@ -204,21 +202,17 @@ export function NewReservationDialog({
       return;
     }
 
-    if (mode === "existente" && !eventId) {
-      toast.error("Seleccione el evento a reservar.");
-      return;
-    }
-    if (mode === "nuevo" && (!newEventName.trim() || !opportunityId)) {
-      toast.error("Indique el nombre del evento y la oportunidad asociada.");
+    if (!contactId) {
+      toast.error("Seleccione el contacto de la reserva.");
       return;
     }
 
     startTransition(async () => {
       const res = await createReservation({
         spaceId,
-        eventId: mode === "existente" ? eventId : null,
-        newEventName: mode === "nuevo" ? newEventName.trim() : null,
-        opportunityId: mode === "nuevo" ? opportunityId : null,
+        contactId,
+        quoteId: quoteId ?? null,
+        title: title.trim() || null,
         from,
         to,
         startTime: startTime || null,
@@ -291,60 +285,50 @@ export function NewReservationDialog({
           </div>
 
           {reservationType === "evento" && (
-          <div className="space-y-1.5">
-            <Label>Evento *</Label>
-            <Tabs value={mode} onValueChange={(v) => setMode(v as "existente" | "nuevo")}>
-              <TabsList className="w-full">
-                <TabsTrigger value="existente" className="flex-1">
-                  Evento existente
-                </TabsTrigger>
-                <TabsTrigger value="nuevo" className="flex-1">
-                  Crear evento rápido
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="existente" className="mt-2">
-                {events.length === 0 ? (
-                  <p className="rounded-md border border-dashed px-3 py-2.5 text-xs text-muted-foreground">
-                    Aún no hay eventos registrados. Use “Crear evento rápido” para asociarlo a una
-                    oportunidad.
-                  </p>
-                ) : (
-                  <Combobox
-                    items={events.map((e) => ({
-                      id: e.id,
-                      label: e.name,
-                      description: `${e.clientName} · ${e.opportunityCode}`,
-                    }))}
-                    value={eventId}
-                    onChange={setEventId}
-                    placeholder="Buscar evento…"
-                    searchPlaceholder="Nombre del evento o cliente…"
-                    emptyText="No se encontraron eventos."
-                  />
-                )}
-              </TabsContent>
-              <TabsContent value="nuevo" className="mt-2 space-y-2">
+            <>
+              <div className="space-y-1.5">
+                <Label>Contacto *</Label>
+                <Combobox
+                  items={contacts.map((c) => ({
+                    id: c.id,
+                    label: c.name,
+                    description: c.clientNames.length > 0 ? c.clientNames.join(", ") : undefined,
+                  }))}
+                  value={contactId}
+                  onChange={setContactId}
+                  placeholder="Buscar contacto…"
+                  searchPlaceholder="Nombre del contacto o empresa…"
+                  emptyText="No se encontraron contactos."
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Cotización abierta (opcional)</Label>
+                <Combobox
+                  items={openQuotes.map((q) => ({
+                    id: q.id,
+                    label: q.number,
+                    description: q.description,
+                  }))}
+                  value={quoteId}
+                  onChange={setQuoteId}
+                  placeholder="Vincular una cotización…"
+                  searchPlaceholder="Número, cliente o evento…"
+                  emptyText="No hay cotizaciones abiertas."
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="res-title">Descripción (opcional)</Label>
                 <Input
-                  value={newEventName}
-                  onChange={(e) => setNewEventName(e.target.value)}
-                  placeholder="Nombre del evento (ej. Fiesta de Navidad 2026)"
+                  id="res-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Ej. Montaje boda — por defecto, el nombre del contacto"
                   maxLength={120}
                 />
-                <Combobox
-                  items={opportunities.map((o) => ({
-                    id: o.id,
-                    label: `${o.code} — ${o.title}`,
-                    description: o.clientName,
-                  }))}
-                  value={opportunityId}
-                  onChange={setOpportunityId}
-                  placeholder="Oportunidad asociada…"
-                  searchPlaceholder="Código, título o cliente…"
-                  emptyText="No se encontraron oportunidades."
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
+              </div>
+            </>
           )}
 
           {reservationType === "mantenimiento" && (

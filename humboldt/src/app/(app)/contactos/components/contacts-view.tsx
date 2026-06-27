@@ -26,9 +26,10 @@ export interface ContactRow {
   title: string | null;
   phone: string | null;
   email: string | null;
+  /** ¿Es principal de alguna empresa? */
   isPrimary: boolean;
-  clientId: string;
-  clientName: string;
+  /** Empresas a las que pertenece (puede ser ninguna o varias). */
+  clients: { id: string; name: string }[];
 }
 
 export interface ClientLite {
@@ -122,7 +123,7 @@ export function ContactsView({
               <TableHeader>
                 <TableRow>
                   <TableHead>Contacto</TableHead>
-                  <TableHead>Cliente</TableHead>
+                  <TableHead>Empresas</TableHead>
                   <TableHead>Datos</TableHead>
                   <TableHead className="text-right">Acción</TableHead>
                 </TableRow>
@@ -142,12 +143,25 @@ export function ContactsView({
                       {c.title && <p className="text-[11px] text-muted-foreground">{c.title}</p>}
                     </TableCell>
                     <TableCell>
-                      <Link
-                        href={`/clientes/${c.clientId}`}
-                        className="text-sm font-medium text-sky-900 hover:underline"
-                      >
-                        {c.clientName}
-                      </Link>
+                      {c.clients.length === 0 ? (
+                        <span className="text-xs text-muted-foreground">Sin empresa</span>
+                      ) : (
+                        <div className="flex flex-wrap gap-x-1.5 gap-y-0.5">
+                          {c.clients.map((cl, i) => (
+                            <span key={cl.id} className="text-sm">
+                              <Link
+                                href={`/clientes/${cl.id}`}
+                                className="font-medium text-sky-900 hover:underline"
+                              >
+                                {cl.name}
+                              </Link>
+                              {i < c.clients.length - 1 && (
+                                <span className="text-muted-foreground">,</span>
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       <div className="flex flex-col gap-0.5">

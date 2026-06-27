@@ -21,7 +21,6 @@ export default async function CatalogoPage({
 }) {
   const [session, sp] = await Promise.all([auth(), searchParams]);
   const showCosts = canViewCosts(session?.user?.role);
-  const { minMarginPct } = await getCommercialParams();
 
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const categoria = typeof sp.categoria === "string" ? sp.categoria : "";
@@ -44,21 +43,11 @@ export default async function CatalogoPage({
     ...(inactivos ? {} : { active: true }),
   };
 
-  const total = await prisma.product.count({ where });
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const pagina = Math.min(
-    Math.max(Number.isNaN(paginaRaw) ? 1 : paginaRaw, 1),
-    totalPages
-  );
-
-  const [products, categoryRows, suppliers] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      include: { category: { select: { id: true, name: true } } },
-      orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }],
-      skip: (pagina - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
+  // Primera tanda: todo lo que NO depende de la página (el conteo determina el
+  // clamp de página, las categorías/proveedores/params son independientes).
+  const [{ minMarginPct }, total, categoryRows, suppliers] = await Promise.all([
+    getCommercialParams(),
+    prisma.product.count({ where }),
     prisma.productCategory.findMany({
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       include: { _count: { select: { products: true } } },
@@ -69,6 +58,21 @@ export default async function CatalogoPage({
       select: { id: true, name: true },
     }),
   ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pagina = Math.min(
+    Math.max(Number.isNaN(paginaRaw) ? 1 : paginaRaw, 1),
+    totalPages
+  );
+
+  // Segunda tanda: la página de productos, que sí necesita el clamp de `pagina`.
+  const products = await prisma.product.findMany({
+    where,
+    include: { category: { select: { id: true, name: true } } },
+    orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }],
+    skip: (pagina - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+  });
 
   // Seguridad: NUNCA serializar costo/proveedor al cliente si no tiene permiso
   // (el ocultado visual no basta — el campo viajaría en el payload RSC).

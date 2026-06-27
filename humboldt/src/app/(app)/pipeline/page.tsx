@@ -2,7 +2,7 @@ import { auth, canDeleteQuotes } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { fmtUsd } from "@/lib/money";
 import { PipelineBoard } from "./components/pipeline-board";
-import { OPPORTUNITY_INCLUDE } from "./types";
+import { OPPORTUNITY_BOARD_INCLUDE } from "./types";
 
 export const metadata = { title: "Pipeline de ventas" };
 
@@ -16,9 +16,10 @@ export default async function PipelinePage({
   const initialSelectedId = typeof op === "string" ? op : null;
   const initialTaskId = typeof task === "string" ? task : null;
 
-  const [opportunities, users, eventTypes, channels, clients] = await Promise.all([
+  const [opportunities, users, eventTypes, channels, clients, contactRows] = await Promise.all([
     prisma.opportunity.findMany({
-      include: OPPORTUNITY_INCLUDE,
+      // Tarjetas del tablero: sin activities/tasks (se cargan al abrir el detalle).
+      include: OPPORTUNITY_BOARD_INCLUDE,
       orderBy: { updatedAt: "desc" },
     }),
     prisma.user.findMany({
@@ -39,7 +40,29 @@ export default async function PipelinePage({
       select: { id: true, legalName: true, brandName: true },
       orderBy: { legalName: "asc" },
     }),
+    // Contactos del directorio con sus empresas (la oportunidad se crea por contacto).
+    prisma.contact.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        clientLinks: {
+          select: { client: { select: { id: true, legalName: true, brandName: true } } },
+        },
+      },
+    }),
   ]);
+
+  const contacts = contactRows.map((c) => ({
+    id: c.id,
+    name: c.name,
+    title: c.title,
+    clients: c.clientLinks.map((l) => ({
+      id: l.client.id,
+      name: l.client.brandName ?? l.client.legalName,
+    })),
+  }));
 
   const open = opportunities.filter(
     (o) => o.stage !== "GANADO" && o.stage !== "PERDIDO"
@@ -62,6 +85,7 @@ export default async function PipelinePage({
         eventTypes={eventTypes.map((t) => t.name)}
         channels={channels.map((c) => c.name)}
         clients={clients}
+        contacts={contacts}
         currentUserId={session?.user?.id ?? ""}
         canDelete={canDeleteQuotes(session?.user?.role)}
         initialSelectedId={initialSelectedId}

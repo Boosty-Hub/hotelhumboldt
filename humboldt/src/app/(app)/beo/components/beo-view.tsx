@@ -23,7 +23,7 @@ import {
   BEO_STATUSES,
   type BeoStatus,
 } from "../constants";
-import { GenerateBeoDialog, type UpcomingEvent } from "./generate-beo-dialog";
+import { GenerateBeoDialog, type BeoReservationOption } from "./generate-beo-dialog";
 
 export interface BeoRow {
   id: string;
@@ -38,13 +38,13 @@ export interface BeoRow {
 
 export function BeoView({
   beos,
-  upcomingEvents,
+  reservationOptions,
   total,
   filtered,
   hasFilters,
 }: {
   beos: BeoRow[];
-  upcomingEvents: UpcomingEvent[];
+  reservationOptions: BeoReservationOption[];
   /** Total de BEOs sin filtros (para el contador del encabezado). */
   total: number;
   /** Cantidad de BEOs tras aplicar los filtros (para "X de Y"). */
@@ -92,7 +92,7 @@ export function BeoView({
               <p className="text-xs text-muted-foreground">
                 {hasFilters
                   ? "Probá con otra búsqueda, estado o rango de fechas."
-                  : "Generá un BEO desde un evento próximo con el botón de arriba."}
+                  : "Generá un BEO desde una reserva de salón confirmada con el botón de arriba."}
               </p>
             </div>
           ) : (
@@ -142,7 +142,7 @@ export function BeoView({
         </CardContent>
       </Card>
 
-      <GenerateBeoDialog open={genOpen} onOpenChange={setGenOpen} events={upcomingEvents} />
+      <GenerateBeoDialog open={genOpen} onOpenChange={setGenOpen} reservations={reservationOptions} />
     </div>
   );
 }

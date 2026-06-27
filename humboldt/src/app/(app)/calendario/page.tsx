@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { Building2 } from "lucide-react";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CalendarTimeline } from "./calendar-timeline";
+import { CalendarTabs } from "./calendar-tabs";
 import type {
   CalendarSpaceDTO,
   ConflictDTO,
-  EventOptionDTO,
-  OpportunityOptionDTO,
+  ContactOptionDTO,
+  OpenQuoteOptionDTO,
   ReservationDTO,
 } from "./types";
 import type { ReservationStatus } from "@/lib/constants";
@@ -18,6 +19,46 @@ export const metadata = { title: "Calendario de salones — Hotel Humboldt" };
 export const dynamic = "force-dynamic";
 
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+// Include compartido por las dos consultas de reservas (mes visible + histórico)
+// y su tipo derivado, para mapear cada reserva a su DTO con una sola función.
+const reservationInclude = {
+  event: { include: { opportunity: { include: { client: true } } } },
+  contact: { select: { name: true } },
+  quote: { select: { number: true } },
+} satisfies Prisma.SpaceReservationInclude;
+
+type ReservationWithEvent = Prisma.SpaceReservationGetPayload<{
+  include: typeof reservationInclude;
+}>;
+
+function toReservationDto(r: ReservationWithEvent): ReservationDTO {
+  return {
+    id: r.id,
+    spaceId: r.spaceId,
+    dateKey: r.date.toISOString().slice(0, 10),
+    startTime: r.startTime,
+    endTime: r.endTime,
+    status: r.status as ReservationStatus,
+    notes: r.notes,
+    type: r.type === "MANTENIMIENTO" ? "MANTENIMIENTO" : "EVENTO",
+    eventId: r.eventId,
+    // Etiqueta: evento (legacy) → contacto → título → "Mantenimiento".
+    eventName:
+      r.event?.name ??
+      r.contact?.name ??
+      r.title ??
+      (r.type === "MANTENIMIENTO" ? "Mantenimiento" : "Reserva"),
+    opportunityId: r.event?.opportunityId ?? null,
+    opportunityCode: r.event?.opportunity.code ?? null,
+    opportunityTitle: r.event?.opportunity.title ?? null,
+    clientName: r.event
+      ? r.event.opportunity.client?.brandName ?? r.event.opportunity.client?.legalName ?? "Sin empresa"
+      : null,
+    contactName: r.contact?.name ?? null,
+    quoteNumber: r.quote?.number ?? null,
+  };
+}
 
 export default async function CalendarioPage({
   searchParams,
@@ -33,7 +74,7 @@ export default async function CalendarioPage({
   const monthStart = new Date(Date.UTC(year, monthNum - 1, 1));
   const nextMonthStart = new Date(Date.UTC(year, monthNum, 1));
 
-  const [spaces, reservations, events, opportunities] = await Promise.all([
+  const [spaces, reservations, allReservations, contacts, openQuotes] = await Promise.all([
     prisma.space.findMany({
       where: { active: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -44,23 +85,40 @@ export default async function CalendarioPage({
         ...(showCancelled ? {} : { status: { not: "CANCELADA" } }),
       },
       orderBy: { date: "asc" },
-      include: {
-        event: {
-          include: {
-            opportunity: { include: { client: true } },
-          },
+      include: reservationInclude,
+    }),
+    // Histórico completo de reservas-evento (cualquier mes) para la pestaña tabla.
+    prisma.spaceReservation.findMany({
+      where: { type: "EVENTO" },
+      orderBy: { date: "desc" },
+      include: reservationInclude,
+    }),
+    // Contactos del directorio (la reserva se hace por contacto).
+    prisma.contact.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        clientLinks: {
+          select: { client: { select: { legalName: true, brandName: true } } },
         },
       },
     }),
-    prisma.event.findMany({
-      where: { opportunity: { stage: { not: "PERDIDO" } } },
-      orderBy: { createdAt: "desc" },
-      include: { opportunity: { include: { client: true } } },
-    }),
-    prisma.opportunity.findMany({
-      where: { stage: { not: "PERDIDO" } },
-      orderBy: { code: "desc" },
-      include: { client: true },
+    // Cotizaciones ABIERTAS (no rechazadas ni contratadas) para vincular opcionalmente.
+    prisma.quote.findMany({
+      where: { status: { notIn: ["RECHAZADA", "CONTRATADA"] } },
+      orderBy: { issueDate: "desc" },
+      take: 300,
+      select: {
+        id: true,
+        number: true,
+        opportunity: {
+          select: {
+            title: true,
+            client: { select: { legalName: true, brandName: true } },
+          },
+        },
+      },
     }),
   ]);
 
@@ -71,24 +129,8 @@ export default async function CalendarioPage({
     capacity: s.capacity,
   }));
 
-  const reservationDtos: ReservationDTO[] = reservations.map((r) => ({
-    id: r.id,
-    spaceId: r.spaceId,
-    dateKey: r.date.toISOString().slice(0, 10),
-    startTime: r.startTime,
-    endTime: r.endTime,
-    status: r.status as ReservationStatus,
-    notes: r.notes,
-    type: r.type === "MANTENIMIENTO" ? "MANTENIMIENTO" : "EVENTO",
-    eventId: r.eventId,
-    eventName: r.event?.name ?? r.title ?? "Mantenimiento",
-    opportunityId: r.event?.opportunityId ?? null,
-    opportunityCode: r.event?.opportunity.code ?? null,
-    opportunityTitle: r.event?.opportunity.title ?? null,
-    clientName: r.event
-      ? r.event.opportunity.client.brandName || r.event.opportunity.client.legalName
-      : null,
-  }));
+  const reservationDtos: ReservationDTO[] = reservations.map(toReservationDto);
+  const allReservationDtos: ReservationDTO[] = allReservations.map(toReservationDto);
 
   // ── Conflictos: 2+ reservas no canceladas en el mismo salón y día ─────
   const grouped = new Map<string, ReservationDTO[]>();
@@ -116,26 +158,24 @@ export default async function CalendarioPage({
   }
   conflicts.sort((a, b) => a.dateKey.localeCompare(b.dateKey) || a.spaceName.localeCompare(b.spaceName));
 
-  const eventOptions: EventOptionDTO[] = events.map((e) => ({
-    id: e.id,
-    name: e.name,
-    clientName: e.opportunity.client.brandName || e.opportunity.client.legalName,
-    opportunityCode: e.opportunity.code,
+  const contactOptions: ContactOptionDTO[] = contacts.map((c) => ({
+    id: c.id,
+    name: c.name,
+    clientNames: c.clientLinks.map((l) => l.client.brandName ?? l.client.legalName),
   }));
 
-  const opportunityOptions: OpportunityOptionDTO[] = opportunities.map((o) => ({
-    id: o.id,
-    code: o.code,
-    title: o.title,
-    clientName: o.client.brandName || o.client.legalName,
-  }));
+  const quoteOptions: OpenQuoteOptionDTO[] = openQuotes.map((q) => {
+    const cl = q.opportunity.client;
+    const clientName = cl ? cl.brandName ?? cl.legalName : q.opportunity.title;
+    return { id: q.id, number: q.number, description: clientName };
+  });
 
   return (
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Calendario de salones</h1>
         <p className="text-sm text-muted-foreground">
-          Disponibilidad y reservas de los espacios del hotel por día.
+          Disponibilidad de salones por día y listado de todos los eventos.
         </p>
       </div>
 
@@ -157,14 +197,15 @@ export default async function CalendarioPage({
           </CardContent>
         </Card>
       ) : (
-        <CalendarTimeline
+        <CalendarTabs
           month={month}
           spaces={spaceDtos}
           reservations={reservationDtos}
           conflicts={conflicts}
-          events={eventOptions}
-          opportunities={opportunityOptions}
+          contacts={contactOptions}
+          openQuotes={quoteOptions}
           showCancelled={showCancelled}
+          allReservations={allReservationDtos}
         />
       )}
     </div>

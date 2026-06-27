@@ -62,16 +62,60 @@ function startOfToday(): Date {
   return d;
 }
 
+function startOfMonth(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(1);
+  return d;
+}
+
 // ── Cuentas por cobrar ───────────────────────────────────────────────
 
 export async function getCxcRows(): Promise<CxcRow[]> {
   const quotes = await prisma.quote.findMany({
     where: { status: { in: ["APROBADA", "CONTRATADA"] } },
-    include: {
-      opportunity: { include: { client: true } },
-      payments: true,
-      installments: { include: { payments: true }, orderBy: { dueDate: "asc" } },
-      invoices: { include: { retentions: true } },
+    select: {
+      id: true,
+      number: true,
+      status: true,
+      totalUsd: true,
+      depositAmount: true,
+      opportunityId: true,
+      opportunity: {
+        select: {
+          title: true,
+          client: { select: { brandName: true, legalName: true } },
+        },
+      },
+      payments: {
+        select: {
+          id: true,
+          type: true,
+          amountUsd: true,
+          notes: true,
+          date: true,
+          method: true,
+          installmentId: true,
+        },
+      },
+      installments: {
+        select: {
+          id: true,
+          label: true,
+          dueDate: true,
+          amount: true,
+          status: true,
+          payments: { select: { amountUsd: true } },
+        },
+        orderBy: { dueDate: "asc" },
+      },
+      invoices: {
+        select: {
+          status: true,
+          rateUsed: true,
+          retentions: { select: { countsAsPayment: true, amountBs: true } },
+        },
+      },
     },
     orderBy: { updatedAt: "desc" },
   });
@@ -122,7 +166,7 @@ export async function getCxcRows(): Promise<CxcRow[]> {
       quoteId: q.id,
       number: q.number,
       status: q.status,
-      clientName: q.opportunity.client.brandName || q.opportunity.client.legalName,
+      clientName: q.opportunity.client?.brandName ?? q.opportunity.client?.legalName ?? "Sin empresa",
       opportunityId: q.opportunityId,
       opportunityTitle: q.opportunity.title,
       totalUsd: q.totalUsd,
@@ -150,10 +194,27 @@ export async function getCxcRows(): Promise<CxcRow[]> {
 
 export async function getPaymentRows(): Promise<PaymentRow[]> {
   const payments = await prisma.payment.findMany({
-    include: {
-      opportunity: { include: { client: true } },
-      quote: true,
-      installment: true,
+    take: 200, // solo los más recientes; evita traer todo el histórico
+    select: {
+      id: true,
+      date: true,
+      opportunityId: true,
+      method: true,
+      type: true,
+      currency: true,
+      amountOriginal: true,
+      rateUsed: true,
+      amountUsd: true,
+      reference: true,
+      notes: true,
+      opportunity: {
+        select: {
+          title: true,
+          client: { select: { brandName: true, legalName: true } },
+        },
+      },
+      quote: { select: { number: true } },
+      installment: { select: { label: true } },
     },
     orderBy: { date: "desc" },
   });
@@ -161,7 +222,7 @@ export async function getPaymentRows(): Promise<PaymentRow[]> {
   return payments.map((p) => ({
     id: p.id,
     date: p.date.toISOString(),
-    clientName: p.opportunity.client.brandName || p.opportunity.client.legalName,
+    clientName: p.opportunity.client?.brandName ?? p.opportunity.client?.legalName ?? "Sin empresa",
     opportunityId: p.opportunityId,
     opportunityTitle: p.opportunity.title,
     quoteNumber: p.quote?.number ?? null,
@@ -181,10 +242,25 @@ export async function getPaymentRows(): Promise<PaymentRow[]> {
 
 export async function getInvoiceRows(): Promise<InvoiceRow[]> {
   const invoices = await prisma.invoice.findMany({
-    include: {
-      opportunity: { include: { client: true } },
-      quote: true,
-      retentions: true,
+    take: 200, // solo las más recientes; evita traer todo el histórico
+    select: {
+      id: true,
+      number: true,
+      date: true,
+      opportunityId: true,
+      type: true,
+      amountBs: true,
+      amountUsdRef: true,
+      rateUsed: true,
+      status: true,
+      opportunity: {
+        select: {
+          title: true,
+          client: { select: { brandName: true, legalName: true } },
+        },
+      },
+      quote: { select: { number: true } },
+      retentions: { select: { id: true, type: true, amountBs: true } },
     },
     orderBy: { date: "desc" },
   });
@@ -193,7 +269,7 @@ export async function getInvoiceRows(): Promise<InvoiceRow[]> {
     id: inv.id,
     number: inv.number,
     date: inv.date.toISOString(),
-    clientName: inv.opportunity.client.brandName || inv.opportunity.client.legalName,
+    clientName: inv.opportunity.client?.brandName ?? inv.opportunity.client?.legalName ?? "Sin empresa",
     opportunityId: inv.opportunityId,
     opportunityTitle: inv.opportunity.title,
     quoteNumber: inv.quote?.number ?? null,
@@ -210,6 +286,35 @@ export async function getInvoiceRows(): Promise<InvoiceRow[]> {
   }));
 }
 
+// ── Indicadores (agregados en SQL, sin traer filas) ──────────────────
+
+/** Cobrado (USD) en el mes actual, excluyendo movimientos de garantía. */
+export async function getCobradoMesUsd(): Promise<number> {
+  // Réplica de `isGarantiaMovement` en SQL: se excluyen los pagos GARANTIA y
+  // los REINTEGRO marcados como devolución/aplicación de garantía en las notas.
+  const agg = await prisma.payment.aggregate({
+    _sum: { amountUsd: true },
+    where: {
+      date: { gte: startOfMonth() },
+      NOT: [
+        { type: "GARANTIA" },
+        { type: "REINTEGRO", notes: { contains: GARANTIA_DEVOLUCION_MARKER } },
+        { type: "REINTEGRO", notes: { contains: GARANTIA_APLICACION_MARKER } },
+      ],
+    },
+  });
+  return round2(agg._sum.amountUsd ?? 0);
+}
+
+/** Total facturado en Bs (facturas no anuladas). */
+export async function getFacturadoBs(): Promise<number> {
+  const agg = await prisma.invoice.aggregate({
+    _sum: { amountBs: true },
+    where: { status: { not: "ANULADA" } },
+  });
+  return round2(agg._sum.amountBs ?? 0);
+}
+
 // ── Opciones del combobox cotización/oportunidad ─────────────────────
 
 export async function getTargetOptions(opportunityId?: string): Promise<TargetOption[]> {
@@ -218,9 +323,28 @@ export async function getTargetOptions(opportunityId?: string): Promise<TargetOp
       status: { in: ["APROBADA", "CONTRATADA"] },
       ...(opportunityId ? { opportunityId } : {}),
     },
-    include: {
-      opportunity: { include: { client: true } },
-      installments: { include: { payments: true }, orderBy: { dueDate: "asc" } },
+    select: {
+      id: true,
+      number: true,
+      opportunityId: true,
+      totalUsd: true,
+      opportunity: {
+        select: {
+          title: true,
+          client: { select: { brandName: true, legalName: true } },
+        },
+      },
+      installments: {
+        select: {
+          id: true,
+          label: true,
+          dueDate: true,
+          amount: true,
+          status: true,
+          payments: { select: { amountUsd: true } },
+        },
+        orderBy: { dueDate: "asc" },
+      },
     },
     orderBy: { number: "desc" },
   });
@@ -232,7 +356,12 @@ export async function getTargetOptions(opportunityId?: string): Promise<TargetOp
       stage: { not: "PERDIDO" },
       ...(opportunityId ? { id: opportunityId } : {}),
     },
-    include: { client: true },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+      client: { select: { brandName: true, legalName: true } },
+    },
     orderBy: { code: "desc" },
   });
 
@@ -241,7 +370,7 @@ export async function getTargetOptions(opportunityId?: string): Promise<TargetOp
     kind: "QUOTE",
     quoteId: q.id,
     opportunityId: q.opportunityId,
-    label: `${q.number} · ${q.opportunity.client.brandName || q.opportunity.client.legalName}`,
+    label: `${q.number} · ${q.opportunity.client?.brandName ?? q.opportunity.client?.legalName ?? "Sin empresa"}`,
     sublabel: q.opportunity.title,
     totalUsd: q.totalUsd,
     installments: q.installments.map((i) => ({
@@ -261,7 +390,7 @@ export async function getTargetOptions(opportunityId?: string): Promise<TargetOp
       kind: "OPP",
       quoteId: null,
       opportunityId: o.id,
-      label: `${o.code} · ${o.client.brandName || o.client.legalName}`,
+      label: `${o.code} · ${o.client?.brandName ?? o.client?.legalName ?? "Sin empresa"}`,
       sublabel: o.title,
       totalUsd: null,
       installments: [],

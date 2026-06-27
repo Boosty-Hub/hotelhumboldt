@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
+  Check,
+  Link2,
   Loader2,
   Mail,
   MoreVertical,
@@ -10,7 +12,7 @@ import {
   Phone,
   Plus,
   Star,
-  Trash2,
+  UserMinus,
   UsersRound,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -34,6 +36,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -54,8 +64,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   createContactAction,
-  deleteContactAction,
+  linkContactToClientAction,
   setPrimaryContactAction,
+  unlinkContactAction,
   updateContactAction,
 } from "../../actions";
 import { initials } from "../../_lib/shared";
@@ -66,7 +77,17 @@ export interface ContactItem {
   title: string | null;
   phone: string | null;
   email: string | null;
+  /** Principal DE ESTE cliente. */
   isPrimary: boolean;
+}
+
+/** Contacto del catálogo global que aún no está vinculado a este cliente. */
+export interface LinkableContact {
+  id: string;
+  name: string;
+  title: string | null;
+  /** Empresas a las que ya pertenece (para mostrar contexto). */
+  clientNames: string[];
 }
 
 interface ContactForm {
@@ -88,16 +109,25 @@ const EMPTY_FORM: ContactForm = {
 export function ContactsCard({
   clientId,
   contacts,
+  linkable,
 }: {
   clientId: string;
   contacts: ContactItem[];
+  linkable: LinkableContact[];
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ContactItem | null>(null);
-  const [deleting, setDeleting] = useState<ContactItem | null>(null);
+  const [unlinking, setUnlinking] = useState<ContactItem | null>(null);
   const [form, setForm] = useState<ContactForm>(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
+
+  // Vincular un contacto existente (libre o de otra empresa).
+  const [linkOpen, setLinkOpen] = useState(false);
+  const linkableSorted = useMemo(
+    () => [...linkable].sort((a, b) => a.name.localeCompare(b.name, "es")),
+    [linkable]
+  );
 
   function openCreate() {
     setEditing(null);
@@ -123,22 +153,34 @@ export function ContactsCard({
     e.preventDefault();
     setErrors({});
     startTransition(async () => {
-      const res = editing
-        ? await updateContactAction(editing.id, form)
-        : await createContactAction(clientId, form);
-      if (!res.ok) {
-        setErrors(res.fieldErrors ?? {});
-        toast.error(res.error);
-        return;
+      if (editing) {
+        const res = await updateContactAction(editing.id, form);
+        if (!res.ok) {
+          setErrors(res.fieldErrors ?? {});
+          toast.error(res.error);
+          return;
+        }
+        // El "principal" es por-cliente: se ajusta aparte si cambió.
+        if (form.isPrimary && !editing.isPrimary) {
+          await setPrimaryContactAction(clientId, editing.id);
+        }
+        toast.success("Contacto actualizado");
+      } else {
+        const res = await createContactAction(clientId, form);
+        if (!res.ok) {
+          setErrors(res.fieldErrors ?? {});
+          toast.error(res.error);
+          return;
+        }
+        toast.success("Contacto agregado");
       }
-      toast.success(editing ? "Contacto actualizado" : "Contacto agregado");
       setDialogOpen(false);
     });
   }
 
   function handleSetPrimary(contact: ContactItem) {
     startTransition(async () => {
-      const res = await setPrimaryContactAction(contact.id);
+      const res = await setPrimaryContactAction(clientId, contact.id);
       if (!res.ok) {
         toast.error(res.error);
         return;
@@ -147,16 +189,28 @@ export function ContactsCard({
     });
   }
 
-  function handleDelete() {
-    if (!deleting) return;
+  function handleLink(contactId: string, name: string) {
+    setLinkOpen(false);
     startTransition(async () => {
-      const res = await deleteContactAction(deleting.id);
+      const res = await linkContactToClientAction(clientId, contactId, contacts.length === 0);
       if (!res.ok) {
         toast.error(res.error);
         return;
       }
-      toast.success("Contacto eliminado");
-      setDeleting(null);
+      toast.success(`${name} vinculado al cliente`);
+    });
+  }
+
+  function handleUnlink() {
+    if (!unlinking) return;
+    startTransition(async () => {
+      const res = await unlinkContactAction(clientId, unlinking.id);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success("Contacto quitado del cliente");
+      setUnlinking(null);
     });
   }
 
@@ -169,14 +223,20 @@ export function ContactsCard({
         <CardTitle>Contactos</CardTitle>
         <CardDescription>
           {contacts.length === 1
-            ? "1 contacto registrado"
-            : `${contacts.length} contactos registrados`}
+            ? "1 contacto vinculado"
+            : `${contacts.length} contactos vinculados`}
         </CardDescription>
         <CardAction>
-          <Button variant="outline" size="sm" onClick={openCreate}>
-            <Plus data-icon="inline-start" />
-            Agregar
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setLinkOpen(true)}>
+              <Link2 data-icon="inline-start" />
+              Vincular
+            </Button>
+            <Button variant="outline" size="sm" onClick={openCreate}>
+              <Plus data-icon="inline-start" />
+              Nuevo
+            </Button>
+          </div>
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -184,12 +244,18 @@ export function ContactsCard({
           <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed px-4 py-8 text-center">
             <UsersRound className="h-6 w-6 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">
-              Sin contactos. Agrega a la persona con quien coordinas el evento.
+              Sin contactos. Vinculá uno existente o creá uno nuevo.
             </p>
-            <Button variant="outline" size="sm" onClick={openCreate}>
-              <Plus data-icon="inline-start" />
-              Agregar contacto
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setLinkOpen(true)}>
+                <Link2 data-icon="inline-start" />
+                Vincular existente
+              </Button>
+              <Button variant="outline" size="sm" onClick={openCreate}>
+                <Plus data-icon="inline-start" />
+                Nuevo
+              </Button>
+            </div>
           </div>
         ) : (
           <ul className="divide-y">
@@ -252,10 +318,10 @@ export function ContactsCard({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
-                      onSelect={() => setDeleting(c)}
+                      onSelect={() => setUnlinking(c)}
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Eliminar
+                      <UserMinus className="h-3.5 w-3.5" />
+                      Quitar del cliente
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -275,7 +341,7 @@ export function ContactsCard({
             <DialogDescription>
               {editing
                 ? "Actualiza los datos del contacto."
-                : "Agrega una persona de contacto para este cliente."}
+                : "Crea una persona y vinculala a este cliente."}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -335,7 +401,7 @@ export function ContactsCard({
                 }
               />
               <Label htmlFor="contact-primary" className="text-xs">
-                Contacto principal del cliente
+                Contacto principal de este cliente
               </Label>
             </div>
             <DialogFooter>
@@ -356,14 +422,51 @@ export function ContactsCard({
         </DialogContent>
       </Dialog>
 
-      {/* Confirmación eliminar contacto */}
-      <AlertDialog open={Boolean(deleting)} onOpenChange={(o) => !o && setDeleting(null)}>
+      {/* Dialog vincular contacto existente */}
+      <Dialog open={linkOpen} onOpenChange={setLinkOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Vincular contacto existente</DialogTitle>
+            <DialogDescription>
+              Elegí un contacto del directorio (libre o de otra empresa). Seguirá perteneciendo
+              a sus otras empresas.
+            </DialogDescription>
+          </DialogHeader>
+          <Command>
+            <CommandInput placeholder="Buscar contacto…" />
+            <CommandList>
+              <CommandEmpty>No hay contactos disponibles para vincular.</CommandEmpty>
+              <CommandGroup>
+                {linkableSorted.map((c) => (
+                  <CommandItem
+                    key={c.id}
+                    value={`${c.name} ${c.title ?? ""} ${c.clientNames.join(" ")}`}
+                    onSelect={() => handleLink(c.id, c.name)}
+                  >
+                    <Check className="h-3.5 w-3.5 opacity-0" />
+                    <span className="flex-1 truncate">
+                      {c.name}
+                      {c.title && <span className="text-muted-foreground"> · {c.title}</span>}
+                    </span>
+                    <span className="ml-2 shrink-0 text-[11px] text-muted-foreground">
+                      {c.clientNames.length === 0 ? "libre" : c.clientNames.join(", ")}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmación quitar contacto del cliente */}
+      <AlertDialog open={Boolean(unlinking)} onOpenChange={(o) => !o && setUnlinking(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar este contacto?</AlertDialogTitle>
+            <AlertDialogTitle>¿Quitar este contacto del cliente?</AlertDialogTitle>
             <AlertDialogDescription>
-              Se eliminará «{deleting?.name}» de la lista de contactos del
-              cliente. Las oportunidades asociadas no se verán afectadas.
+              Se desvinculará «{unlinking?.name}» de este cliente. El contacto seguirá existiendo
+              en el directorio y en sus otras empresas. Las oportunidades no se ven afectadas.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -371,13 +474,13 @@ export function ContactsCard({
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
-                handleDelete();
+                handleUnlink();
               }}
               disabled={pending}
               className="bg-destructive text-white hover:bg-destructive/90"
             >
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Eliminar
+              Quitar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

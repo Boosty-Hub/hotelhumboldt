@@ -64,6 +64,7 @@ export const LOST_REASONS = [
 export const QUOTE_STATUSES = [
   "BORRADOR",
   "ENVIADA",
+  "REVISAR",
   "APROBADA",
   "RECHAZADA",
   "VENCIDA",
@@ -74,6 +75,7 @@ export type QuoteStatus = (typeof QUOTE_STATUSES)[number];
 export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
   BORRADOR: "Borrador",
   ENVIADA: "Enviada",
+  REVISAR: "Revisar comentario",
   APROBADA: "Aprobada",
   RECHAZADA: "Rechazada",
   VENCIDA: "Vencida",
@@ -83,6 +85,7 @@ export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
 export const QUOTE_STATUS_COLORS: Record<QuoteStatus, string> = {
   BORRADOR: "bg-zinc-100 text-zinc-700 border-zinc-200",
   ENVIADA: "bg-sky-100 text-sky-800 border-sky-200",
+  REVISAR: "bg-orange-100 text-orange-800 border-orange-200",
   APROBADA: "bg-emerald-100 text-emerald-800 border-emerald-200",
   RECHAZADA: "bg-rose-100 text-rose-800 border-rose-200",
   VENCIDA: "bg-amber-100 text-amber-800 border-amber-200",

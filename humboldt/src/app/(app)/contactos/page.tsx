@@ -25,13 +25,18 @@ export default async function ContactosPage({
 
   // El switch "solo principales" y el orden van a la DB; la búsqueda de texto se
   // hace en memoria (insensible a acentos). Contact no tiene fecha, no hay rango.
+  // "Principal" es por-empresa (ClientContact.isPrimary) → principal de alguna.
   const where: Prisma.ContactWhereInput = {};
-  if (onlyPrimary) where.isPrimary = true;
+  if (onlyPrimary) where.clientLinks = { some: { isPrimary: true } };
 
   const [contacts, total, clients] = await Promise.all([
     prisma.contact.findMany({
       where,
-      include: { client: { select: { id: true, legalName: true, brandName: true } } },
+      include: {
+        clientLinks: {
+          include: { client: { select: { id: true, legalName: true, brandName: true } } },
+        },
+      },
       orderBy: { name: dir },
       take: 500,
     }),
@@ -51,15 +56,17 @@ export default async function ContactosPage({
       title: c.title,
       phone: c.phone,
       email: c.email,
-      isPrimary: c.isPrimary,
-      clientId: c.clientId,
-      clientName: c.client.brandName ?? c.client.legalName,
+      isPrimary: c.clientLinks.some((l) => l.isPrimary),
+      clients: c.clientLinks.map((l) => ({
+        id: l.client.id,
+        name: l.client.brandName ?? l.client.legalName,
+      })),
     }))
     .filter(
       (c) =>
         !nq ||
         norm(c.name).includes(nq) ||
-        norm(c.clientName).includes(nq) ||
+        c.clients.some((cl) => norm(cl.name).includes(nq)) ||
         norm(c.title ?? "").includes(nq) ||
         norm(c.email ?? "").includes(nq) ||
         norm(c.phone ?? "").includes(nq)

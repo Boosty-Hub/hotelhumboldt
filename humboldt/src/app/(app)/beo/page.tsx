@@ -33,7 +33,7 @@ export default async function BeoPage({
   const eventDate = dateTimeFilter(range);
   if (eventDate) where.eventDate = eventDate;
 
-  const [beos, total, upcoming] = await Promise.all([
+  const [beos, total, confirmedReservations] = await Promise.all([
     prisma.beo.findMany({
       where,
       orderBy: { number: dir },
@@ -50,25 +50,42 @@ export default async function BeoPage({
       },
     }),
     prisma.beo.count(),
-    // El BEO solo sale de oportunidades con una cotización GANADA/APROBADA
-    // que aún no tienen BEO (ninguno de sus eventos tiene BEO).
-    prisma.opportunity.findMany({
-      where: {
-        quotes: { some: { status: { in: ["APROBADA", "CONTRATADA"] } } },
-        events: { none: { beo: { isNot: null } } },
-      },
-      orderBy: [{ expectedEventDate: "asc" }, { updatedAt: "desc" }],
-      take: 100,
+    // El BEO sale de reservas de salón CONFIRMADAS sin BEO. Cubre ambos orígenes:
+    // cotización ganada (la reserva trae evento + cotización) y reserva manual por
+    // contacto. La dedup por evento y el descarte de eventos con BEO van más abajo.
+    prisma.spaceReservation.findMany({
+      where: { type: "EVENTO", status: "CONFIRMADA", beo: { is: null } },
+      orderBy: { date: "desc" },
+      take: 200,
       include: {
-        client: true,
-        // La cotización ganada/aprobada aporta el número y, vía su evento, la fecha real.
-        quotes: {
-          where: { status: { in: ["APROBADA", "CONTRATADA"] } },
-          orderBy: { createdAt: "desc" },
-          take: 1,
+        space: { select: { name: true } },
+        contact: {
+          select: {
+            name: true,
+            clientLinks: {
+              take: 1,
+              orderBy: { isPrimary: "desc" },
+              include: { client: { select: { brandName: true, legalName: true } } },
+            },
+          },
+        },
+        event: {
+          select: {
+            id: true,
+            name: true,
+            pax: true,
+            beo: { select: { id: true } },
+            opportunity: {
+              select: { code: true, client: { select: { brandName: true, legalName: true } } },
+            },
+          },
+        },
+        quote: {
           select: {
             number: true,
-            event: { select: { startDate: true, name: true, pax: true } },
+            opportunity: {
+              select: { code: true, client: { select: { brandName: true, legalName: true } } },
+            },
           },
         },
       },
@@ -95,27 +112,40 @@ export default async function BeoPage({
         String(b.number).includes(q)
     );
 
-  const upcomingEvents = upcoming.map((o) => {
-    const wonQuote = o.quotes[0];
-    const ev = wonQuote?.event ?? null;
-    // La fecha real es la del evento de la cotización ganada; la oportunidad es el respaldo.
-    const startDate = ev?.startDate ?? o.expectedEventDate;
-    return {
-      id: o.id, // id de la OPORTUNIDAD (el BEO crea el evento si falta)
-      name: ev?.name || o.title,
-      clientName: o.client.brandName || o.client.legalName,
-      opportunityCode: wonQuote?.number ?? o.code,
-      startDate: startDate ? startDate.toISOString() : null,
-      pax: ev?.pax ?? o.pax,
-    };
-  });
+  // Reservas confirmadas listas para BEO. Deduplica por evento (un evento multi-día
+  // crea una reserva por día) y descarta aquellas cuyo evento ya tiene BEO.
+  const seenKey = new Set<string>();
+  const reservationOptions = confirmedReservations
+    .filter((r) => !r.event?.beo)
+    .filter((r) => {
+      const key = r.eventId ?? `res:${r.id}`;
+      if (seenKey.has(key)) return false;
+      seenKey.add(key);
+      return true;
+    })
+    .map((r) => {
+      const client =
+        r.event?.opportunity.client ??
+        r.quote?.opportunity.client ??
+        r.contact?.clientLinks[0]?.client ??
+        null;
+      return {
+        id: r.id, // id de la RESERVA (el action resuelve si ata a evento o a reserva)
+        name: r.event?.name ?? r.title ?? r.contact?.name ?? "Evento",
+        clientName: client?.brandName ?? client?.legalName ?? r.contact?.name ?? "Sin empresa",
+        spaceName: r.space.name,
+        startDate: r.date.toISOString(),
+        origin: r.quote?.number ?? r.event?.opportunity.code ?? "Reserva manual",
+        pax: r.event?.pax ?? null,
+      };
+    });
 
   const hasFilters = Boolean(q || estado || hasDateRange(range));
 
   return (
     <BeoView
       beos={beoRows}
-      upcomingEvents={upcomingEvents}
+      reservationOptions={reservationOptions}
       total={total}
       filtered={beoRows.length}
       hasFilters={hasFilters}

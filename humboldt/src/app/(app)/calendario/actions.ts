@@ -56,12 +56,14 @@ async function logReservation(
   });
 }
 
+// Las reservas se hacen POR CONTACTO. Opcionalmente se vincula una cotización
+// abierta (no obligatoria). Ya no se crean reservas atadas a un evento.
 const createSchema = z
   .object({
     spaceId: z.string().min(1, "Seleccione un salón."),
-    eventId: z.string().nullable(),
-    newEventName: z.string().trim().max(120, "El nombre del evento no puede exceder 120 caracteres.").nullable(),
-    opportunityId: z.string().nullable(),
+    contactId: z.string().min(1, "Seleccione el contacto de la reserva."),
+    quoteId: z.string().nullable(),
+    title: z.string().trim().max(120, "La descripción no puede exceder 120 caracteres.").nullable(),
     from: z.string().regex(DATE_RE, "Fecha de inicio inválida."),
     to: z.string().regex(DATE_RE, "Fecha de fin inválida."),
     startTime: z.string().regex(TIME_RE, "Hora de inicio inválida (HH:mm).").nullable(),
@@ -71,10 +73,6 @@ const createSchema = z
   .refine((d) => d.to >= d.from, {
     message: "La fecha de fin debe ser igual o posterior a la de inicio.",
     path: ["to"],
-  })
-  .refine((d) => Boolean(d.eventId) || (Boolean(d.newEventName?.trim()) && Boolean(d.opportunityId)), {
-    message: "Seleccione un evento existente o indique nombre y oportunidad para el evento nuevo.",
-    path: ["eventId"],
   });
 
 export type CreateReservationInput = z.infer<typeof createSchema>;
@@ -130,28 +128,28 @@ export async function createReservation(
     conflictNote = `[Conflicto al crear] Solapa con tentativa: ${detail}.`;
   }
 
-  // ── Evento: existente o creación rápida ───────────────────────────────
-  let eventId = data.eventId;
-  if (eventId) {
-    const event = await prisma.event.findUnique({ where: { id: eventId } });
-    if (!event) return { ok: false, error: "El evento seleccionado no existe." };
-  } else {
-    const opportunity = await prisma.opportunity.findUnique({
-      where: { id: data.opportunityId! },
+  // ── Contacto (obligatorio) y cotización abierta (opcional) ────────────
+  const contact = await prisma.contact.findUnique({
+    where: { id: data.contactId },
+    select: { id: true, name: true },
+  });
+  if (!contact) return { ok: false, error: "El contacto seleccionado no existe." };
+
+  let quoteId: string | null = null;
+  if (data.quoteId) {
+    const quote = await prisma.quote.findUnique({
+      where: { id: data.quoteId },
+      select: { id: true, status: true },
     });
-    if (!opportunity) return { ok: false, error: "La oportunidad seleccionada no existe." };
-    const event = await prisma.event.create({
-      data: {
-        opportunityId: opportunity.id,
-        name: data.newEventName!.trim(),
-        startDate: toUtcDate(dateKeys[0]),
-        endDate: toUtcDate(dateKeys[dateKeys.length - 1]),
-        startTime: data.startTime,
-        endTime: data.endTime,
-      },
-    });
-    eventId = event.id;
+    if (!quote) return { ok: false, error: "La cotización seleccionada no existe." };
+    if (["RECHAZADA", "CONTRATADA"].includes(quote.status)) {
+      return { ok: false, error: "Solo se puede vincular una cotización abierta." };
+    }
+    quoteId = quote.id;
   }
+
+  // Etiqueta de la reserva: la descripción dada, o el nombre del contacto.
+  const label = data.title?.trim() || contact.name;
 
   const userNotes = data.notes?.trim() || "";
   const notes = [userNotes, conflictNote].filter(Boolean).join(" ") || null;
@@ -160,7 +158,10 @@ export async function createReservation(
     const created = await prisma.spaceReservation.create({
       data: {
         spaceId: data.spaceId,
-        eventId: eventId!,
+        contactId: contact.id,
+        quoteId,
+        type: "EVENTO",
+        title: label,
         date: toUtcDate(key),
         startTime: data.startTime,
         endTime: data.endTime,

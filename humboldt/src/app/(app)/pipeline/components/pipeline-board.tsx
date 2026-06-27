@@ -36,7 +36,7 @@ import {
   type Stage,
 } from "@/lib/constants";
 import { moveOpportunityStage } from "../actions";
-import type { BasicClient, BasicUser, PipelineOpportunity } from "../types";
+import type { BasicClient, BasicContact, BasicUser, PipelineOpportunity } from "../types";
 import { KanbanColumn } from "./kanban-column";
 import { OpportunityCard } from "./opportunity-card";
 import { OpportunitySheet } from "./opportunity-sheet";
@@ -59,6 +59,7 @@ export function PipelineBoard({
   eventTypes,
   channels,
   clients,
+  contacts,
   currentUserId,
   canDelete = false,
   initialSelectedId = null,
@@ -69,6 +70,7 @@ export function PipelineBoard({
   eventTypes: string[];
   channels: string[];
   clients: BasicClient[];
+  contacts: BasicContact[];
   currentUserId: string;
   canDelete?: boolean;
   initialSelectedId?: string | null;
@@ -126,8 +128,8 @@ export function PipelineBoard({
         const haystack = [
           o.title,
           o.code,
-          o.client.legalName,
-          o.client.brandName ?? "",
+          o.client?.legalName ?? "",
+          o.client?.brandName ?? "",
           o.eventType ?? "",
         ]
           .join(" ")
@@ -138,16 +140,32 @@ export function PipelineBoard({
     });
   }, [opps, query, ownerFilter, typeFilter]);
 
+  // Orden por columna (etapa): por fecha de creación, desc (más recientes) por
+  // defecto. Cada columna alterna asc/desc de forma independiente.
+  const [stageSort, setStageSort] = useState<Record<string, "asc" | "desc">>({});
+  const toggleStageSort = (stage: Stage) =>
+    setStageSort((prev) => ({
+      ...prev,
+      [stage]: (prev[stage] ?? "desc") === "desc" ? "asc" : "desc",
+    }));
+
   const byStage = useMemo(() => {
     const map = new Map<Stage, PipelineOpportunity[]>();
     for (const s of STAGES) map.set(s, []);
     for (const o of filtered) {
-      const list = map.get(o.stage as Stage);
-      if (list) list.push(o);
-      else map.get("NUEVO")!.push(o); // etapa desconocida: cae en Nuevo
+      const list = map.get(o.stage as Stage) ?? map.get("NUEVO")!; // etapa desconocida: cae en Nuevo
+      list.push(o);
+    }
+    for (const s of STAGES) {
+      const dir = stageSort[s] ?? "desc";
+      map.get(s)!.sort((a, b) => {
+        const ta = new Date(a.createdAt).getTime();
+        const tb = new Date(b.createdAt).getTime();
+        return dir === "asc" ? ta - tb : tb - ta;
+      });
     }
     return map;
-  }, [filtered]);
+  }, [filtered, stageSort]);
 
   const activeOpp = activeId ? opps.find((o) => o.id === activeId) ?? null : null;
   const selectedOpp = selectedId ? opps.find((o) => o.id === selectedId) ?? null : null;
@@ -418,6 +436,8 @@ export function PipelineBoard({
                 stage={stage}
                 opportunities={byStage.get(stage) ?? []}
                 onOpen={openDetail}
+                sortDir={stageSort[stage] ?? "desc"}
+                onToggleSort={() => toggleStageSort(stage)}
               />
             ))}
           </div>
@@ -430,7 +450,11 @@ export function PipelineBoard({
           </DragOverlay>
         </DndContext>
       ) : (
-        <PipelineTable opportunities={filtered} onOpen={openDetail} />
+        <PipelineTable
+          opportunities={filtered}
+          onOpen={openDetail}
+          onStageChange={handleStageChange}
+        />
       )}
 
       {/* Sheet de detalle */}
@@ -475,6 +499,7 @@ export function PipelineBoard({
         open={newOpen}
         onOpenChange={setNewOpen}
         clients={clients}
+        contacts={contacts}
         users={users}
         eventTypes={eventTypes}
         channels={channels}

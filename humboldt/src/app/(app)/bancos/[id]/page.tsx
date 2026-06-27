@@ -18,15 +18,36 @@ export default async function CuentaPage({ params }: { params: Promise<{ id: str
   if (!session?.user) redirect("/login");
   if (!canViewCosts(session.user.role)) redirect("/");
 
-  const account = await prisma.bankAccount.findUnique({
-    where: { id },
-    include: {
-      payments: {
-        orderBy: { date: "desc" },
-        include: { opportunity: { include: { client: true } } },
+  const [account, totalAgg, pendientesAgg] = await Promise.all([
+    prisma.bankAccount.findUnique({
+      where: { id },
+      include: {
+        // Solo los 100 movimientos más recientes para la tabla (los totales van por aggregate, abajo)
+        payments: {
+          orderBy: { date: "desc" },
+          take: 100,
+          include: {
+            opportunity: {
+              select: {
+                id: true,
+                code: true,
+                client: { select: { brandName: true, legalName: true } },
+              },
+            },
+          },
+        },
       },
-    },
-  });
+    }),
+    // Totales sobre TODOS los pagos de la cuenta (no sobre las 100 filas truncadas)
+    prisma.payment.aggregate({
+      where: { bankAccountId: id },
+      _sum: { amountUsd: true },
+    }),
+    prisma.payment.aggregate({
+      where: { bankAccountId: id, reconciled: false },
+      _sum: { amountUsd: true },
+    }),
+  ]);
   if (!account) notFound();
 
   const rows: MovRow[] = account.payments.map((p) => ({
@@ -39,15 +60,13 @@ export default async function CuentaPage({ params }: { params: Promise<{ id: str
     type: p.type,
     reference: p.reference,
     reconciled: p.reconciled,
-    clientName: p.opportunity.client.brandName ?? p.opportunity.client.legalName,
+    clientName: p.opportunity.client?.brandName ?? p.opportunity.client?.legalName ?? "Sin empresa",
     oppCode: p.opportunity.code,
     oppId: p.opportunityId,
   }));
 
-  const totalUsd = round2(account.payments.reduce((s, p) => s + p.amountUsd, 0));
-  const pendientesUsd = round2(
-    account.payments.filter((p) => !p.reconciled).reduce((s, p) => s + p.amountUsd, 0)
-  );
+  const totalUsd = round2(totalAgg._sum.amountUsd ?? 0);
+  const pendientesUsd = round2(pendientesAgg._sum.amountUsd ?? 0);
 
   return (
     <div className="space-y-4">

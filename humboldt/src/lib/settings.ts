@@ -1,5 +1,29 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 import { SETTING_KEYS } from "./constants";
+
+/** Tag de caché de la tabla Setting. Invalidar con revalidateTag(SETTINGS_TAG)
+ *  desde toda server action que escriba settings (ver configuracion/actions.ts). */
+export const SETTINGS_TAG = "settings";
+
+/** Forma mínima de una fila Setting (sin `updatedAt`, para que el resultado sea
+ *  serializable y cacheable sin problemas de Date). */
+type SettingLite = { key: string; value: string; enabled: boolean; category: string };
+
+/**
+ * Lee TODA la tabla Setting una sola vez y la cachea entre requests (la tabla es
+ * diminuta y casi inmutable). Las tres funciones públicas derivan de aquí, así
+ * que una navegación que necesite params + metas paga 0 round-trips tras la
+ * primera lectura. Se invalida por tag al guardar configuración.
+ */
+const getAllSettings = unstable_cache(
+  async (): Promise<SettingLite[]> =>
+    prisma.setting.findMany({
+      select: { key: true, value: true, enabled: true, category: true },
+    }),
+  ["all-settings"],
+  { tags: [SETTINGS_TAG], revalidate: 3600 }
+);
 
 export interface CommercialParams {
   taxPct: number;
@@ -32,7 +56,7 @@ const DEFAULTS: CommercialParams = {
 
 /** Lee los parámetros comerciales de la tabla Setting (con defaults seguros). */
 export async function getCommercialParams(): Promise<CommercialParams> {
-  const rows = await prisma.setting.findMany();
+  const rows = await getAllSettings();
   const map = new Map(rows.map((r) => [r.key, r]));
 
   const num = (key: string, def: number) => {
@@ -64,8 +88,8 @@ export async function getCommercialParams(): Promise<CommercialParams> {
 }
 
 export async function getSetting(key: string): Promise<string | null> {
-  const row = await prisma.setting.findUnique({ where: { key } });
-  return row?.value ?? null;
+  const rows = await getAllSettings();
+  return rows.find((r) => r.key === key)?.value ?? null;
 }
 
 export interface CommercialGoals {
@@ -85,7 +109,7 @@ const GOAL_DEFAULTS: CommercialGoals = {
 
 /** Lee las metas comerciales de la tabla Setting (con defaults seguros). */
 export async function getGoals(): Promise<CommercialGoals> {
-  const rows = await prisma.setting.findMany({ where: { category: "metas" } });
+  const rows = (await getAllSettings()).filter((r) => r.category === "metas");
   const map = new Map(rows.map((r) => [r.key, r]));
   const num = (key: string, def: number) => {
     const row = map.get(key);

@@ -4,7 +4,7 @@ import { es } from "date-fns/locale";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
-import { BeoPrintButton } from "./print-button";
+import { BeoDownloadButton } from "./download-button";
 import { BEO_DEPARTMENT_HEADER } from "@/app/(app)/beo/constants";
 import type {
   BeoDepartmentReq,
@@ -33,7 +33,7 @@ export default async function PublicBeoPage({ params }: { params: Promise<{ toke
     <div className="mx-auto max-w-4xl bg-white p-6 text-zinc-900 print:p-0">
       <div className="mb-4 flex items-center justify-between print:hidden">
         <p className="text-xs text-zinc-500">BEO #{beo.number} · Hotel Humboldt</p>
-        <BeoPrintButton />
+        <BeoDownloadButton token={token} />
       </div>
 
       {/* Cabecera */}

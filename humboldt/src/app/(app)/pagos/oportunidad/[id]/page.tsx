@@ -268,7 +268,7 @@ export default async function EstadoCuentaPage({
             Volver a Pagos
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">
-            {opp.client.brandName || opp.client.legalName}
+            {opp.client?.brandName ?? opp.client?.legalName ?? "Sin empresa"}
           </h1>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <span>{opp.title}</span>

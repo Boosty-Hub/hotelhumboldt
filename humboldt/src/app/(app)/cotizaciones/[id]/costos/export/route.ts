@@ -43,7 +43,8 @@ export async function GET(
   );
 
   const num = quoteBaseNumber(quote.number);
-  const client = quote.opportunity.client.brandName ?? quote.opportunity.client.legalName;
+  const client =
+    quote.opportunity.client?.brandName ?? quote.opportunity.client?.legalName ?? "Sin empresa";
 
   // Número con coma decimal (convención Excel español); vacío si null.
   const n = (x: number | null) => (x == null ? "" : x.toFixed(2).replace(".", ","));

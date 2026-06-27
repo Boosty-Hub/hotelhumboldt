@@ -326,7 +326,7 @@ export default async function DashboardPage() {
                 {upcomingEvents.map((ev) => {
                   const d = ev.startDate!;
                   const clientName =
-                    ev.opportunity.client.brandName ?? ev.opportunity.client.legalName;
+                    ev.opportunity.client?.brandName ?? ev.opportunity.client?.legalName ?? "Sin empresa";
                   const salones = [...new Set(ev.reservations.map((r) => r.space.name))];
                   return (
                     <li key={ev.id}>
@@ -410,7 +410,7 @@ export default async function DashboardPage() {
                     const expired = validUntil < todayStart;
                     const daysLeft = differenceInCalendarDays(validUntil, now);
                     const clientName =
-                      q.opportunity.client.brandName ?? q.opportunity.client.legalName;
+                      q.opportunity.client?.brandName ?? q.opportunity.client?.legalName ?? "Sin empresa";
                     return (
                       <TableRow key={q.id} className={cn(expired && "bg-rose-50/60")}>
                         <TableCell className="font-medium">{q.number}</TableCell>

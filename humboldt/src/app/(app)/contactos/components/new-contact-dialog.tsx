@@ -30,10 +30,10 @@ import type { ClientLite } from "./contacts-view";
 
 export interface CreatedContact {
   contactId: string;
-  clientId: string;
+  clientId: string | null;
   name: string;
   title: string | null;
-  clientName: string;
+  clientName: string | null;
 }
 
 export function NewContactDialog({
@@ -57,8 +57,8 @@ export function NewContactDialog({
   const [rif, setRif] = useState("");
   const [referredBy, setReferredBy] = useState("");
   const [notes, setNotes] = useState("");
-  const [clientMode, setClientMode] = useState<"existente" | "nuevo">(
-    clients.length > 0 ? "existente" : "nuevo"
+  const [clientMode, setClientMode] = useState<"sin" | "existente" | "nuevo">(
+    clients.length > 0 ? "existente" : "sin"
   );
   const [clientId, setClientId] = useState("");
   const [newClientName, setNewClientName] = useState("");
@@ -107,9 +107,11 @@ export function NewContactDialog({
         toast.success("Contacto guardado.");
         if (onCreated) {
           const clientName =
-            clientMode === "nuevo"
-              ? newClientName.trim()
-              : clients.find((c) => c.id === clientId)?.name ?? "";
+            clientMode === "sin"
+              ? null
+              : clientMode === "nuevo"
+                ? newClientName.trim()
+                : clients.find((c) => c.id === clientId)?.name ?? "";
           onCreated({
             contactId: res.contactId,
             clientId: res.clientId,
@@ -219,16 +221,25 @@ export function NewContactDialog({
           </div>
 
           <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
-            <Label>Cliente</Label>
-            <Tabs value={clientMode} onValueChange={(v) => setClientMode(v as "existente" | "nuevo")}>
+            <Label>Empresa (opcional)</Label>
+            <Tabs
+              value={clientMode}
+              onValueChange={(v) => setClientMode(v as "sin" | "existente" | "nuevo")}
+            >
               <TabsList>
+                <TabsTrigger value="sin">Sin empresa</TabsTrigger>
                 <TabsTrigger value="existente" disabled={clients.length === 0}>
                   Existente
                 </TabsTrigger>
-                <TabsTrigger value="nuevo">Nuevo (walk-in)</TabsTrigger>
+                <TabsTrigger value="nuevo">Nueva (walk-in)</TabsTrigger>
               </TabsList>
             </Tabs>
-            {clientMode === "existente" ? (
+            {clientMode === "sin" ? (
+              <p className="text-xs text-muted-foreground">
+                El contacto quedará libre (sin empresa). Podés vincularlo a una o varias empresas
+                más tarde.
+              </p>
+            ) : clientMode === "existente" ? (
               <Select value={clientId} onValueChange={setClientId}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Elegí un cliente" />

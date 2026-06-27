@@ -4,9 +4,15 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Check, ChevronRight, Eye, FileText, Layers, Link2, Pencil, Trash2 } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Eye, FileText, Layers, Link2, MessageSquareText, Pencil, Trash2 } from "lucide-react";
 import { fmtUsd } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import {
+  QUOTE_STATUSES,
+  QUOTE_STATUS_COLORS,
+  QUOTE_STATUS_LABELS,
+  type QuoteStatus,
+} from "@/lib/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +24,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -25,8 +37,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { QuoteStatusBadge } from "@/components/quote/quote-status-badge";
-import { changeQuoteStatus, deleteQuote } from "../actions";
+import { changeQuoteStatus, deleteQuote, markQuoteCommentRead } from "../actions";
 
 export interface QuoteRow {
   id: string;
@@ -43,6 +56,11 @@ export interface QuoteRow {
   totalUsd: number;
   status: string;
   signerName: string;
+  /** Comentario del cliente desde el link público (si lo hay). */
+  clientComment: string | null;
+  clientCommentAt: string | null;
+  /** El comentario aún no fue leído por el ejecutivo (badge en el listado). */
+  commentUnread: boolean;
 }
 
 export interface QuoteGroup {
@@ -51,11 +69,12 @@ export interface QuoteGroup {
 }
 
 /**
- * Acción de estado inline desde la lista: según el estado actual ofrece el
- * siguiente paso natural (Borrador → Enviar, Enviada/Vencida → Aprobar).
- * Usa changeQuoteStatus, que valida las transiciones permitidas.
+ * Estado de la cotización como dropdown: el badge actual abre un menú con TODOS
+ * los demás estados (a veces se crea la cotización y se aprueba/contrata de una
+ * vez porque el cliente ya la aceptó). El servidor valida el resto de reglas
+ * (no aprobar una cotización vacía, etc.). Al pasar a ENVIADA copia el link.
  */
-function StatusAction({
+function StatusSelect({
   id,
   status,
   publicToken,
@@ -67,46 +86,123 @@ function StatusAction({
   const router = useRouter();
   const [pending, start] = React.useTransition();
 
-  const next =
-    status === "BORRADOR"
-      ? { to: "ENVIADA", label: "Enviar", ok: "Cotización marcada como enviada.", className: "border-sky-200 text-sky-700 hover:bg-sky-50 hover:text-sky-800" }
-      : status === "ENVIADA" || status === "VENCIDA"
-        ? { to: "APROBADA", label: "Aprobar", ok: "Cotización aprobada.", className: "border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800" }
-        : null;
-  if (!next) return null;
+  const targets = QUOTE_STATUSES.filter((s) => s !== status);
+  if (targets.length === 0) return <QuoteStatusBadge status={status} />;
+
+  const apply = (to: QuoteStatus) =>
+    start(async () => {
+      const res = await changeQuoteStatus(id, to);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      toast.success(`Cotización marcada como ${QUOTE_STATUS_LABELS[to].toLowerCase()}.`);
+      // Al enviar, copiamos el link público listo para compartir.
+      if (to === "ENVIADA") {
+        try {
+          await navigator.clipboard.writeText(
+            `${window.location.origin}/cotizacion/${publicToken}`
+          );
+          toast.success("Link público copiado — pegalo en WhatsApp o correo.");
+        } catch {
+          toast.message("Cotización enviada. Copiá el link público desde la cotización.");
+        }
+      }
+      router.refresh();
+    });
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      disabled={pending}
-      className={cn("h-6 gap-1 px-1.5", next.className)}
-      onClick={() =>
-        start(async () => {
-          const res = await changeQuoteStatus(id, next.to);
-          if (!res.ok) {
-            toast.error(res.error);
-            return;
-          }
-          toast.success(next.ok);
-          // Al enviar, copiamos el link público listo para compartir.
-          if (next.to === "ENVIADA") {
-            try {
-              await navigator.clipboard.writeText(
-                `${window.location.origin}/cotizacion/${publicToken}`
-              );
-              toast.success("Link público copiado — pegalo en WhatsApp o correo.");
-            } catch {
-              toast.message("Cotización enviada. Copiá el link público desde la cotización.");
-            }
-          }
-          router.refresh();
-        })
-      }
-    >
-      <Check className="size-3" />
-      {next.label}
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild disabled={pending}>
+        <button
+          type="button"
+          aria-label="Cambiar estado"
+          className={cn(
+            "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs font-medium transition-opacity hover:opacity-80 disabled:opacity-50",
+            QUOTE_STATUS_COLORS[status as QuoteStatus] ?? ""
+          )}
+        >
+          {QUOTE_STATUS_LABELS[status as QuoteStatus] ?? status}
+          <ChevronDown className="size-3 opacity-60" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        {targets.map((to) => (
+          <DropdownMenuItem key={to} onSelect={() => apply(to)} className="text-xs">
+            <span
+              className={cn(
+                "size-2 rounded-full border",
+                QUOTE_STATUS_COLORS[to] ?? ""
+              )}
+              aria-hidden
+            />
+            {QUOTE_STATUS_LABELS[to]}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/**
+ * Indicador de comentario del cliente: ícono con badge contador cuando hay un
+ * comentario sin leer. Al abrir el popover muestra el comentario y lo marca
+ * como leído (limpia el badge).
+ */
+function CommentIndicator({
+  id,
+  comment,
+  at,
+  unread,
+}: {
+  id: string;
+  comment: string;
+  at: string | null;
+  unread: boolean;
+}) {
+  const router = useRouter();
+  const [open, setOpen] = React.useState(false);
+  const [, start] = React.useTransition();
+  const markedRef = React.useRef(false);
+
+  function onOpenChange(next: boolean) {
+    setOpen(next);
+    if (next && unread && !markedRef.current) {
+      markedRef.current = true;
+      start(async () => {
+        await markQuoteCommentRead(id);
+        router.refresh();
+      });
+    }
+  }
+
+  return (
+    <Popover open={open} onOpenChange={onOpenChange}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="relative"
+          aria-label="Comentario del cliente"
+          title="Comentario del cliente"
+        >
+          <MessageSquareText
+            className={cn("h-3.5 w-3.5", unread ? "text-orange-600" : "text-muted-foreground")}
+          />
+          {unread && (
+            <span className="absolute -right-1 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-orange-500 px-1 text-[9px] font-bold leading-none text-white">
+              1
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-72">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Comentario del cliente{at ? ` · ${at}` : ""}
+        </p>
+        <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed">{comment}</p>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -340,13 +436,20 @@ export function QuotesTable({
                     {fmtUsd(latest.totalUsd)}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1.5">
-                      <QuoteStatusBadge status={latest.status} />
-                      <StatusAction
+                    <div className="flex items-center gap-1">
+                      <StatusSelect
                         id={latest.id}
                         status={latest.status}
                         publicToken={latest.publicToken}
                       />
+                      {latest.clientComment && (
+                        <CommentIndicator
+                          id={latest.id}
+                          comment={latest.clientComment}
+                          at={latest.clientCommentAt}
+                          unread={latest.commentUnread}
+                        />
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{latest.signerName}</TableCell>
@@ -387,9 +490,16 @@ export function QuotesTable({
                         {fmtUsd(v.totalUsd)}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1.5">
-                          <QuoteStatusBadge status={v.status} />
-                          <StatusAction id={v.id} status={v.status} publicToken={v.publicToken} />
+                        <div className="flex items-center gap-1">
+                          <StatusSelect id={v.id} status={v.status} publicToken={v.publicToken} />
+                          {v.clientComment && (
+                            <CommentIndicator
+                              id={v.id}
+                              comment={v.clientComment}
+                              at={v.clientCommentAt}
+                              unread={v.commentUnread}
+                            />
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{v.signerName}</TableCell>

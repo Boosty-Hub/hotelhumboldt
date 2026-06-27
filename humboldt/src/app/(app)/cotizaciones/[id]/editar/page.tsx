@@ -37,28 +37,31 @@ export default async function EditarCotizacionPage({
   });
   if (!quote) notFound();
 
-  // Catálogo activo agrupado por categoría
-  const products = await prisma.product.findMany({
-    where: { active: true },
-    include: { category: true },
-    orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }],
-  });
-
-  // ¿Existe una versión más reciente de este número?
+  // Las siguientes consultas son independientes entre sí (solo dependen de
+  // datos ya disponibles en `quote`): se lanzan en paralelo para pagar un solo
+  // round-trip a la DB remota en vez de cinco en cascada.
   const base = quoteBaseNumber(quote.number);
-  const newer = await prisma.quote.findFirst({
-    where: {
-      opportunityId: quote.opportunityId,
-      OR: [{ number: base }, { number: { startsWith: `${base}-V` } }],
-      version: { gt: quote.version },
-    },
-    orderBy: { version: "desc" },
-    select: { id: true, version: true },
-  });
-
-  const bcv = await getCurrentRate();
-  const parallel = await getParallelRate();
-  const { minMarginPct } = await getCommercialParams();
+  const [products, newer, bcv, parallel, { minMarginPct }] = await Promise.all([
+    // Catálogo activo agrupado por categoría
+    prisma.product.findMany({
+      where: { active: true },
+      include: { category: true },
+      orderBy: [{ category: { sortOrder: "asc" } }, { name: "asc" }],
+    }),
+    // ¿Existe una versión más reciente de este número?
+    prisma.quote.findFirst({
+      where: {
+        opportunityId: quote.opportunityId,
+        OR: [{ number: base }, { number: { startsWith: `${base}-V` } }],
+        version: { gt: quote.version },
+      },
+      orderBy: { version: "desc" },
+      select: { id: true, version: true },
+    }),
+    getCurrentRate(),
+    getParallelRate(),
+    getCommercialParams(),
+  ]);
 
   const eventDays =
     quote.event?.startDate && quote.event?.endDate
@@ -128,7 +131,7 @@ export default async function EditarCotizacionPage({
         igtfPct: quote.igtfPct,
         igtfEnabled: quote.igtfEnabled,
       }}
-      clientName={client.brandName ?? client.legalName}
+      clientName={client?.brandName ?? client?.legalName ?? "Sin empresa"}
       eventName={quote.event?.name ?? null}
       eventPax={quote.event?.pax ?? null}
       eventDays={eventDays}

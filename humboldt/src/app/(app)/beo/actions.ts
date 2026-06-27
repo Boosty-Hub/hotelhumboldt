@@ -44,68 +44,106 @@ function buildMenuFromQuote(
 }
 
 /**
- * Genera el BEO de un evento, autocompletando del evento → oportunidad → cliente
- * y el menú desde la cotización. Si ya existe, devuelve el existente.
+ * Genera el BEO a partir de una RESERVA de salón CONFIRMADA.
+ *
+ * Cubre los dos orígenes de un evento confirmado:
+ *  • Reserva originada en una cotización (tiene `event` y `quote`) → el BEO se
+ *    ata al EVENTO (1 BEO por evento; evita duplicados en eventos multi-día).
+ *  • Reserva manual por contacto (sin evento) → el BEO se ata a la RESERVA.
+ *
+ * Autocompleta la cabecera (salón, fecha, hora, cliente, responsable) y el menú
+ * desde la cotización vinculada, si la hay. Si ya existe, devuelve el existente.
  */
-export async function generateBeo(eventId: string): Promise<Result> {
+export async function generateBeoFromReservation(reservationId: string): Promise<Result> {
   const session = await auth();
   if (!session?.user) return { ok: false, error: "No autorizado." };
-  if (!eventId) return { ok: false, error: "Evento inválido." };
+  if (!reservationId) return { ok: false, error: "Reserva inválida." };
 
-  const existing = await prisma.beo.findUnique({ where: { eventId }, select: { id: true } });
-  if (existing) return { ok: true, id: existing.id };
-
-  const event = await prisma.event.findUnique({
-    where: { id: eventId },
+  const reservation = await prisma.spaceReservation.findUnique({
+    where: { id: reservationId },
     include: {
-      opportunity: {
-        include: { client: true, owner: { select: { name: true } } },
+      space: { select: { name: true } },
+      beo: { select: { id: true } },
+      contact: {
+        select: {
+          name: true,
+          clientLinks: {
+            take: 1,
+            orderBy: { isPrimary: "desc" },
+            include: { client: { select: { brandName: true, legalName: true } } },
+          },
+        },
       },
-      quotes: { orderBy: { createdAt: "desc" }, take: 1, include: { lines: true } },
-      reservations: { include: { space: { select: { name: true } } }, take: 1 },
+      event: {
+        include: {
+          beo: { select: { id: true } },
+          opportunity: { include: { client: true, owner: { select: { name: true } } } },
+          quotes: { orderBy: { createdAt: "desc" }, take: 1, include: { lines: true } },
+        },
+      },
+      quote: {
+        include: {
+          lines: true,
+          opportunity: { include: { client: true, owner: { select: { name: true } } } },
+        },
+      },
     },
   });
-  if (!event) return { ok: false, error: "El evento no existe." };
-
-  // El BEO solo va atado a un evento ganado: oportunidad GANADO o cotización
-  // aprobada/contratada. Si no, no se genera.
-  const wonQuotes = await prisma.quote.count({
-    where: { eventId, status: { in: ["APROBADA", "CONTRATADA"] } },
-  });
-  if (event.opportunity.stage !== "GANADO" && wonQuotes === 0) {
-    return {
-      ok: false,
-      error:
-        "El BEO solo se genera para eventos con cotización aprobada o contratada (oportunidad ganada).",
-    };
+  if (!reservation) return { ok: false, error: "La reserva no existe." };
+  if (reservation.type !== "EVENTO") {
+    return { ok: false, error: "Solo se genera BEO de reservas de evento (no de bloqueos de mantenimiento)." };
   }
+  if (reservation.status !== "CONFIRMADA") {
+    return { ok: false, error: "El BEO se genera solo desde una reserva confirmada." };
+  }
+
+  // ¿Ya tiene BEO? Por la propia reserva, o por su evento (reservas de cotización).
+  if (reservation.beo) return { ok: true, id: reservation.beo.id };
+  if (reservation.event?.beo) return { ok: true, id: reservation.event.beo.id };
+
+  const event = reservation.event;
+  // El menú sale de la cotización vinculada a la reserva, o de la última del evento.
+  const menuQuote = reservation.quote ?? event?.quotes[0] ?? null;
+  const menu = buildMenuFromQuote(menuQuote?.lines);
+
+  // Cliente: evento→oportunidad, o cotización→oportunidad, o empresa del contacto.
+  const client =
+    event?.opportunity.client ??
+    reservation.quote?.opportunity.client ??
+    reservation.contact?.clientLinks[0]?.client ??
+    null;
+  const clientName = client?.brandName ?? client?.legalName ?? reservation.contact?.name ?? null;
+
+  const ownerName =
+    event?.opportunity.owner.name ?? reservation.quote?.opportunity.owner.name ?? null;
+
+  const eventName = event?.name ?? reservation.title ?? reservation.contact?.name ?? "Evento";
 
   const last = await prisma.beo.findFirst({ orderBy: { number: "desc" }, select: { number: true } });
   const number = (last?.number ?? 444) + 1; // continúa el correlativo actual (445…)
 
-  const client = event.opportunity.client;
-  const space = event.reservations[0]?.space?.name ?? null;
-  const menu = buildMenuFromQuote(event.quotes[0]?.lines);
   const departments = BEO_DEPARTMENTS.map((d) => ({
     key: d.key,
     label: d.label,
-    instructions:
-      d.key === "VENTAS" ? `Coordinación del evento: ${event.opportunity.owner.name}.` : "",
+    instructions: d.key === "VENTAS" && ownerName ? `Coordinación del evento: ${ownerName}.` : "",
   }));
+
+  // Ata al EVENTO si la reserva proviene de una cotización; si es manual, a la RESERVA.
+  const link = event ? { eventId: event.id } : { reservationId: reservation.id };
 
   const beo = await prisma.beo.create({
     data: {
       number,
-      eventId,
+      ...link,
       status: "BORRADOR",
       publicToken: nanoid(18),
-      responsable: event.opportunity.owner.name,
-      eventName: event.name,
-      clientName: client.brandName || client.legalName,
-      spaceName: space,
-      eventDate: event.startDate,
-      startTime: event.startTime,
-      pax: event.pax,
+      responsable: ownerName,
+      eventName,
+      clientName,
+      spaceName: reservation.space.name,
+      eventDate: event?.startDate ?? reservation.date,
+      startTime: event?.startTime ?? reservation.startTime,
+      pax: event?.pax ?? null,
       schedule: [],
       menu,
       departments,
@@ -113,49 +151,9 @@ export async function generateBeo(eventId: string): Promise<Result> {
     },
   });
 
-  await logBeo(session.user, beo.id, "CREADO", `BEO ${number} generado para «${event.name}».`);
+  await logBeo(session.user, beo.id, "CREADO", `BEO ${number} generado para «${eventName}».`);
   revalidatePath("/beo");
   return { ok: true, id: beo.id };
-}
-
-/**
- * Genera el BEO a partir de una oportunidad ganada / cotización aprobada.
- * Si la oportunidad no tiene un evento usable, lo crea desde sus datos y vincula
- * la última cotización (para que el BEO traiga el menú). Luego delega en generateBeo.
- */
-export async function generateBeoFromOpportunity(opportunityId: string): Promise<Result> {
-  const session = await auth();
-  if (!session?.user) return { ok: false, error: "No autorizado." };
-  if (!opportunityId) return { ok: false, error: "Oportunidad inválida." };
-
-  const opp = await prisma.opportunity.findUnique({
-    where: { id: opportunityId },
-    include: {
-      events: { include: { beo: { select: { id: true } } }, orderBy: { createdAt: "asc" } },
-      quotes: { orderBy: { createdAt: "desc" }, take: 1, select: { id: true, eventId: true } },
-    },
-  });
-  if (!opp) return { ok: false, error: "La oportunidad no existe." };
-
-  // Evento sin BEO; si no hay, se crea desde la oportunidad.
-  let eventId = opp.events.find((e) => !e.beo)?.id ?? null;
-  if (!eventId) {
-    const created = await prisma.event.create({
-      data: {
-        opportunityId,
-        name: opp.title,
-        startDate: opp.expectedEventDate ?? null,
-        pax: opp.pax ?? null,
-      },
-    });
-    const latest = opp.quotes[0];
-    if (latest && !latest.eventId) {
-      await prisma.quote.update({ where: { id: latest.id }, data: { eventId: created.id } });
-    }
-    eventId = created.id;
-  }
-
-  return generateBeo(eventId);
 }
 
 export async function updateBeo(input: {

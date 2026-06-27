@@ -4,13 +4,14 @@
 // Permisos: ADMIN edita todo; GERENTE puede editar parámetros comerciales,
 // datos del hotel, catálogos y tasa de cambio — pero NO usuarios.
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import { auth, canManageSettings } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { saveManualRate, fetchBcvRate } from "@/lib/bcv";
+import { saveManualRate, fetchBcvRate, RATE_TAG } from "@/lib/bcv";
+import { SETTINGS_TAG } from "@/lib/settings";
 import { round2 } from "@/lib/money";
 import { ROLES } from "@/lib/constants";
 import { validatePin, hashPin } from "@/lib/pin";
@@ -79,6 +80,7 @@ export async function saveSettingAction(input: {
     data: { value: String(round2(value)), enabled },
   });
 
+  updateTag(SETTINGS_TAG);
   revalidatePath("/", "layout");
   return { ok: true, message: `«${existing.label ?? key}» guardado.` };
 }
@@ -139,6 +141,7 @@ export async function saveHotelSettingsAction(
     )
   );
 
+  updateTag(SETTINGS_TAG);
   revalidatePath("/", "layout");
   return { ok: true, message: "Datos del hotel guardados." };
 }
@@ -426,6 +429,7 @@ export async function refreshBcvRateAction(): Promise<ActionResult> {
   await prisma.exchangeRate.create({
     data: { date: new Date(), rate, source: "BCV", kind: "OFICIAL" },
   });
+  updateTag(RATE_TAG);
   revalidatePath("/", "layout");
   return { ok: true, message: `Tasa BCV actualizada: Bs. ${rate} por USD.` };
 }
@@ -445,6 +449,7 @@ export async function setManualRateAction(input: {
   if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
 
   await saveManualRate(parsed.data);
+  updateTag(RATE_TAG);
   revalidatePath("/", "layout");
   return { ok: true, message: `Tasa manual registrada: Bs. ${round2(parsed.data)} por USD.` };
 }
@@ -460,6 +465,7 @@ export async function setParallelRateAction(input: {
   if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
 
   await saveManualRate(parsed.data, "PARALELA");
+  updateTag(RATE_TAG);
   revalidatePath("/", "layout");
   return { ok: true, message: `Tasa paralela registrada: Bs. ${round2(parsed.data)} por USD.` };
 }

@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { fmtUsd, fmtPct, round2 } from "@/lib/money";
+import { fmtUsd, fmtPct, fmtNum, round2 } from "@/lib/money";
 import { lineMarginPct, lineSubtotal, isPriceOverride } from "@/lib/quote-calc";
 import { UNITS, UNIT_LABELS, DISCOUNT_TYPE_LABELS, type DiscountType, type Unit } from "@/lib/constants";
 import { MessageSquare, Trash2, CircleDashed } from "lucide-react";
@@ -127,7 +127,6 @@ export function LineRow({
         quantity: line.quantity,
         isOptional: false, // margen informativo aunque sea opcional
         unitCost: line.unitCost,
-        costQuantity: line.costQuantity,
       })
     : null;
 
@@ -319,22 +318,12 @@ export function LineRow({
               ariaLabel="Costo unitario"
             />
           </label>
-          <label className="flex items-center gap-1">
-            Cant. costeo
-            <NumField
-              value={line.costQuantity}
-              onCommit={(n) => onPatch(line.uid, { costQuantity: n })}
-              className="h-6 w-16 text-[11px]"
-              disabled={readOnly}
-              placeholder={String(line.quantity)}
-              ariaLabel="Cantidad de costeo"
-            />
-          </label>
           <span>
-            Costo total:{" "}
+            Costo total{" "}
+            <span className="text-zinc-400">({fmtNum(line.quantity)} × costo unit.)</span>:{" "}
             <span className="font-medium tabular-nums text-foreground">
               {line.unitCost != null
-                ? fmtUsd(round2(line.unitCost * (line.costQuantity ?? line.quantity)))
+                ? fmtUsd(round2(line.unitCost * line.quantity))
                 : "—"}
             </span>
           </span>

@@ -18,7 +18,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ChevronsUpDown,
   Check,
@@ -26,16 +25,17 @@ import {
   ArrowLeft,
   FilePlus2,
   Building2,
-  UserPlus,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
   createQuote,
   checkSpaceAvailability,
+  type NewOppOption,
   type SpaceAvailability,
 } from "@/app/(app)/cotizaciones/actions";
-import { NewContactDialog } from "@/app/(app)/contactos/components/new-contact-dialog";
+import { NewOpportunityForQuoteDialog } from "./new-opportunity-dialog";
 
 export interface OppOption {
   id: string;
@@ -46,13 +46,12 @@ export interface OppOption {
   pax: number | null;
 }
 
-/** Contacto + su cliente: el contacto es el protagonista, el cliente se deduce de él. */
+/** Contacto + sus empresas (0, 1 o varias). Alimenta el diálogo de crear oportunidad. */
 export interface ContactPickOption {
   id: string;
   name: string;
   title: string | null;
-  clientId: string;
-  clientName: string;
+  clients: { id: string; name: string }[];
 }
 
 export interface ClientOption {
@@ -71,6 +70,8 @@ interface Props {
   contacts: ContactPickOption[];
   clients: ClientOption[];
   spaces: SpaceOption[];
+  eventTypes: string[];
+  channels: string[];
   preselectedOpportunityId: string | null;
   preselectedContactId?: string | null;
 }
@@ -80,28 +81,24 @@ export function NewQuoteForm({
   contacts,
   clients,
   spaces,
+  eventTypes,
+  channels,
   preselectedOpportunityId,
   preselectedContactId,
 }: Props) {
   const [isPending, startTransition] = useTransition();
 
+  // Oportunidades creadas al vuelo en esta sesión (se suman al selector).
+  const [extraOpps, setExtraOpps] = useState<OppOption[]>([]);
+  const allOpportunities = [...extraOpps, ...opportunities];
+
   const preselected = opportunities.find((o) => o.id === preselectedOpportunityId) ?? null;
 
-  const [mode, setMode] = useState<"oportunidad" | "contacto">(
-    preselectedContactId
-      ? "contacto"
-      : preselected || opportunities.length > 0
-        ? "oportunidad"
-        : "contacto"
-  );
   const [oppId, setOppId] = useState<string | null>(preselected?.id ?? null);
   const [oppOpen, setOppOpen] = useState(false);
-
-  // Contacto: protagonista del camino "desde cero". El cliente se toma del contacto.
-  const [extraContacts, setExtraContacts] = useState<ContactPickOption[]>([]);
-  const [contactId, setContactId] = useState<string | null>(preselectedContactId ?? null);
-  const [contactOpen, setContactOpen] = useState(false);
-  const [newContactOpen, setNewContactOpen] = useState(false);
+  // Si se llega con un contacto (deep link "guardar y cotizar"), se abre el
+  // diálogo de crear oportunidad con ese contacto ya seleccionado.
+  const [newOppOpen, setNewOppOpen] = useState(Boolean(preselectedContactId));
 
   const [eventName, setEventName] = useState(preselected?.title ?? "");
   const [startDate, setStartDate] = useState(preselected?.expectedEventDate ?? "");
@@ -134,27 +131,30 @@ export function NewQuoteForm({
     });
   }, [selectedSpaceIds, startDate, daysCount]);
 
-  const selectedOpp = opportunities.find((o) => o.id === oppId) ?? null;
-  const allContacts = [...contacts, ...extraContacts];
-  const selectedContact = allContacts.find((c) => c.id === contactId) ?? null;
+  const selectedOpp = allOpportunities.find((o) => o.id === oppId) ?? null;
 
-  function selectOpportunity(opp: OppOption) {
+  function applyOpportunity(opp: OppOption) {
     setOppId(opp.id);
-    setOppOpen(false);
     // Prefill desde la oportunidad si los campos están vacíos
     if (!eventName.trim()) setEventName(opp.title);
     if (!startDate && opp.expectedEventDate) setStartDate(opp.expectedEventDate);
     if (!pax && opp.pax != null) setPax(String(opp.pax));
   }
 
+  function selectOpportunity(opp: OppOption) {
+    setOppOpen(false);
+    applyOpportunity(opp);
+  }
+
+  function onOpportunityCreated(opp: NewOppOption) {
+    setExtraOpps((cur) => [opp, ...cur]);
+    applyOpportunity(opp);
+  }
+
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (mode === "oportunidad" && !oppId) {
-      toast.error("Selecciona la oportunidad");
-      return;
-    }
-    if (mode === "contacto" && !contactId) {
-      toast.error("Selecciona o creá el contacto");
+    if (!oppId) {
+      toast.error("Selecciona o creá la oportunidad");
       return;
     }
     if (eventName.trim().length < 3) {
@@ -163,10 +163,7 @@ export function NewQuoteForm({
     }
     startTransition(async () => {
       const res = await createQuote({
-        opportunityId: mode === "oportunidad" ? oppId ?? "" : "",
-        // El cliente se deduce del contacto elegido.
-        clientId: mode === "contacto" ? selectedContact?.clientId ?? "" : "",
-        contactId: mode === "contacto" ? contactId ?? "" : "",
+        opportunityId: oppId,
         eventName: eventName.trim(),
         startDate,
         datesTentative,
@@ -198,29 +195,26 @@ export function NewQuoteForm({
         </div>
       </div>
 
-      {/* ── Origen: oportunidad o contacto ── */}
+      {/* ── Origen: oportunidad (existente o nueva) ── */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">¿Para quién es la cotización?</CardTitle>
+          <CardTitle className="text-sm">¿Para qué oportunidad es la cotización?</CardTitle>
           <CardDescription>
-            Vincúlala a una oportunidad del pipeline o empezá desde un contacto.
+            Toda cotización nace de una oportunidad del pipeline. Si todavía no existe, creala aquí
+            mismo (se pedirá el contacto).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-            <TabsList>
-              <TabsTrigger value="oportunidad">Oportunidad existente</TabsTrigger>
-              <TabsTrigger value="contacto">Contacto</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          {mode === "oportunidad" ? (
+          <Label>
+            Oportunidad <span className="text-rose-600">*</span>
+          </Label>
+          <div className="flex gap-2">
             <Popover open={oppOpen} onOpenChange={setOppOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   type="button"
-                  className="w-full justify-between font-normal"
+                  className="flex-1 justify-between font-normal"
                   aria-label="Seleccionar oportunidad"
                 >
                   {selectedOpp ? (
@@ -238,9 +232,28 @@ export function NewQuoteForm({
                 <Command>
                   <CommandInput placeholder="Buscar por código, título o cliente…" />
                   <CommandList>
-                    <CommandEmpty>No hay oportunidades que coincidan.</CommandEmpty>
+                    <CommandEmpty>
+                      <div className="space-y-2 px-2 py-1 text-center">
+                        <p className="text-xs text-muted-foreground">
+                          No hay oportunidades que coincidan.
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          type="button"
+                          className="w-full"
+                          onClick={() => {
+                            setOppOpen(false);
+                            setNewOppOpen(true);
+                          }}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Crear oportunidad
+                        </Button>
+                      </div>
+                    </CommandEmpty>
                     <CommandGroup>
-                      {opportunities.map((o) => (
+                      {allOpportunities.map((o) => (
                         <CommandItem
                           key={o.id}
                           value={`${o.code} ${o.title} ${o.clientName}`}
@@ -265,89 +278,16 @@ export function NewQuoteForm({
                 </Command>
               </PopoverContent>
             </Popover>
-          ) : (
-            <>
-              <Label>
-                Contacto <span className="text-rose-600">*</span>
-              </Label>
-              <div className="flex gap-2">
-                <Popover open={contactOpen} onOpenChange={setContactOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      className="flex-1 justify-between font-normal"
-                      aria-label="Seleccionar contacto"
-                    >
-                      {selectedContact ? (
-                        <span className="truncate">
-                          {selectedContact.name}
-                          <span className="text-muted-foreground">
-                            {" "}
-                            · {selectedContact.clientName}
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground">Buscar contacto…</span>
-                      )}
-                      <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-[var(--radix-popover-trigger-width)] p-0"
-                    align="start"
-                  >
-                    <Command>
-                      <CommandInput placeholder="Buscar por contacto o cliente…" />
-                      <CommandList>
-                        <CommandEmpty>No hay contactos que coincidan.</CommandEmpty>
-                        <CommandGroup>
-                          {allContacts.map((ct) => (
-                            <CommandItem
-                              key={ct.id}
-                              value={`${ct.name} ${ct.clientName} ${ct.title ?? ""}`}
-                              onSelect={() => {
-                                setContactId(ct.id);
-                                setContactOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "h-3.5 w-3.5",
-                                  contactId === ct.id ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              <span className="flex-1 truncate">
-                                {ct.name}
-                                {ct.title && (
-                                  <span className="text-muted-foreground"> · {ct.title}</span>
-                                )}
-                              </span>
-                              <span className="ml-2 shrink-0 text-[11px] text-muted-foreground">
-                                {ct.clientName}
-                              </span>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <Button type="button" variant="outline" onClick={() => setNewContactOpen(true)}>
-                  <UserPlus className="h-3.5 w-3.5" />
-                  Nuevo
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {selectedContact
-                  ? `Cliente: ${selectedContact.clientName}. La cotización quedará atada a esta persona.`
-                  : "Elegí el contacto (o creá uno nuevo). El cliente se toma del contacto."}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Se creará automáticamente una oportunidad en etapa &quot;Propuesta&quot; a tu nombre.
-              </p>
-            </>
-          )}
+            <Button type="button" variant="outline" onClick={() => setNewOppOpen(true)}>
+              <Plus className="h-3.5 w-3.5" />
+              Nueva
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {selectedOpp
+              ? `Cliente: ${selectedOpp.clientName}. La cotización quedará atada a esta oportunidad.`
+              : "Elegí una oportunidad existente o creá una nueva desde un contacto."}
+          </p>
         </CardContent>
       </Card>
 
@@ -574,24 +514,19 @@ export function NewQuoteForm({
         </Button>
       </div>
 
-      {/* Crear contacto (y cliente walk-in) sin salir del cotizador */}
-      <NewContactDialog
-        open={newContactOpen}
-        onOpenChange={setNewContactOpen}
-        clients={clients.map((c) => ({ id: c.id, name: c.brandName ?? c.legalName }))}
-        onCreated={(c) => {
-          setExtraContacts((cur) => [
-            ...cur,
-            {
-              id: c.contactId,
-              name: c.name,
-              title: c.title,
-              clientId: c.clientId,
-              clientName: c.clientName,
-            },
-          ]);
-          setContactId(c.contactId);
-        }}
+      {/* Crear oportunidad (desde un contacto) sin salir del cotizador */}
+      <NewOpportunityForQuoteDialog
+        open={newOppOpen}
+        onOpenChange={setNewOppOpen}
+        contacts={contacts}
+        clients={clients}
+        eventTypes={eventTypes}
+        channels={channels}
+        initialTitle={eventName}
+        initialDate={startDate}
+        initialPax={pax}
+        preselectedContactId={preselectedContactId}
+        onCreated={onOpportunityCreated}
       />
     </form>
   );

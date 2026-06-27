@@ -169,27 +169,34 @@ export default async function ClienteDetailPage({
   const sp = await searchParams;
   const session = await auth();
 
-  const client = await prisma.client.findUnique({
-    where: { id },
-    include: {
-      contacts: { orderBy: [{ isPrimary: "desc" }, { name: "asc" }] },
-      opportunities: {
-        orderBy: { createdAt: "desc" },
-        include: { owner: { select: { name: true } } },
-      },
-      clientNotes: {
-        orderBy: { createdAt: "desc" },
-        include: { author: { select: { name: true } } },
-      },
-    },
-  });
-
-  if (!client) notFound();
-
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
-  const [quotes, activities, eventsDone, nextEvent] = await Promise.all([
+  // Todas estas consultas dependen solo de `id` (de la URL), no del resultado de
+  // `client`, así que se lanzan juntas: una sola tanda de round-trips a la DB
+  // remota en vez de el findUnique en serie y luego el resto.
+  const [client, quotes, activities, eventsDone, nextEvent, linkableContacts] = await Promise.all([
+    prisma.client.findUnique({
+      where: { id },
+      include: {
+        contactLinks: {
+          orderBy: [{ isPrimary: "desc" }, { contact: { name: "asc" } }],
+          include: {
+            contact: {
+              select: { id: true, name: true, title: true, phone: true, email: true },
+            },
+          },
+        },
+        opportunities: {
+          orderBy: { createdAt: "desc" },
+          include: { owner: { select: { name: true } } },
+        },
+        clientNotes: {
+          orderBy: { createdAt: "desc" },
+          include: { author: { select: { name: true } } },
+        },
+      },
+    }),
     prisma.quote.findMany({
       where: { opportunity: { clientId: id } },
       orderBy: { issueDate: "desc" },
@@ -217,7 +224,39 @@ export default async function ClienteDetailPage({
       },
       orderBy: { startDate: "asc" },
     }),
+    // Contactos del directorio que NO están vinculados a este cliente, con sus
+    // empresas actuales (para el diálogo "Vincular contacto existente").
+    prisma.contact.findMany({
+      where: { clientLinks: { none: { clientId: id } } },
+      orderBy: { name: "asc" },
+      take: 500,
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        clientLinks: {
+          select: { client: { select: { legalName: true, brandName: true } } },
+        },
+      },
+    }),
   ]);
+
+  if (!client) notFound();
+
+  const clientContacts = client.contactLinks.map((l) => ({
+    id: l.contact.id,
+    name: l.contact.name,
+    title: l.contact.title,
+    phone: l.contact.phone,
+    email: l.contact.email,
+    isPrimary: l.isPrimary,
+  }));
+  const linkable = linkableContacts.map((c) => ({
+    id: c.id,
+    name: c.name,
+    title: c.title,
+    clientNames: c.clientLinks.map((l) => l.client.brandName ?? l.client.legalName),
+  }));
 
   const wonRevenue = client.opportunities
     .filter((o) => o.stage === "GANADO")
@@ -460,7 +499,7 @@ export default async function ClienteDetailPage({
               </CardContent>
             </Card>
 
-            <ContactsCard clientId={client.id} contacts={client.contacts} />
+            <ContactsCard clientId={client.id} contacts={clientContacts} linkable={linkable} />
           </div>
         </TabsContent>
 

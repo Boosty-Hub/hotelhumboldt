@@ -2,8 +2,13 @@
 // Fuente primaria: API pública pydolarve (espejo del BCV).
 // Si falla, se usa la última tasa guardada en la base de datos.
 
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
 import { round2 } from "./money";
+
+/** Tag de caché de la tasa de cambio. Las server actions que registran una tasa
+ *  invalidan con updateTag(RATE_TAG) (ver configuracion/actions.ts). */
+export const RATE_TAG = "exchange-rate";
 
 // Fuentes de la tasa oficial, con fallback. Mismas que usa el cron de Supabase
 // (refresh_exchange_rate): dolarapi (promedio/precio) y exchangedyn (sources.BCV.quote).
@@ -44,44 +49,54 @@ export async function fetchBcvRate(opts?: { force?: boolean }): Promise<number |
   return null;
 }
 
-/** Obtiene la tasa BCV (OFICIAL) del día: API → cache local del día → última guardada. */
-export async function getCurrentRate(): Promise<BcvResult | null> {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+// Forma cacheable: la fecha viaja como epoch ms (Number) para no depender de la
+// (in)consistencia de serialización de Date a través de la caché de Next.
+type RateLite = { rate: number; dateMs: number } | null;
 
-  // ¿Ya tenemos la tasa OFICIAL de hoy?
-  const cached = await prisma.exchangeRate.findFirst({
-    where: { kind: "OFICIAL", date: { gte: today } },
-    orderBy: { date: "desc" },
-  });
-  if (cached) return { rate: cached.rate, date: cached.date, source: "CACHE" };
-
-  // Consultar API BCV
-  const price = await fetchBcvRate();
-  if (price != null) {
-    const saved = await prisma.exchangeRate.create({
-      data: { date: new Date(), rate: price, source: "BCV", kind: "OFICIAL" },
+/**
+ * Lectura cacheada de la última tasa OFICIAL conocida. Read-only: NO consulta
+ * APIs externas ni escribe en la DB durante el render. El refresco diario lo
+ * hace el cron de Supabase (refresh_exchange_rate, cada 2h) y el botón manual
+ * del modal de tasa. Se invalida por tag al guardar una tasa manual.
+ */
+const readOfficialRate = unstable_cache(
+  async (): Promise<RateLite> => {
+    const last = await prisma.exchangeRate.findFirst({
+      where: { kind: "OFICIAL" },
+      orderBy: { date: "desc" },
+      select: { rate: true, date: true },
     });
-    return { rate: saved.rate, date: saved.date, source: "BCV" };
-  }
+    return last ? { rate: last.rate, dateMs: last.date.getTime() } : null;
+  },
+  ["official-rate"],
+  { tags: [RATE_TAG], revalidate: 1800 }
+);
 
-  // Última tasa OFICIAL conocida
-  const last = await prisma.exchangeRate.findFirst({
-    where: { kind: "OFICIAL" },
-    orderBy: { date: "desc" },
-  });
-  if (last) return { rate: last.rate, date: last.date, source: "CACHE" };
-  return null;
+const readParallelRate = unstable_cache(
+  async (): Promise<RateLite> => {
+    const last = await prisma.exchangeRate.findFirst({
+      where: { kind: "PARALELA" },
+      orderBy: { date: "desc" },
+      select: { rate: true, date: true },
+    });
+    return last ? { rate: last.rate, dateMs: last.date.getTime() } : null;
+  },
+  ["parallel-rate"],
+  { tags: [RATE_TAG], revalidate: 1800 }
+);
+
+/** Tasa BCV (OFICIAL) del día. Lectura cacheada de la última tasa conocida. */
+export async function getCurrentRate(): Promise<BcvResult | null> {
+  const r = await readOfficialRate();
+  if (!r) return null;
+  return { rate: r.rate, date: new Date(r.dateMs), source: "CACHE" };
 }
 
 /** Última tasa PARALELA registrada manualmente (no se consulta a ninguna API). */
 export async function getParallelRate(): Promise<BcvResult | null> {
-  const last = await prisma.exchangeRate.findFirst({
-    where: { kind: "PARALELA" },
-    orderBy: { date: "desc" },
-  });
-  if (last) return { rate: last.rate, date: last.date, source: "MANUAL" };
-  return null;
+  const r = await readParallelRate();
+  if (!r) return null;
+  return { rate: r.rate, date: new Date(r.dateMs), source: "MANUAL" };
 }
 
 /** Registra una tasa manual. kind: OFICIAL (override BCV) | PARALELA. */
@@ -92,4 +107,5 @@ export async function saveManualRate(
   await prisma.exchangeRate.create({
     data: { date: new Date(), rate: round2(rate), source: "MANUAL", kind },
   });
+  // La invalidación del tag (updateTag) la hace la server action que llama aquí.
 }

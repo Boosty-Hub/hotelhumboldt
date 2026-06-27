@@ -62,15 +62,27 @@ export default async function CotizacionPublicaPage({
 }) {
   const { token } = await params;
 
-  const quote = await prisma.quote.findUnique({
-    where: { publicToken: token },
-    include: {
-      opportunity: { include: { client: true, contact: true } },
-      event: true,
-      signer: true,
-      lines: { orderBy: [{ dayNumber: "asc" }, { sortOrder: "asc" }] },
-    },
-  });
+  // Datos del hotel desde Configuración (independientes de la cotización →
+  // se traen en paralelo para ahorrar un round-trip a la DB remota).
+  const hotelKeys = [
+    SETTING_KEYS.HOTEL_NAME,
+    SETTING_KEYS.HOTEL_RIF,
+    SETTING_KEYS.HOTEL_ADDRESS,
+    SETTING_KEYS.HOTEL_PHONE,
+    SETTING_KEYS.HOTEL_EMAIL,
+  ];
+  const [quote, settings] = await Promise.all([
+    prisma.quote.findUnique({
+      where: { publicToken: token },
+      include: {
+        opportunity: { include: { client: true, contact: true } },
+        event: true,
+        signer: { select: { name: true, email: true } },
+        lines: { orderBy: [{ dayNumber: "asc" }, { sortOrder: "asc" }] },
+      },
+    }),
+    prisma.setting.findMany({ where: { key: { in: hotelKeys } } }),
+  ]);
   // Borradores nunca se exponen al cliente
   if (!quote || quote.status === "BORRADOR") notFound();
 
@@ -97,15 +109,7 @@ export default async function CotizacionPublicaPage({
     }
   }
 
-  // ── Datos del hotel desde Configuración ──
-  const hotelKeys = [
-    SETTING_KEYS.HOTEL_NAME,
-    SETTING_KEYS.HOTEL_RIF,
-    SETTING_KEYS.HOTEL_ADDRESS,
-    SETTING_KEYS.HOTEL_PHONE,
-    SETTING_KEYS.HOTEL_EMAIL,
-  ];
-  const settings = await prisma.setting.findMany({ where: { key: { in: hotelKeys } } });
+  // ── Datos del hotel desde Configuración (ya traídos arriba en paralelo) ──
   const setting = (key: string) => settings.find((s) => s.key === key)?.value ?? null;
   const hotelName = setting(SETTING_KEYS.HOTEL_NAME) ?? "Hotel Humboldt";
   const hotelPhone = setting(SETTING_KEYS.HOTEL_PHONE);
@@ -155,7 +159,9 @@ export default async function CotizacionPublicaPage({
         : null;
 
   const client = quote.opportunity.client;
-  const clientDisplay = client.brandName ?? client.legalName;
+  const clientDisplay = client
+    ? (client.brandName ?? client.legalName)
+    : (quote.opportunity.contact?.name ?? "Sin empresa");
   const base = quoteBaseNumber(quote.number);
   const signer = quote.signer;
 
@@ -164,8 +170,11 @@ export default async function CotizacionPublicaPage({
     ? differenceInCalendarDays(quote.validUntil, new Date())
     : null;
   const dateExpired = daysLeft !== null && daysLeft < 0;
-  const expired = quote.status === "VENCIDA" || (quote.status === "ENVIADA" && dateExpired);
-  const actionable = quote.status === "ENVIADA" && !dateExpired;
+  // ENVIADA y REVISAR (ya comentada) siguen siendo accionables: el cliente puede
+  // aprobar o dejar otro comentario.
+  const canAct = quote.status === "ENVIADA" || quote.status === "REVISAR";
+  const expired = quote.status === "VENCIDA" || (canAct && dateExpired);
+  const actionable = canAct && !dateExpired;
   const daysLabel =
     daysLeft === null
       ? null
@@ -365,9 +374,11 @@ export default async function CotizacionPublicaPage({
             version={quote.version}
             issueDate={quote.issueDate.toISOString()}
             validUntil={quote.validUntil?.toISOString() ?? null}
-            clientName={client.legalName}
-            clientBrand={client.brandName}
-            clientRif={client.rif}
+            clientName={
+              client ? client.legalName : (quote.opportunity.contact?.name ?? "Sin empresa")
+            }
+            clientBrand={client?.brandName ?? null}
+            clientRif={client?.rif ?? null}
             contactName={quote.opportunity.contact?.name ?? null}
             eventName={event?.name ?? quote.opportunity.title}
             eventDateLabel={eventDateLabel}
@@ -395,6 +406,8 @@ export default async function CotizacionPublicaPage({
               subtotalTransfers: totals.subtotalTransfers,
               subtotalFood: totals.subtotalFood,
               subtotalSpaces: totals.subtotalSpaces,
+              discountPct: totals.discountPct,
+              discountAmount: totals.discountAmount,
               taxableBase: totals.taxableBase,
               serviceAmount: totals.serviceAmount,
               taxAmount: totals.taxAmount,

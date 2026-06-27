@@ -188,19 +188,24 @@ export async function approveQuotePublic(
 
 // ─────────────────────── Solicitar cambios / Rechazar ───────────────────────
 
-const rejectSchema = z.object({
+const commentSchema = z.object({
   note: z
     .string()
     .trim()
     .min(5, "Cuéntanos qué te gustaría ajustar (mínimo 5 caracteres)")
-    .max(2000, "La nota es demasiado larga (máximo 2.000 caracteres)"),
+    .max(2000, "El comentario es demasiado largo (máximo 2.000 caracteres)"),
 });
 
-export async function rejectQuotePublic(
+/**
+ * El cliente deja un COMENTARIO desde el link público. NO es un rechazo: la
+ * cotización pasa a estado "Revisar comentario" y queda marcada como no leída
+ * para que el ejecutivo lo vea en el listado.
+ */
+export async function commentQuotePublic(
   token: string,
   input: { note: string }
 ): Promise<PublicActionResult> {
-  const parsed = rejectSchema.safeParse(input);
+  const parsed = commentSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   }
@@ -216,21 +221,26 @@ export async function rejectQuotePublic(
     await prisma.$transaction([
       prisma.quote.update({
         where: { id: quote.id },
-        data: { status: "RECHAZADA", rejectionNote: note },
+        data: {
+          status: "REVISAR",
+          clientComment: note,
+          clientCommentAt: new Date(),
+          commentUnread: true,
+        },
       }),
       prisma.activity.create({
         data: {
           userId: quote.signerId,
           opportunityId: quote.opportunityId,
           quoteId: quote.id,
-          type: "SISTEMA",
-          body: `El cliente solicitó cambios en la cotización ${base} v${quote.version} desde el link público — Nota: ${note}`,
+          type: "NOTA",
+          body: `Comentario del cliente en la cotización ${base} v${quote.version} (link público): ${note}`,
         },
       }),
     ]);
   } catch (e) {
-    console.error("rejectQuotePublic", e);
-    return { ok: false, error: "No se pudo enviar tu solicitud. Intenta de nuevo." };
+    console.error("commentQuotePublic", e);
+    return { ok: false, error: "No se pudo enviar tu comentario. Intenta de nuevo." };
   }
 
   revalidateAfterDecision(token, quote.id);

@@ -101,6 +101,9 @@ export function QuoteEditor(props: QuoteEditorProps) {
   );
   const activeRate = rateKind === "PARALELA" ? props.parallelRate : props.bcvRate;
   const [dirty, setDirty] = useState(false);
+  // "Guardada al menos una vez": la cotización tiene líneas persistidas en la BD.
+  // El PDF, el link público y el análisis de costos solo aplican a algo guardado.
+  const hasSaved = props.initialLines.length > 0;
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [extraDays, setExtraDays] = useState(0);
   const [discountReq, setDiscountReq] = useState<DiscountRequest | null>(null);
@@ -568,10 +571,12 @@ export function QuoteEditor(props: QuoteEditorProps) {
                 Ver en pipeline
               </Link>
             </Button>
-            <CopyLinkButton publicToken={props.publicToken} />
-            {/* El PDF y el análisis leen lo GUARDADO en la BD: se ocultan mientras
-                haya cambios sin guardar para no mostrar datos viejos. Reaparecen al guardar. */}
-            {!dirty && (
+            {/* El link público, el PDF y el análisis aplican solo a una cotización
+                YA GUARDADA (con líneas en la BD). Mientras se está creando o haya
+                cambios sin guardar no aparecen, para no exponer un documento vacío
+                o datos viejos. Reaparecen tras el primer guardado. */}
+            {hasSaved && <CopyLinkButton publicToken={props.publicToken} />}
+            {hasSaved && !dirty && (
               <Button variant="outline" asChild>
                 <Link href={`/cotizaciones/${props.quoteId}`}>
                   <Eye className="h-3.5 w-3.5" />
@@ -579,7 +584,7 @@ export function QuoteEditor(props: QuoteEditorProps) {
                 </Link>
               </Button>
             )}
-            {!dirty && props.canViewCosts && (
+            {hasSaved && !dirty && props.canViewCosts && (
               <Button variant="outline" asChild>
                 <Link href={`/cotizaciones/${props.quoteId}/costos`}>
                   <TrendingUp className="h-3.5 w-3.5" />

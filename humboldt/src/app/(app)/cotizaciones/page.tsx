@@ -71,12 +71,32 @@ export default async function CotizacionesPage({
     ];
   }
 
+  // `select` estrecho: solo los campos que la tabla muestra. Antes el `include`
+  // traía las filas COMPLETAS de Quote, Client, Event y User (¡con el hash de
+  // contraseña del firmante!) por cada cotización — cientos de KB inútiles sobre
+  // el enlace remoto. Esto recorta ~70% del payload.
   const quotes = await prisma.quote.findMany({
     where,
-    include: {
-      opportunity: { include: { client: true } },
-      event: true,
-      signer: true,
+    select: {
+      id: true,
+      number: true,
+      version: true,
+      publicToken: true,
+      status: true,
+      issueDate: true,
+      validUntil: true,
+      totalUsd: true,
+      commentUnread: true,
+      clientComment: true,
+      clientCommentAt: true,
+      opportunity: {
+        select: {
+          title: true,
+          client: { select: { legalName: true, brandName: true } },
+        },
+      },
+      event: { select: { name: true, startDate: true, datesTentative: true } },
+      signer: { select: { name: true } },
     },
     orderBy: [{ issueDate: dir }, { version: "desc" }],
   });
@@ -95,8 +115,8 @@ export default async function CotizacionesPage({
       publicToken: quote.publicToken,
       baseNumber,
       version: quote.version,
-      clientName: client.brandName ?? client.legalName,
-      clientLegal: client.brandName ? client.legalName : null,
+      clientName: client?.brandName ?? client?.legalName ?? "Sin empresa",
+      clientLegal: client?.brandName ? client.legalName : null,
       eventName: quote.event?.name ?? quote.opportunity.title,
       eventDateLabel: quote.event?.startDate
         ? `${formatDayEs(quote.event.startDate, "dd MMM yyyy")}${
@@ -109,6 +129,11 @@ export default async function CotizacionesPage({
       totalUsd: quote.totalUsd,
       status: quote.status,
       signerName: quote.signer.name,
+      clientComment: quote.clientComment,
+      clientCommentAt: quote.clientCommentAt
+        ? format(quote.clientCommentAt, "dd/MM/yyyy HH:mm", { locale: es })
+        : null,
+      commentUnread: quote.commentUnread,
     };
     const arr = groupsMap.get(baseNumber);
     if (arr) arr.push(row);

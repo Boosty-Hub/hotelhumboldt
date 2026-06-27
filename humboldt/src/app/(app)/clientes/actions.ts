@@ -61,8 +61,26 @@ const contactSchema = z.object({
   isPrimary: z.boolean().optional().default(false),
 });
 
+// Al crear un cliente SIEMPRE se exige un contacto: o se elige uno existente
+// (libre o de otra empresa) por `contactId`, o se crea uno nuevo con sus datos.
+const createClientContactSchema = z
+  .object({
+    contactId: z.string().trim().min(1).optional(),
+    name: z.string().trim().max(120, "Máximo 120 caracteres").optional().default(""),
+    title: z.string().trim().max(120, "Máximo 120 caracteres").optional().default(""),
+    phone: z.string().trim().max(40, "Máximo 40 caracteres").optional().default(""),
+    email: z
+      .union([z.literal(""), z.email("Correo electrónico inválido")])
+      .optional()
+      .default(""),
+  })
+  .refine((c) => c.contactId || c.name.trim().length >= 2, {
+    message: "Elegí un contacto existente o escribí el nombre del nuevo (mín. 2 caracteres).",
+    path: ["name"],
+  });
+
 const createClientSchema = clientSchema.extend({
-  contact: contactSchema.omit({ isPrimary: true }).optional(),
+  contact: createClientContactSchema,
 });
 
 const noteSchema = z.object({
@@ -95,38 +113,60 @@ export async function createClientAction(input: unknown): Promise<ActionResult> 
   }
   const data = parsed.data;
 
-  const client = await prisma.client.create({
-    data: {
-      legalName: data.legalName,
-      brandName: emptyToNull(data.brandName),
-      rif: emptyToNull(data.rif),
-      type: data.type,
-      address: emptyToNull(data.address),
-      phone: emptyToNull(data.phone),
-      email: emptyToNull(data.email),
-      notes: emptyToNull(data.notes),
-      contacts: data.contact
-        ? {
-            create: {
-              name: data.contact.name,
-              title: emptyToNull(data.contact.title),
-              phone: emptyToNull(data.contact.phone),
-              email: emptyToNull(data.contact.email),
-              isPrimary: true,
-            },
-          }
-        : undefined,
-      activities: {
-        create: {
-          userId: user.id,
-          type: "SISTEMA",
-          body: "Cliente creado en el sistema",
+  // Si se eligió un contacto existente, validar antes de crear nada.
+  if (data.contact.contactId) {
+    const exists = await prisma.contact.findUnique({
+      where: { id: data.contact.contactId },
+      select: { id: true },
+    });
+    if (!exists) return { ok: false, error: "El contacto seleccionado no existe." };
+  }
+
+  const client = await prisma.$transaction(async (tx) => {
+    const created = await tx.client.create({
+      data: {
+        legalName: data.legalName,
+        brandName: emptyToNull(data.brandName),
+        rif: emptyToNull(data.rif),
+        type: data.type,
+        address: emptyToNull(data.address),
+        phone: emptyToNull(data.phone),
+        email: emptyToNull(data.email),
+        notes: emptyToNull(data.notes),
+        activities: {
+          create: {
+            userId: user.id,
+            type: "SISTEMA",
+            body: "Cliente creado en el sistema",
+          },
         },
       },
-    },
+    });
+
+    // Contacto principal: existente (se vincula) o nuevo (se crea y vincula).
+    const contactId =
+      data.contact.contactId ??
+      (
+        await tx.contact.create({
+          data: {
+            name: data.contact.name.trim(),
+            title: emptyToNull(data.contact.title),
+            phone: emptyToNull(data.contact.phone),
+            email: emptyToNull(data.contact.email),
+          },
+          select: { id: true },
+        })
+      ).id;
+
+    await tx.clientContact.create({
+      data: { clientId: created.id, contactId, isPrimary: true },
+    });
+
+    return created;
   });
 
   revalidatePath("/clientes");
+  revalidatePath("/contactos");
   return { ok: true, id: client.id };
 }
 
@@ -225,7 +265,12 @@ export async function deleteClientAction(clientId: string): Promise<ActionResult
 }
 
 // ─────────────────────────── Contactos ───────────────────────────
+// Modelo M-N (ClientContact): un contacto puede pertenecer a 0, 1 o varias
+// empresas; `isPrimary` es POR cliente. Un contacto puede existir libre.
 
+const contactFieldsSchema = contactSchema.omit({ isPrimary: true });
+
+/** Crea un contacto NUEVO y lo vincula al cliente (principal si se pide). */
 export async function createContactAction(
   clientId: string,
   input: unknown
@@ -243,25 +288,23 @@ export async function createContactAction(
   }
   const data = parsed.data;
 
-  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
   if (!client) return { ok: false, error: "El cliente no existe." };
 
   await prisma.$transaction(async (tx) => {
-    if (data.isPrimary) {
-      await tx.contact.updateMany({
-        where: { clientId },
-        data: { isPrimary: false },
-      });
-    }
-    await tx.contact.create({
+    const contact = await tx.contact.create({
       data: {
-        clientId,
         name: data.name,
         title: emptyToNull(data.title),
         phone: emptyToNull(data.phone),
         email: emptyToNull(data.email),
-        isPrimary: data.isPrimary,
       },
+    });
+    if (data.isPrimary) {
+      await tx.clientContact.updateMany({ where: { clientId }, data: { isPrimary: false } });
+    }
+    await tx.clientContact.create({
+      data: { clientId, contactId: contact.id, isPrimary: data.isPrimary },
     });
   });
 
@@ -271,6 +314,44 @@ export async function createContactAction(
   return { ok: true };
 }
 
+/** Vincula un contacto EXISTENTE (libre o de otra empresa) a un cliente. */
+export async function linkContactToClientAction(
+  clientId: string,
+  contactId: string,
+  makePrimary = false
+): Promise<ActionResult> {
+  const user = await requireUser();
+  if (!user) return { ok: false, error: "No autorizado. Inicia sesión de nuevo." };
+
+  const [client, contact] = await Promise.all([
+    prisma.client.findUnique({ where: { id: clientId }, select: { id: true } }),
+    prisma.contact.findUnique({ where: { id: contactId }, select: { id: true } }),
+  ]);
+  if (!client) return { ok: false, error: "El cliente no existe." };
+  if (!contact) return { ok: false, error: "El contacto no existe." };
+
+  const existing = await prisma.clientContact.findUnique({
+    where: { clientId_contactId: { clientId, contactId } },
+    select: { id: true },
+  });
+  if (existing) return { ok: false, error: "El contacto ya está vinculado a este cliente." };
+
+  await prisma.$transaction(async (tx) => {
+    if (makePrimary) {
+      await tx.clientContact.updateMany({ where: { clientId }, data: { isPrimary: false } });
+    }
+    await tx.clientContact.create({
+      data: { clientId, contactId, isPrimary: makePrimary },
+    });
+  });
+
+  revalidatePath("/clientes");
+  revalidatePath(`/clientes/${clientId}`);
+  revalidatePath("/contactos");
+  return { ok: true };
+}
+
+/** Edita los campos del contacto (nombre/cargo/teléfono/correo). */
 export async function updateContactAction(
   contactId: string,
   input: unknown
@@ -278,7 +359,7 @@ export async function updateContactAction(
   const user = await requireUser();
   if (!user) return { ok: false, error: "No autorizado. Inicia sesión de nuevo." };
 
-  const parsed = contactSchema.safeParse(input);
+  const parsed = contactFieldsSchema.safeParse(input);
   if (!parsed.success) {
     return {
       ok: false,
@@ -288,58 +369,69 @@ export async function updateContactAction(
   }
   const data = parsed.data;
 
-  const contact = await prisma.contact.findUnique({ where: { id: contactId } });
+  const contact = await prisma.contact.findUnique({ where: { id: contactId }, select: { id: true } });
   if (!contact) return { ok: false, error: "El contacto no existe." };
 
-  await prisma.$transaction(async (tx) => {
-    if (data.isPrimary) {
-      await tx.contact.updateMany({
-        where: { clientId: contact.clientId, NOT: { id: contactId } },
-        data: { isPrimary: false },
-      });
-    }
-    await tx.contact.update({
-      where: { id: contactId },
-      data: {
-        name: data.name,
-        title: emptyToNull(data.title),
-        phone: emptyToNull(data.phone),
-        email: emptyToNull(data.email),
-        isPrimary: data.isPrimary,
-      },
-    });
+  await prisma.contact.update({
+    where: { id: contactId },
+    data: {
+      name: data.name,
+      title: emptyToNull(data.title),
+      phone: emptyToNull(data.phone),
+      email: emptyToNull(data.email),
+    },
   });
 
   revalidatePath("/clientes");
-  revalidatePath(`/clientes/${contact.clientId}`);
   revalidatePath("/contactos");
   return { ok: true };
 }
 
-export async function setPrimaryContactAction(contactId: string): Promise<ActionResult> {
+/** Marca el contacto como principal del cliente indicado (uno por cliente). */
+export async function setPrimaryContactAction(
+  clientId: string,
+  contactId: string
+): Promise<ActionResult> {
   const user = await requireUser();
   if (!user) return { ok: false, error: "No autorizado. Inicia sesión de nuevo." };
 
-  const contact = await prisma.contact.findUnique({ where: { id: contactId } });
-  if (!contact) return { ok: false, error: "El contacto no existe." };
+  const link = await prisma.clientContact.findUnique({
+    where: { clientId_contactId: { clientId, contactId } },
+    select: { id: true },
+  });
+  if (!link) return { ok: false, error: "El contacto no está vinculado a este cliente." };
 
   await prisma.$transaction([
-    prisma.contact.updateMany({
-      where: { clientId: contact.clientId },
-      data: { isPrimary: false },
-    }),
-    prisma.contact.update({
-      where: { id: contactId },
+    prisma.clientContact.updateMany({ where: { clientId }, data: { isPrimary: false } }),
+    prisma.clientContact.update({
+      where: { clientId_contactId: { clientId, contactId } },
       data: { isPrimary: true },
     }),
   ]);
 
   revalidatePath("/clientes");
-  revalidatePath(`/clientes/${contact.clientId}`);
+  revalidatePath(`/clientes/${clientId}`);
   revalidatePath("/contactos");
   return { ok: true };
 }
 
+/** Quita el contacto de un cliente SIN borrarlo (sigue en sus otras empresas). */
+export async function unlinkContactAction(
+  clientId: string,
+  contactId: string
+): Promise<ActionResult> {
+  const user = await requireUser();
+  if (!user) return { ok: false, error: "No autorizado. Inicia sesión de nuevo." };
+
+  await prisma.clientContact.deleteMany({ where: { clientId, contactId } });
+
+  revalidatePath("/clientes");
+  revalidatePath(`/clientes/${clientId}`);
+  revalidatePath("/contactos");
+  return { ok: true };
+}
+
+/** Borra el contacto por completo (lo desvincula de TODAS las empresas). */
 export async function deleteContactAction(contactId: string): Promise<ActionResult> {
   const user = await requireUser();
   if (!user) return { ok: false, error: "No autorizado. Inicia sesión de nuevo." };
@@ -348,13 +440,12 @@ export async function deleteContactAction(contactId: string): Promise<ActionResu
     return { ok: false, error: "No tenés permiso para eliminar contactos." };
   }
 
-  const contact = await prisma.contact.findUnique({ where: { id: contactId } });
+  const contact = await prisma.contact.findUnique({ where: { id: contactId }, select: { id: true } });
   if (!contact) return { ok: false, error: "El contacto no existe." };
 
   await prisma.contact.delete({ where: { id: contactId } });
 
   revalidatePath("/clientes");
-  revalidatePath(`/clientes/${contact.clientId}`);
   revalidatePath("/contactos");
   return { ok: true };
 }

@@ -86,24 +86,25 @@ export default async function ExpedienteEventoPage({
   const client = event.opportunity.client;
   const opp = event.opportunity;
 
-  // Histórico: otros eventos del mismo cliente.
-  const otherEvents = await prisma.event.findMany({
-    where: { opportunity: { clientId: client.id }, id: { not: event.id } },
-    orderBy: [{ startDate: "desc" }, { createdAt: "desc" }],
-    include: {
-      opportunity: { select: { code: true } },
-      quotes: { select: { totalUsd: true, status: true }, orderBy: { createdAt: "desc" }, take: 1 },
-    },
-    take: 20,
-  });
-
-  // Línea de tiempo de la oportunidad.
-  const activities = await prisma.activity.findMany({
-    where: { opportunityId: opp.id },
-    orderBy: { createdAt: "desc" },
-    take: 25,
-    include: { user: { select: { name: true } } },
-  });
+  // Histórico de otros eventos del cliente y línea de tiempo de la oportunidad:
+  // independientes entre sí → en paralelo (un round-trip en vez de dos).
+  const [otherEvents, activities] = await Promise.all([
+    prisma.event.findMany({
+      where: { opportunity: { clientId: client?.id ?? "" }, id: { not: event.id } },
+      orderBy: [{ startDate: "desc" }, { createdAt: "desc" }],
+      include: {
+        opportunity: { select: { code: true } },
+        quotes: { select: { totalUsd: true, status: true }, orderBy: { createdAt: "desc" }, take: 1 },
+      },
+      take: 20,
+    }),
+    prisma.activity.findMany({
+      where: { opportunityId: opp.id },
+      orderBy: { createdAt: "desc" },
+      take: 25,
+      include: { user: { select: { name: true } } },
+    }),
+  ]);
 
   const dateLabel = event.startDate
     ? formatDayEs(event.startDate, "EEEE d 'de' MMMM 'de' yyyy")
@@ -119,7 +120,7 @@ export default async function ExpedienteEventoPage({
         <div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon-sm" asChild>
-              <Link href={`/clientes/${client.id}`} aria-label="Volver al cliente">
+              <Link href={client ? `/clientes/${client.id}` : "/calendario"} aria-label="Volver al cliente">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -132,7 +133,7 @@ export default async function ExpedienteEventoPage({
             )}
           </div>
           <p className="ml-8 text-sm text-muted-foreground">
-            Expediente del evento · {client.brandName ?? client.legalName} · {opp.code}
+            Expediente del evento · {client?.brandName ?? client?.legalName ?? "Sin empresa"} · {opp.code}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -190,8 +191,8 @@ export default async function ExpedienteEventoPage({
             <CardTitle className="text-sm">Cliente</CardTitle>
           </CardHeader>
           <CardContent className="space-y-0.5 text-sm">
-            <p className="font-medium">{client.legalName}</p>
-            {client.rif && <p className="text-xs text-muted-foreground">RIF {client.rif}</p>}
+            <p className="font-medium">{client?.legalName ?? "Sin empresa"}</p>
+            {client?.rif && <p className="text-xs text-muted-foreground">RIF {client.rif}</p>}
             {opp.contact && (
               <p className="text-xs text-muted-foreground">Contacto: {opp.contact.name}</p>
             )}
@@ -321,7 +322,7 @@ export default async function ExpedienteEventoPage({
           <CardDescription>
             {otherEvents.length === 0
               ? "Primer evento de este cliente."
-              : `${otherEvents.length} evento(s) anterior(es) de ${client.brandName ?? client.legalName}`}
+              : `${otherEvents.length} evento(s) anterior(es) de ${client?.brandName ?? client?.legalName ?? "Sin empresa"}`}
           </CardDescription>
         </CardHeader>
         {otherEvents.length > 0 && (

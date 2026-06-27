@@ -15,6 +15,7 @@ import {
   LOST_REASONS,
   type Stage,
 } from "@/lib/constants";
+import type { OpportunityActivityAndTasks } from "./types";
 
 export type ActionResult =
   | { ok: true; id?: string }
@@ -32,6 +33,37 @@ async function requireSession() {
   const session = await auth();
   if (!session?.user?.id) return null;
   return session;
+}
+
+// ─────────────────────── Detalle bajo demanda (actividades + tareas) ───────────────────────
+
+// El tablero ya no embebe activities/tasks en cada tarjeta (payload enorme). El
+// sheet de detalle las pide aquí al abrirse. Mismo shape, orden y topes que antes
+// traía OPPORTUNITY_INCLUDE (activities: user{id,name}, take 30, createdAt desc;
+// tasks: no CANCELADA, assignee{id,name}, take 50, dueAt asc).
+export async function getOpportunityActivityAndTasks(
+  id: string
+): Promise<OpportunityActivityAndTasks> {
+  const session = await requireSession();
+  if (!session) return { activities: [], tasks: [] };
+  if (!id) return { activities: [], tasks: [] };
+
+  const [activities, tasks] = await Promise.all([
+    prisma.activity.findMany({
+      where: { opportunityId: id },
+      orderBy: { createdAt: "desc" },
+      include: { user: { select: { id: true, name: true } } },
+      take: 30,
+    }),
+    prisma.task.findMany({
+      where: { opportunityId: id, status: { not: "CANCELADA" } },
+      orderBy: { dueAt: "asc" },
+      include: { assignee: { select: { id: true, name: true } } },
+      take: 50,
+    }),
+  ]);
+
+  return { activities, tasks };
 }
 
 // ─────────────────────── Cambio de etapa (drag & drop / pills) ───────────────────────
@@ -112,36 +144,32 @@ export async function moveOpportunityStage(input: {
 
 // ─────────────────────── Crear oportunidad ───────────────────────
 
-const createSchema = z
-  .object({
-    clientId: optional(z.string().min(1)),
-    newClientName: optional(
-      z.string().trim().min(3, "La razón social debe tener al menos 3 caracteres")
-    ),
-    title: z
-      .string({ message: "El título es obligatorio" })
-      .trim()
-      .min(3, "El título debe tener al menos 3 caracteres")
-      .max(160, "El título es demasiado largo"),
-    eventType: optional(z.string().trim().min(1)),
-    segment: optional(z.string().trim().min(1)),
-    channel: optional(z.string().trim().min(1)),
-    expectedEventDate: optional(z.coerce.date({ message: "Fecha inválida" })),
-    pax: optional(
-      z
-        .number({ message: "Pax debe ser un número" })
-        .int("Pax debe ser un número entero")
-        .positive("Pax debe ser mayor que cero")
-    ),
-    estimatedValue: optional(
-      z.number({ message: "El valor estimado debe ser un número" }).min(0, "El valor estimado no puede ser negativo")
-    ),
-    ownerId: z.string({ message: "Selecciona un responsable" }).min(1, "Selecciona un responsable"),
-  })
-  .refine((d) => d.clientId || d.newClientName, {
-    message: "Selecciona un cliente o crea uno nuevo",
-    path: ["clientId"],
-  });
+// La oportunidad se crea eligiendo el CONTACTO (obligatorio); la empresa (cliente)
+// va en un campo aparte, porque un contacto puede pertenecer a varias empresas.
+const createSchema = z.object({
+  contactId: z.string({ message: "Selecciona un contacto" }).min(1, "Selecciona un contacto"),
+  // Empresa OPCIONAL: un contacto puede no tener empresa y aun así crear la oportunidad.
+  clientId: optional(z.string().min(1)),
+  title: z
+    .string({ message: "El título es obligatorio" })
+    .trim()
+    .min(3, "El título debe tener al menos 3 caracteres")
+    .max(160, "El título es demasiado largo"),
+  eventType: optional(z.string().trim().min(1)),
+  segment: optional(z.string().trim().min(1)),
+  channel: optional(z.string().trim().min(1)),
+  expectedEventDate: optional(z.coerce.date({ message: "Fecha inválida" })),
+  pax: optional(
+    z
+      .number({ message: "Pax debe ser un número" })
+      .int("Pax debe ser un número entero")
+      .positive("Pax debe ser mayor que cero")
+  ),
+  estimatedValue: optional(
+    z.number({ message: "El valor estimado debe ser un número" }).min(0, "El valor estimado no puede ser negativo")
+  ),
+  ownerId: z.string({ message: "Selecciona un responsable" }).min(1, "Selecciona un responsable"),
+});
 
 async function nextOpportunityCode(): Promise<string> {
   const year = new Date().getFullYear();
@@ -156,8 +184,8 @@ async function nextOpportunityCode(): Promise<string> {
 }
 
 export async function createOpportunity(input: {
-  clientId?: string | null;
-  newClientName?: string | null;
+  contactId: string;
+  clientId?: string;
   title: string;
   eventType?: string | null;
   segment?: string | null;
@@ -174,22 +202,36 @@ export async function createOpportunity(input: {
   if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
   const data = parsed.data;
 
+  // El contacto debe existir. La empresa es opcional; si viene, debe existir.
+  const [contact, client] = await Promise.all([
+    prisma.contact.findUnique({ where: { id: data.contactId }, select: { id: true } }),
+    data.clientId
+      ? prisma.client.findUnique({ where: { id: data.clientId }, select: { id: true } })
+      : Promise.resolve(null),
+  ]);
+  if (!contact) return { ok: false, error: "El contacto seleccionado no existe" };
+  if (data.clientId && !client) {
+    return { ok: false, error: "La empresa (cliente) seleccionada no existe" };
+  }
+
   // Reintenta ante colisión del código secuencial (creaciones concurrentes)
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const code = await nextOpportunityCode();
       const created = await prisma.$transaction(async (tx) => {
-        let clientId = data.clientId;
-        if (!clientId && data.newClientName) {
-          const client = await tx.client.create({
-            data: { legalName: data.newClientName },
+        // Si hay empresa, asegura el vínculo contacto↔empresa (no pisa si ya existe).
+        if (client) {
+          await tx.clientContact.upsert({
+            where: { clientId_contactId: { clientId: client.id, contactId: contact.id } },
+            update: {},
+            create: { clientId: client.id, contactId: contact.id },
           });
-          clientId = client.id;
         }
         const opp = await tx.opportunity.create({
           data: {
             code,
-            clientId: clientId!,
+            clientId: client?.id ?? null,
+            contactId: contact.id,
             ownerId: data.ownerId,
             title: data.title,
             eventType: data.eventType ?? null,
@@ -355,14 +397,17 @@ export async function deleteOpportunity(opportunityId: string): Promise<ActionRe
       await tx.quote.deleteMany({ where: { opportunityId } });
       // La oportunidad: cascada de eventos (→ staff/beo/costos), tareas, actividades y adjuntos.
       await tx.opportunity.delete({ where: { id: opportunityId } });
-      // Rastro de auditoría en la ficha del cliente (que sobrevive).
-      await tx.clientNote.create({
-        data: {
-          clientId: opp.clientId,
-          authorId: session.user.id,
-          body: `Oportunidad ${opp.code} «${opp.title}» eliminada por ${session.user.name ?? "un usuario"}.`,
-        },
-      });
+      // Rastro de auditoría en la ficha del cliente (que sobrevive). Solo si la
+      // oportunidad tenía empresa.
+      if (opp.clientId) {
+        await tx.clientNote.create({
+          data: {
+            clientId: opp.clientId,
+            authorId: session.user.id,
+            body: `Oportunidad ${opp.code} «${opp.title}» eliminada por ${session.user.name ?? "un usuario"}.`,
+          },
+        });
+      }
     });
   } catch (e) {
     console.error("deleteOpportunity", e);

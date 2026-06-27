@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formatDayEs } from "@/lib/dates";
-import { CalendarDays, Search } from "lucide-react";
+import { Building2, CalendarDays, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,14 +13,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { generateBeoFromOpportunity } from "../actions";
+import { generateBeoFromReservation } from "../actions";
 
-export interface UpcomingEvent {
-  id: string;
+export interface BeoReservationOption {
+  id: string; // id de la reserva de salón confirmada
   name: string;
   clientName: string;
-  opportunityCode: string;
+  spaceName: string;
   startDate: string | null;
+  /** Número de cotización de origen, o "Reserva manual". */
+  origin: string;
   pax: number | null;
 }
 
@@ -34,11 +36,11 @@ function norm(s: string): string {
 export function GenerateBeoDialog({
   open,
   onOpenChange,
-  events,
+  reservations,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
-  events: UpcomingEvent[];
+  reservations: BeoReservationOption[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -46,17 +48,18 @@ export function GenerateBeoDialog({
 
   const q = norm(search.trim());
   const filtered = q
-    ? events.filter(
+    ? reservations.filter(
         (e) =>
           norm(e.name).includes(q) ||
           norm(e.clientName).includes(q) ||
-          norm(e.opportunityCode).includes(q)
+          norm(e.origin).includes(q) ||
+          norm(e.spaceName).includes(q)
       )
-    : events;
+    : reservations;
 
-  function pick(opportunityId: string) {
+  function pick(reservationId: string) {
     startTransition(async () => {
-      const res = await generateBeoFromOpportunity(opportunityId);
+      const res = await generateBeoFromReservation(reservationId);
       if (res.ok && res.id) {
         toast.success("BEO generado.");
         onOpenChange(false);
@@ -71,10 +74,11 @@ export function GenerateBeoDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Generar BEO desde una cotización ganada</DialogTitle>
+          <DialogTitle>Generar BEO desde una reserva confirmada</DialogTitle>
           <DialogDescription>
-            Cotizaciones aprobadas/contratadas y oportunidades ganadas sin BEO. Al elegir una, se
-            autocompleta del cliente y la cotización (si falta el evento, se crea).
+            Reservas de salón confirmadas que aún no tienen BEO — vengan de una cotización ganada
+            o de una reserva manual. Al elegir una, se autocompleta el salón, la fecha, el cliente
+            y el menú de la cotización vinculada (si la hay).
           </DialogDescription>
         </DialogHeader>
 
@@ -83,7 +87,7 @@ export function GenerateBeoDialog({
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar evento, cliente o código…"
+            placeholder="Buscar evento, cliente, salón o cotización…"
             className="pl-8"
           />
         </div>
@@ -91,7 +95,7 @@ export function GenerateBeoDialog({
         <div className="max-h-96 space-y-1.5 overflow-y-auto">
           {filtered.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No hay cotizaciones ganadas sin BEO.
+              No hay reservas confirmadas sin BEO.
             </p>
           ) : (
             filtered.map((e) => (
@@ -105,8 +109,12 @@ export function GenerateBeoDialog({
                 <div className="min-w-0">
                   <p className="truncate text-xs font-medium">{e.name}</p>
                   <p className="truncate text-[11px] text-muted-foreground">
-                    {e.clientName} · {e.opportunityCode}
+                    {e.clientName} · {e.origin}
                     {e.pax ? ` · ${e.pax} pax` : ""}
+                  </p>
+                  <p className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+                    <Building2 className="size-3 shrink-0" />
+                    {e.spaceName}
                   </p>
                 </div>
                 <span className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground">

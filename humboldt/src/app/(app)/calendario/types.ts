@@ -19,12 +19,16 @@ export interface ReservationDTO {
   notes: string | null;
   type: "EVENTO" | "MANTENIMIENTO";
   eventId: string | null;
-  /** Etiqueta a mostrar: nombre del evento, o título del bloqueo de mantenimiento. */
+  /** Etiqueta a mostrar: contacto/evento, o motivo del bloqueo de mantenimiento. */
   eventName: string;
   opportunityId: string | null;
   opportunityCode: string | null;
   opportunityTitle: string | null;
   clientName: string | null;
+  /** Contacto de la reserva (reservas manuales por contacto). */
+  contactName: string | null;
+  /** Cotización vinculada (opcional). */
+  quoteNumber: string | null;
 }
 
 export interface ConflictDTO {
@@ -35,18 +39,20 @@ export interface ConflictDTO {
   eventNames: string[];
 }
 
-export interface EventOptionDTO {
+/** Contacto para crear una reserva (la reserva se hace por contacto). */
+export interface ContactOptionDTO {
   id: string;
   name: string;
-  clientName: string;
-  opportunityCode: string;
+  /** Empresas a las que pertenece (para distinguir homónimos); puede estar vacío. */
+  clientNames: string[];
 }
 
-export interface OpportunityOptionDTO {
+/** Cotización abierta que se puede vincular (opcional) a la reserva. */
+export interface OpenQuoteOptionDTO {
   id: string;
-  code: string;
-  title: string;
-  clientName: string;
+  number: string;
+  /** Cliente/evento de la cotización, para identificarla. */
+  description: string;
 }
 
 /** Colores de badge por estado de reserva (no existen en constants.ts). */

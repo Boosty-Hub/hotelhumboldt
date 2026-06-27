@@ -18,15 +18,19 @@ export default async function CostosCotizacionPage({
   // Documento INTERNO: solo roles que ven costos (ADMIN / GERENTE).
   if (!session?.user || !canViewCosts(session.user.role)) notFound();
 
-  const quote = await prisma.quote.findUnique({
-    where: { id },
-    include: {
-      opportunity: { include: { client: true } },
-      event: true,
-      signer: { select: { name: true } },
-      lines: { orderBy: { sortOrder: "asc" } },
-    },
-  });
+  // La cotización y los parámetros comerciales son independientes → en paralelo.
+  const [quote, { minMarginPct }] = await Promise.all([
+    prisma.quote.findUnique({
+      where: { id },
+      include: {
+        opportunity: { include: { client: true } },
+        event: true,
+        signer: { select: { name: true } },
+        lines: { orderBy: { sortOrder: "asc" } },
+      },
+    }),
+    getCommercialParams(),
+  ]);
   if (!quote) notFound();
 
   const analysis = buildCostAnalysis(
@@ -42,7 +46,6 @@ export default async function CostosCotizacionPage({
     }))
   );
 
-  const { minMarginPct } = await getCommercialParams();
   const client = quote.opportunity.client;
 
   return (
@@ -51,8 +54,8 @@ export default async function CostosCotizacionPage({
       number={quoteBaseNumber(quote.number)}
       version={quote.version}
       status={quote.status}
-      clientName={client.brandName ?? client.legalName}
-      clientLegal={client.legalName}
+      clientName={client?.brandName ?? client?.legalName ?? "Sin empresa"}
+      clientLegal={client?.legalName ?? ""}
       eventName={quote.event?.name ?? null}
       eventPax={quote.event?.pax ?? null}
       signerName={quote.signer.name}

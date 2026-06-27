@@ -9,6 +9,9 @@ export default function CalendarioLoading() {
         <Skeleton className="h-4 w-96 max-w-full" />
       </div>
 
+      {/* Pestañas (Calendario / Eventos) */}
+      <Skeleton className="h-8 w-56 rounded-lg" />
+
       <Card className="gap-0 overflow-hidden p-0">
         {/* Barra de herramientas */}
         <div className="flex items-center justify-between gap-2 border-b bg-muted/30 px-3 py-2.5">

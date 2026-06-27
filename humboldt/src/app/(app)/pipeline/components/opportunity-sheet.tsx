@@ -12,6 +12,7 @@ import {
   CalendarDays,
   ExternalLink,
   FileText,
+  GitBranch,
   Megaphone,
   Pencil,
   Send,
@@ -39,6 +40,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -52,8 +60,17 @@ import {
   type QuoteStatus,
   type Stage,
 } from "@/lib/constants";
-import { addOpportunityNote, deleteOpportunity, updateOpportunityDetails } from "../actions";
-import { initials, type PipelineOpportunity } from "../types";
+import {
+  addOpportunityNote,
+  deleteOpportunity,
+  getOpportunityActivityAndTasks,
+  updateOpportunityDetails,
+} from "../actions";
+import {
+  initials,
+  type OpportunityActivityAndTasks,
+  type PipelineOpportunity,
+} from "../types";
 import { ACTIVITY_TYPE_ICONS, ACTIVITY_TYPE_LABELS } from "./pipeline-meta";
 import { TaskSection } from "./task-section";
 import { AttachmentsSection } from "./attachments-section";
@@ -106,6 +123,10 @@ export function OpportunitySheet({
   const [obs, setObs] = useState(opp?.observations ?? "");
   const [note, setNote] = useState("");
 
+  // Actividades y tareas del detalle, cargadas bajo demanda al abrir el sheet
+  // (el tablero ya no las trae en el payload de cada tarjeta). `null` ⇒ aún cargando.
+  const [detail, setDetail] = useState<OpportunityActivityAndTasks | null>(null);
+
   // Sincroniza cada campo por separado para no pisar ediciones en curso
   useEffect(() => {
     setProb(opp?.probability ?? 0);
@@ -119,7 +140,28 @@ export function OpportunitySheet({
     setNote("");
   }, [opp?.id]);
 
+  // Carga diferida de actividades + tareas al cambiar de oportunidad (incluye la
+  // preseleccionada por ?op=ID, que llega ya con opp.id al montar). El flag `active`
+  // descarta respuestas viejas si el usuario abre varias oportunidades en rápido.
+  useEffect(() => {
+    const id = opp?.id;
+    if (!id) {
+      setDetail(null);
+      return;
+    }
+    let active = true;
+    setDetail(null); // estado de carga mientras llega la respuesta de este id
+    getOpportunityActivityAndTasks(id).then((res) => {
+      if (active) setDetail(res);
+    });
+    return () => {
+      active = false;
+    };
+  }, [opp?.id]);
+
   if (!opp) return null;
+
+  const detailLoading = detail === null;
 
   const obsDirty = obs !== (opp.observations ?? "");
 
@@ -163,6 +205,10 @@ export function OpportunitySheet({
       } else {
         setNote("");
         toast.success("Nota agregada");
+        // El timeline ya no vive en el payload del tablero: recarga el detalle
+        // para que la nueva nota aparezca al instante.
+        const fresh = await getOpportunityActivityAndTasks(opp.id);
+        setDetail(fresh);
       }
     });
   };
@@ -191,14 +237,18 @@ export function OpportunitySheet({
           <SheetTitle className="pr-8 text-base leading-snug">{opp.title}</SheetTitle>
           <SheetDescription asChild>
             <span className="flex items-center gap-1.5">
-              <Link
-                href={`/clientes/${opp.client.id}`}
-                className="inline-flex items-center gap-1 text-xs font-medium text-sky-900 hover:underline"
-              >
-                {opp.client.brandName ?? opp.client.legalName}
-                <ExternalLink className="size-3" />
-              </Link>
-              {opp.client.brandName && (
+              {opp.client ? (
+                <Link
+                  href={`/clientes/${opp.client.id}`}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-sky-900 hover:underline"
+                >
+                  {opp.client.brandName ?? opp.client.legalName}
+                  <ExternalLink className="size-3" />
+                </Link>
+              ) : (
+                <span className="text-xs font-medium text-muted-foreground">Sin empresa</span>
+              )}
+              {opp.client?.brandName && (
                 <span className="truncate text-[11px] text-muted-foreground">
                   · {opp.client.legalName}
                 </span>
@@ -219,39 +269,6 @@ export function OpportunitySheet({
         </SheetHeader>
 
         <div className="flex-1 space-y-5 overflow-y-auto p-6 pt-4">
-          {/* Etapas como pills */}
-          <div>
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Etapa
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {STAGES.map((s) => {
-                const active = opp.stage === s;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    disabled={pending}
-                    onClick={() => !active && onStageChange(opp, s)}
-                    className={cn(
-                      "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all",
-                      active
-                        ? cn(STAGE_COLORS[s], "ring-2 ring-sky-950/15")
-                        : "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    {STAGE_LABELS[s]}
-                  </button>
-                );
-              })}
-            </div>
-            {opp.stage === "PERDIDO" && opp.lostReason && (
-              <p className="mt-2 text-[11px] text-rose-700">
-                Motivo de pérdida: <span className="font-medium">{opp.lostReason}</span>
-              </p>
-            )}
-          </div>
-
           {/* Valor + probabilidad */}
           <div className="rounded-xl border bg-muted/30 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -291,6 +308,43 @@ export function OpportunitySheet({
               Datos del evento
             </p>
             <div className="grid grid-cols-2 gap-2">
+              {/* Etapa como un campo más: dropdown para cambiarla directamente.
+                  Al elegir "Perdido" se dispara el flujo de motivo (handleStageChange). */}
+              <div className="col-span-2 flex items-start gap-2 rounded-lg border bg-muted/30 p-2.5">
+                <GitBranch className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Etapa</p>
+                  <Select
+                    value={opp.stage}
+                    disabled={pending}
+                    onValueChange={(value) => {
+                      if (value !== opp.stage) onStageChange(opp, value as Stage);
+                    }}
+                  >
+                    <SelectTrigger className="mt-1 h-7 w-full text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STAGES.map((s) => (
+                        <SelectItem key={s} value={s} className="text-xs">
+                          <span className="flex items-center gap-2">
+                            <span
+                              className={cn("size-2 rounded-full", STAGE_COLORS[s])}
+                              aria-hidden
+                            />
+                            {STAGE_LABELS[s]}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {opp.stage === "PERDIDO" && opp.lostReason && (
+                    <p className="mt-1.5 text-[11px] text-rose-700">
+                      Motivo de pérdida: <span className="font-medium">{opp.lostReason}</span>
+                    </p>
+                  )}
+                </div>
+              </div>
               <DataItem
                 icon={CalendarDays}
                 label="Fecha esperada"
@@ -425,15 +479,32 @@ export function OpportunitySheet({
 
           <Separator />
 
-          {/* Tareas programadas */}
-          <TaskSection opportunityId={opp.id} tasks={opp.tasks} highlightId={highlightTaskId} />
+          {/* Tareas programadas (cargadas bajo demanda) */}
+          {detailLoading ? (
+            <div>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Tareas
+              </p>
+              <p className="rounded-lg border border-dashed p-3 text-center text-[11px] text-muted-foreground">
+                Cargando tareas…
+              </p>
+            </div>
+          ) : (
+            // key por oportunidad: re-siembra el estado interno con las tareas recién cargadas.
+            <TaskSection
+              key={opp.id}
+              opportunityId={opp.id}
+              tasks={detail.tasks}
+              highlightId={highlightTaskId}
+            />
+          )}
 
           <Separator />
 
           {/* Timeline de actividad */}
           <div>
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Actividad
+              Cambios en Sistema
             </p>
 
             {/* Nota rápida */}
@@ -462,9 +533,13 @@ export function OpportunitySheet({
               </Button>
             </div>
 
-            {opp.activities.length > 0 ? (
+            {detailLoading ? (
+              <p className="rounded-lg border border-dashed p-3 text-center text-[11px] text-muted-foreground">
+                Cargando actividad…
+              </p>
+            ) : detail.activities.length > 0 ? (
               <ol className="relative space-y-4 border-l border-border pl-4">
-                {opp.activities.map((act) => {
+                {detail.activities.map((act) => {
                   const Icon = ACTIVITY_TYPE_ICONS[act.type] ?? ACTIVITY_TYPE_ICONS.SISTEMA!;
                   return (
                     <li key={act.id} className="relative">

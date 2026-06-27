@@ -1,5 +1,6 @@
 import { auth, signOut, canManageSettings } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getCurrentRate, getParallelRate } from "@/lib/bcv";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -31,18 +32,13 @@ export async function AppHeader() {
 
   const canEdit = canManageSettings(user?.role);
 
-  // Tasa y tareas en paralelo (un solo viaje al pooler en vez de dos seguidos).
+  // Las tasas vienen de la lectura cacheada (compartida con el resto de la app,
+  // 0 round-trips tras la primera lectura); las tareas del día sí consultan.
   const endToday = new Date();
   endToday.setHours(23, 59, 59, 999);
-  const [latestRate, latestParallel, dueTasks] = await Promise.all([
-    prisma.exchangeRate.findFirst({
-      where: { kind: "OFICIAL" },
-      orderBy: { date: "desc" },
-    }),
-    prisma.exchangeRate.findFirst({
-      where: { kind: "PARALELA" },
-      orderBy: { date: "desc" },
-    }),
+  const [rate, parallel, dueTasks] = await Promise.all([
+    getCurrentRate(),
+    getParallelRate(),
     user?.id
       ? prisma.task.findMany({
           where: { assigneeId: user.id, status: "PENDIENTE", dueAt: { lte: endToday } },
@@ -56,19 +52,14 @@ export async function AppHeader() {
         })
       : Promise.resolve([]),
   ]);
-  const rate = latestRate
-    ? { rate: latestRate.rate, date: latestRate.date, source: latestRate.source }
-    : null;
-  const parallel = latestParallel
-    ? { rate: latestParallel.rate, date: latestParallel.date, source: latestParallel.source }
-    : null;
   const headerTasks = dueTasks.map((t) => ({
     id: t.id,
     title: t.title,
     type: t.type,
     dueAt: t.dueAt,
     opportunityId: t.opportunityId,
-    clientName: t.opportunity.client.brandName ?? t.opportunity.client.legalName,
+    clientName:
+      t.opportunity.client?.brandName ?? t.opportunity.client?.legalName ?? "Sin empresa",
   }));
 
   return (

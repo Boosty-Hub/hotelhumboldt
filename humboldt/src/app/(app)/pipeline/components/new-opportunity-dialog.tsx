@@ -4,14 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
-import {
-  Building2,
-  CalendarDays,
-  Check,
-  ChevronsUpDown,
-  Plus,
-  X,
-} from "lucide-react";
+import { CalendarDays, Check, ChevronsUpDown, UserPlus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -48,11 +41,10 @@ import { cn } from "@/lib/utils";
 import { ROLE_LABELS, type Role } from "@/lib/constants";
 import { SELECTABLE_SEGMENTS } from "@/lib/segments";
 import { createOpportunity } from "../actions";
-import type { BasicClient, BasicUser } from "../types";
+import type { BasicClient, BasicContact, BasicUser } from "../types";
+import { NewContactDialog } from "@/app/(app)/contactos/components/new-contact-dialog";
 
 interface FormState {
-  clientId: string;
-  newClientName: string;
   title: string;
   eventType: string;
   segment: string;
@@ -67,6 +59,7 @@ export function NewOpportunityDialog({
   open,
   onOpenChange,
   clients,
+  contacts,
   users,
   eventTypes,
   channels,
@@ -75,6 +68,7 @@ export function NewOpportunityDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clients: BasicClient[];
+  contacts: BasicContact[];
   users: BasicUser[];
   eventTypes: string[];
   channels: string[];
@@ -82,8 +76,6 @@ export function NewOpportunityDialog({
 }) {
   const emptyForm: FormState = useMemo(
     () => ({
-      clientId: "",
-      newClientName: "",
       title: "",
       eventType: "",
       segment: "",
@@ -97,25 +89,47 @@ export function NewOpportunityDialog({
   );
 
   const [form, setForm] = useState<FormState>(emptyForm);
+  // Contacto (obligatorio) y empresa (campo aparte: un contacto puede tener varias).
+  const [extraContacts, setExtraContacts] = useState<BasicContact[]>([]);
+  const [contactId, setContactId] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string>("");
+  const [contactOpen, setContactOpen] = useState(false);
   const [clientOpen, setClientOpen] = useState(false);
-  const [clientSearch, setClientSearch] = useState("");
+  const [newContactOpen, setNewContactOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const selectedClient = clients.find((c) => c.id === form.clientId);
+  const allContacts = useMemo(() => [...contacts, ...extraContacts], [contacts, extraContacts]);
+  const selectedContact = allContacts.find((c) => c.id === contactId) ?? null;
+  const clientLabel = (c: BasicClient) => c.brandName ?? c.legalName;
+  const selectedClient = clients.find((c) => c.id === clientId) ?? null;
+
+  function pickContact(ct: BasicContact) {
+    setContactId(ct.id);
+    setContactOpen(false);
+    if (ct.clients.length === 1) setClientId(ct.clients[0].id);
+    else if (!ct.clients.some((c) => c.id === clientId)) setClientId("");
+  }
+
+  const resetAll = () => {
+    setForm(emptyForm);
+    setContactId(null);
+    setClientId("");
+    setExtraContacts([]);
+  };
 
   const handleOpenChange = (next: boolean) => {
     if (pending) return;
-    if (!next) setForm(emptyForm);
+    if (!next) resetAll();
     onOpenChange(next);
   };
 
   const submit = () => {
-    if (!form.clientId && !form.newClientName.trim()) {
-      toast.error("Selecciona un cliente o crea uno nuevo");
+    if (!contactId) {
+      toast.error("Selecciona o creá el contacto");
       return;
     }
     if (form.title.trim().length < 3) {
@@ -140,8 +154,8 @@ export function NewOpportunityDialog({
 
     startTransition(async () => {
       const res = await createOpportunity({
-        clientId: form.clientId || undefined,
-        newClientName: form.clientId ? undefined : form.newClientName.trim() || undefined,
+        contactId,
+        clientId: clientId || undefined,
         title: form.title.trim(),
         eventType: form.eventType || undefined,
         segment: form.segment || undefined,
@@ -155,7 +169,7 @@ export function NewOpportunityDialog({
         toast.error(res.error);
       } else {
         toast.success("Oportunidad creada");
-        setForm(emptyForm);
+        resetAll();
         onOpenChange(false);
       }
     });
@@ -167,126 +181,151 @@ export function NewOpportunityDialog({
         <DialogHeader>
           <DialogTitle>Nueva oportunidad</DialogTitle>
           <DialogDescription>
-            Registra una nueva oportunidad en el pipeline. Se creará en la etapa «Nuevo».
+            Elegí el contacto (si no existe, creálo) y la empresa para la que es. Se creará en la
+            etapa «Nuevo».
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4">
-          {/* Cliente */}
+          {/* Contacto (obligatorio) */}
           <div className="space-y-1.5">
-            <Label>Cliente *</Label>
-            {form.newClientName ? (
-              <div className="flex items-center justify-between gap-2 rounded-md border border-dashed border-sky-900/40 bg-sky-50 px-3 py-2">
-                <span className="flex min-w-0 items-center gap-2 text-xs">
-                  <Building2 className="size-3.5 shrink-0 text-sky-900" />
-                  <span className="truncate">
-                    Cliente nuevo: <span className="font-semibold">{form.newClientName}</span>
-                  </span>
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => set("newClientName", "")}
-                  aria-label="Quitar cliente nuevo"
-                >
-                  <X />
-                </Button>
-              </div>
-            ) : (
-              <Popover open={clientOpen} onOpenChange={setClientOpen}>
+            <Label>Contacto *</Label>
+            <div className="flex gap-2">
+              <Popover open={contactOpen} onOpenChange={setContactOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     role="combobox"
-                    aria-expanded={clientOpen}
-                    className="w-full justify-between font-normal"
+                    className="flex-1 justify-between font-normal"
                   >
-                    <span className={cn("truncate", !selectedClient && "text-muted-foreground")}>
-                      {selectedClient
-                        ? (selectedClient.brandName ?? selectedClient.legalName)
-                        : "Buscar cliente…"}
+                    <span className={cn("truncate", !selectedContact && "text-muted-foreground")}>
+                      {selectedContact ? selectedContact.name : "Buscar contacto…"}
                     </span>
                     <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
                   <Command>
-                    <CommandInput
-                      placeholder="Razón social o marca…"
-                      value={clientSearch}
-                      onValueChange={setClientSearch}
-                    />
+                    <CommandInput placeholder="Buscar por contacto o empresa…" />
                     <CommandList>
-                      <CommandEmpty>
-                        <div className="space-y-2 px-2 py-1 text-center">
-                          <p className="text-xs text-muted-foreground">
-                            No se encontró el cliente.
-                          </p>
-                          {clientSearch.trim().length >= 3 && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="w-full"
-                              onClick={() => {
-                                set("newClientName", clientSearch.trim());
-                                set("clientId", "");
-                                setClientOpen(false);
-                                setClientSearch("");
-                              }}
-                            >
-                              <Plus />
-                              Crear «{clientSearch.trim()}»
-                            </Button>
-                          )}
-                        </div>
-                      </CommandEmpty>
+                      <CommandEmpty>No hay contactos que coincidan.</CommandEmpty>
                       <CommandGroup>
-                        {clients.map((c) => (
+                        {allContacts.map((ct) => (
                           <CommandItem
-                            key={c.id}
-                            value={`${c.legalName} ${c.brandName ?? ""}`}
+                            key={ct.id}
+                            value={`${ct.name} ${ct.title ?? ""} ${ct.clients
+                              .map((c) => c.name)
+                              .join(" ")}`}
+                            onSelect={() => pickContact(ct)}
+                          >
+                            <Check
+                              className={cn(
+                                "size-3.5",
+                                contactId === ct.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            <span className="flex-1 truncate">
+                              {ct.name}
+                              {ct.title && (
+                                <span className="text-muted-foreground"> · {ct.title}</span>
+                              )}
+                            </span>
+                            <span className="ml-2 shrink-0 text-[11px] text-muted-foreground">
+                              {ct.clients.length === 0
+                                ? "sin empresa"
+                                : ct.clients.map((c) => c.name).join(", ")}
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <Button type="button" variant="outline" onClick={() => setNewContactOpen(true)}>
+                <UserPlus className="size-3.5" />
+                Nuevo
+              </Button>
+            </div>
+          </div>
+
+          {/* Empresa (cliente) — opcional */}
+          <div className="space-y-1.5">
+            <Label>Empresa (cliente) (opcional)</Label>
+            <Popover open={clientOpen} onOpenChange={setClientOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full justify-between font-normal"
+                >
+                  <span className={cn("truncate", !selectedClient && "text-muted-foreground")}>
+                    {selectedClient ? clientLabel(selectedClient) : "Buscar empresa…"}
+                  </span>
+                  <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar empresa…" />
+                  <CommandList>
+                    <CommandEmpty>No hay empresas que coincidan.</CommandEmpty>
+                    {selectedContact && selectedContact.clients.length > 0 && (
+                      <CommandGroup heading="Empresas del contacto">
+                        {selectedContact.clients.map((c) => (
+                          <CommandItem
+                            key={`own-${c.id}`}
+                            value={`own ${c.name}`}
                             onSelect={() => {
-                              set("clientId", c.id === form.clientId ? "" : c.id);
+                              setClientId(c.id);
                               setClientOpen(false);
-                              setClientSearch("");
                             }}
                           >
                             <Check
                               className={cn(
                                 "size-3.5",
-                                form.clientId === c.id ? "opacity-100" : "opacity-0"
+                                clientId === c.id ? "opacity-100" : "opacity-0"
                               )}
                             />
-                            <span className="truncate">
-                              {c.brandName ?? c.legalName}
-                              {c.brandName && (
-                                <span className="text-muted-foreground"> · {c.legalName}</span>
-                              )}
-                            </span>
+                            <span className="truncate">{c.name}</span>
                           </CommandItem>
                         ))}
                       </CommandGroup>
-                      {clientSearch.trim().length >= 3 && (
-                        <CommandGroup forceMount>
-                          <CommandItem
-                            forceMount
-                            value={`__crear__${clientSearch}`}
-                            onSelect={() => {
-                              set("newClientName", clientSearch.trim());
-                              set("clientId", "");
-                              setClientOpen(false);
-                              setClientSearch("");
-                            }}
-                          >
-                            <Plus className="size-3.5" />
-                            Crear cliente «{clientSearch.trim()}»
-                          </CommandItem>
-                        </CommandGroup>
-                      )}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+                    )}
+                    <CommandGroup heading="Todas las empresas">
+                      {clients.map((c) => (
+                        <CommandItem
+                          key={c.id}
+                          value={clientLabel(c)}
+                          onSelect={() => {
+                            setClientId(c.id);
+                            setClientOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "size-3.5",
+                              clientId === c.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <span className="truncate">
+                            {clientLabel(c)}
+                            {c.brandName && (
+                              <span className="text-muted-foreground"> · {c.legalName}</span>
+                            )}
+                          </span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {selectedContact && selectedContact.clients.length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                Este contacto no tiene empresa. Podés dejarlo sin empresa o elegir una (quedará
+                vinculado a ella).
+              </p>
             )}
           </div>
 
@@ -352,7 +391,7 @@ export function NewOpportunityDialog({
             </Select>
           </div>
 
-          {/* Fecha + pax + valor */}
+          {/* Fecha + pax */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Fecha evento esperada</Label>
@@ -447,6 +486,23 @@ export function NewOpportunityDialog({
             {pending ? "Creando…" : "Crear oportunidad"}
           </Button>
         </DialogFooter>
+
+        {/* Crear contacto (libre o con empresa) sin salir del diálogo */}
+        <NewContactDialog
+          open={newContactOpen}
+          onOpenChange={setNewContactOpen}
+          clients={clients.map((c) => ({ id: c.id, name: clientLabel(c) }))}
+          onCreated={(c) => {
+            const ctClients =
+              c.clientId && c.clientName ? [{ id: c.clientId, name: c.clientName }] : [];
+            setExtraContacts((cur) => [
+              ...cur,
+              { id: c.contactId, name: c.name, title: c.title, clients: ctClients },
+            ]);
+            setContactId(c.contactId);
+            if (ctClients.length === 1) setClientId(ctClients[0].id);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -7,13 +7,10 @@ import { calcQuoteTotals } from "@/lib/quote-calc";
 import { SETTING_KEYS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { QuoteDocument } from "@/components/quote/quote-document";
 import { QuoteStatusBadge } from "@/components/quote/quote-status-badge";
-import { CopyLinkButton } from "@/components/quote/copy-link-button";
-import { PrintButton } from "@/components/quote/print-button";
-import { AutoPrint } from "@/components/quote/auto-print";
-import { StatusActions } from "@/components/quote/status-actions";
+import { DownloadPdfButton } from "@/components/quote/download-pdf-button";
 
 export const metadata = { title: "Documento de cotización" };
 
@@ -46,17 +43,6 @@ export default async function DocumentoCotizacionPage({
   const { id } = await params;
   const autoPrint = (await searchParams).print === "1";
 
-  const quote = await prisma.quote.findUnique({
-    where: { id },
-    include: {
-      opportunity: { include: { client: true, contact: true } },
-      event: true,
-      signer: true,
-      lines: { orderBy: [{ dayNumber: "asc" }, { sortOrder: "asc" }] },
-    },
-  });
-  if (!quote) notFound();
-
   // Datos del hotel desde Configuración
   const hotelKeys = [
     SETTING_KEYS.HOTEL_NAME,
@@ -65,7 +51,21 @@ export default async function DocumentoCotizacionPage({
     SETTING_KEYS.HOTEL_PHONE,
     SETTING_KEYS.HOTEL_EMAIL,
   ];
-  const settings = await prisma.setting.findMany({ where: { key: { in: hotelKeys } } });
+  // La cotización y los settings del hotel son independientes → en paralelo
+  // (un round-trip en vez de dos a la DB remota).
+  const [quote, settings] = await Promise.all([
+    prisma.quote.findUnique({
+      where: { id },
+      include: {
+        opportunity: { include: { client: true, contact: true } },
+        event: true,
+        signer: { select: { name: true, email: true } },
+        lines: { orderBy: [{ dayNumber: "asc" }, { sortOrder: "asc" }] },
+      },
+    }),
+    prisma.setting.findMany({ where: { key: { in: hotelKeys } } }),
+  ]);
+  if (!quote) notFound();
   const setting = (key: string) => settings.find((s) => s.key === key)?.value ?? null;
 
   // Totales SIEMPRE recalculados desde las líneas (consistencia garantizada)
@@ -118,7 +118,6 @@ export default async function DocumentoCotizacionPage({
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       <style dangerouslySetInnerHTML={{ __html: PRINT_CSS }} />
-      {autoPrint && <AutoPrint />}
 
       {/* ── Barra de acciones (no se imprime) ── */}
       <div className="print-hidden flex flex-wrap items-center justify-between gap-3">
@@ -133,15 +132,7 @@ export default async function DocumentoCotizacionPage({
           <QuoteStatusBadge status={quote.status} />
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link href={`/cotizaciones/${quote.id}/editar`}>
-              <Pencil className="h-3.5 w-3.5" />
-              Editar
-            </Link>
-          </Button>
-          <CopyLinkButton publicToken={quote.publicToken} />
-          <StatusActions quoteId={quote.id} status={quote.status} />
-          <PrintButton />
+          <DownloadPdfButton quoteId={quote.id} auto={autoPrint} />
         </div>
       </div>
 
@@ -159,9 +150,11 @@ export default async function DocumentoCotizacionPage({
           version={quote.version}
           issueDate={quote.issueDate.toISOString()}
           validUntil={quote.validUntil?.toISOString() ?? null}
-          clientName={client.legalName}
-          clientBrand={client.brandName}
-          clientRif={client.rif}
+          clientName={
+            client ? client.legalName : (quote.opportunity.contact?.name ?? "Sin empresa")
+          }
+          clientBrand={client?.brandName ?? null}
+          clientRif={client?.rif ?? null}
           contactName={quote.opportunity.contact?.name ?? null}
           eventName={event?.name ?? quote.opportunity.title}
           eventDateLabel={eventDateLabel}

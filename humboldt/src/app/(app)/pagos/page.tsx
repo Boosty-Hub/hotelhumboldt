@@ -8,7 +8,7 @@ import { getCurrentRate, getParallelRate } from "@/lib/bcv";
 import { fmtUsd, fmtBs, fmtNum, round2 } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getBankAccountOptions, getCxcRows, getInvoiceRows, getPaymentRows, getTargetOptions, isGarantiaMovement } from "./data";
+import { getBankAccountOptions, getCobradoMesUsd, getCxcRows, getFacturadoBs, getInvoiceRows, getPaymentRows, getTargetOptions } from "./data";
 import { PagosTabs } from "./_components/pagos-tabs";
 import { PaymentDialog } from "./_components/payment-dialog";
 import { InvoiceDialog } from "./_components/invoice-dialog";
@@ -26,16 +26,27 @@ export default async function PagosPage({
   const sp = await searchParams;
   const tab = typeof sp.tab === "string" ? sp.tab : "cxc";
 
-  const [cxcRows, paymentRows, invoiceRows, targets, rateInfo, parallelInfo, bankAccounts] =
-    await Promise.all([
-      getCxcRows(),
-      getPaymentRows(),
-      getInvoiceRows(),
-      getTargetOptions(),
-      getCurrentRate(),
-      getParallelRate(),
-      getBankAccountOptions(),
-    ]);
+  const [
+    cxcRows,
+    paymentRows,
+    invoiceRows,
+    targets,
+    rateInfo,
+    parallelInfo,
+    bankAccounts,
+    cobradoMes,
+    facturadoBs,
+  ] = await Promise.all([
+    getCxcRows(),
+    getPaymentRows(),
+    getInvoiceRows(),
+    getTargetOptions(),
+    getCurrentRate(),
+    getParallelRate(),
+    getBankAccountOptions(),
+    getCobradoMesUsd(),
+    getFacturadoBs(),
+  ]);
 
   const defaultRate = rateInfo?.rate ?? null;
   const parallelRate = parallelInfo?.rate ?? null;
@@ -44,26 +55,10 @@ export default async function PagosPage({
   const porCobrar = round2(
     cxcRows.reduce((s, r) => s + Math.max(r.saldo, 0), 0)
   );
-  const now = new Date();
-  const cobradoMes = round2(
-    paymentRows
-      .filter((p) => {
-        const d = new Date(p.date);
-        return (
-          d.getFullYear() === now.getFullYear() &&
-          d.getMonth() === now.getMonth() &&
-          !isGarantiaMovement(p)
-        );
-      })
-      .reduce((s, p) => s + p.amountUsd, 0)
-  );
+  // `cobradoMes` y `facturadoBs` se calculan en SQL (ver data.ts) para no
+  // recorrer toda la tabla de pagos/facturas en JS.
   const garantiasCustodia = round2(
     cxcRows.reduce((s, r) => s + r.garantiaRecibida, 0)
-  );
-  const facturadoBs = round2(
-    invoiceRows
-      .filter((i) => i.status !== "ANULADA" && i.amountBs != null)
-      .reduce((s, i) => s + (i.amountBs ?? 0), 0)
   );
 
   const kpis = [

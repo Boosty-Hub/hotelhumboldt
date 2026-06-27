@@ -13,7 +13,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { fmtUsd } from "@/lib/money";
 import { STAGES, STAGE_COLORS, STAGE_LABELS, type Stage } from "@/lib/constants";
@@ -40,7 +46,7 @@ function sortValue(opp: PipelineOpportunity, key: SortKey): string | number {
     case "title":
       return opp.title.toLowerCase();
     case "client":
-      return (opp.client.brandName ?? opp.client.legalName).toLowerCase();
+      return (opp.client?.brandName ?? opp.client?.legalName ?? "").toLowerCase();
     case "stage":
       return STAGES.indexOf(opp.stage as Stage);
     case "eventType":
@@ -95,9 +101,11 @@ function SortHeader({
 export function PipelineTable({
   opportunities,
   onOpen,
+  onStageChange,
 }: {
   opportunities: PipelineOpportunity[];
   onOpen: (id: string) => void;
+  onStageChange: (opp: PipelineOpportunity, stage: Stage) => void;
 }) {
   const [sortKey, setSortKey] = useState<SortKey>("code");
   const [dir, setDir] = useState<SortDir>("desc");
@@ -158,13 +166,37 @@ export function PipelineTable({
                 </TableCell>
                 <TableCell className="max-w-44">
                   <span className="block truncate text-xs text-muted-foreground">
-                    {opp.client.brandName ?? opp.client.legalName}
+                    {opp.client?.brandName ?? opp.client?.legalName ?? "Sin empresa"}
                   </span>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className={cn("border", STAGE_COLORS[stage])}>
-                    {STAGE_LABELS[stage] ?? opp.stage}
-                  </Badge>
+                  {/* Dropdown para cambiar la etapa sin salir de la tabla. El
+                      stopPropagation evita que el clic abra el detalle de la fila;
+                      "Perdido" dispara el flujo de motivo vía onStageChange. */}
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Select
+                      value={stage}
+                      onValueChange={(value) => {
+                        if (value !== stage) onStageChange(opp, value as Stage);
+                      }}
+                    >
+                      <SelectTrigger
+                        className={cn(
+                          "h-7 w-fit gap-1.5 border px-2 py-0 text-[11px] font-medium",
+                          STAGE_COLORS[stage]
+                        )}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STAGES.map((s) => (
+                          <SelectItem key={s} value={s} className="text-xs">
+                            {STAGE_LABELS[s]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground">
                   {opp.eventType ?? "—"}

@@ -133,8 +133,19 @@ export default async function ReportesPage({
   )}`;
 
   const [quotes, opportunities, marginQuotes, payments, spacesConfirmadas, goals] = await Promise.all([
-    // Todas las cotizaciones (dataset pequeño; la lógica de cohortes se hace en JS)
+    // Cotizaciones relevantes al rango (la lógica de cohortes se hace en JS).
+    // La cohorte mira varias fechas (issueDate, approvedAt, agreementDate,
+    // updatedAt vía wonDate), así que el OR incluye las cuatro para no perder
+    // ninguna fila que el cálculo en JS pueda necesitar dentro del rango.
     prisma.quote.findMany({
+      where: {
+        OR: [
+          { issueDate: { gte: rangeStart, lte: rangeEnd } },
+          { updatedAt: { gte: rangeStart, lte: rangeEnd } },
+          { approvedAt: { gte: rangeStart, lte: rangeEnd } },
+          { agreementDate: { gte: rangeStart, lte: rangeEnd } },
+        ],
+      },
       select: {
         id: true,
         status: true,
@@ -146,7 +157,15 @@ export default async function ReportesPage({
         agreementDate: true,
       },
     }),
+    // Oportunidades relevantes al rango: el JS filtra por createdAt
+    // (oppsCreatedInRange) y por updatedAt (won/lost), así que el OR cubre ambas.
     prisma.opportunity.findMany({
+      where: {
+        OR: [
+          { createdAt: { gte: rangeStart, lte: rangeEnd } },
+          { updatedAt: { gte: rangeStart, lte: rangeEnd } },
+        ],
+      },
       select: {
         id: true,
         stage: true,

@@ -49,19 +49,64 @@ export default async function ClientesPage({
   const createdAt = dateTimeFilter(range);
   if (createdAt) where.createdAt = createdAt;
 
-  const [clients, totalClients] = await Promise.all([
+  const [clients, totalClients, wonByClient, directoryContacts] = await Promise.all([
     prisma.client.findMany({
       where,
       include: {
-        contacts: { orderBy: { isPrimary: "desc" }, take: 1 },
+        // Contacto principal de la empresa (vínculo M-N marcado isPrimary).
+        contactLinks: {
+          where: { isPrimary: true },
+          take: 1,
+          include: {
+            contact: { select: { id: true, name: true, title: true, phone: true, email: true } },
+          },
+        },
+        // Conteo de oportunidades vía agregado en la DB (no traemos las filas).
+        _count: { select: { opportunities: true } },
+        // Solo el título de la última oportunidad para el "Evento".
         opportunities: {
-          select: { stage: true, estimatedValue: true, title: true },
+          select: { title: true },
           orderBy: { createdAt: "desc" },
+          take: 1,
         },
       },
     }),
     prisma.client.count(),
+    // Revenue ganado por cliente: lo sumamos en la DB con groupBy (en paralelo)
+    // en lugar de traer todas las oportunidades para sumar en JS.
+    prisma.opportunity.groupBy({
+      by: ["clientId"],
+      where: { stage: "GANADO" },
+      _sum: { estimatedValue: true },
+    }),
+    // Contactos del directorio (con sus empresas) para el diálogo de nuevo cliente.
+    prisma.contact.findMany({
+      orderBy: { name: "asc" },
+      take: 500,
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        clientLinks: {
+          select: { client: { select: { legalName: true, brandName: true } } },
+        },
+      },
+    }),
   ]);
+
+  const contactPickOptions = directoryContacts.map((c) => ({
+    id: c.id,
+    name: c.name,
+    title: c.title,
+    clientNames: c.clientLinks.map((l) => l.client.brandName ?? l.client.legalName),
+  }));
+
+  // Mapa clientId -> revenue ganado (USD). Si el cliente no aparece, es 0.
+  const wonRevenueByClient = new Map<string, number>(
+    wonByClient
+      .filter((g): g is typeof g & { clientId: string } => g.clientId !== null)
+      .map((g) => [g.clientId, g._sum.estimatedValue ?? 0])
+  );
 
   // Búsqueda en memoria (insensible a acentos): PostgreSQL `mode:"insensitive"`
   // ignora mayúsculas pero NO acentos; con normalize() igualamos "á"≈"a". El
@@ -70,12 +115,10 @@ export default async function ClientesPage({
   const rows = clients
     .map((c) => ({
       ...c,
-      primaryContact: c.contacts[0] ?? null,
-      oppCount: c.opportunities.length,
+      primaryContact: c.contactLinks[0]?.contact ?? null,
+      oppCount: c._count.opportunities,
       latestEvent: c.opportunities[0]?.title ?? null,
-      wonRevenue: c.opportunities
-        .filter((o) => o.stage === "GANADO")
-        .reduce((sum, o) => sum + o.estimatedValue, 0),
+      wonRevenue: wonRevenueByClient.get(c.id) ?? 0,
     }))
     .filter(
       (c) =>
@@ -92,7 +135,7 @@ export default async function ClientesPage({
     );
 
   const newClientButton = (
-    <ClientFormDialog>
+    <ClientFormDialog contacts={contactPickOptions}>
       <Button>
         <Plus data-icon="inline-start" />
         Nuevo cliente

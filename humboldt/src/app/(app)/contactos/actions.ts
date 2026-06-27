@@ -6,32 +6,35 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { CLIENT_TYPES } from "../clientes/_lib/shared";
 
-type Result = { ok: true; contactId: string; clientId: string } | { ok: false; error: string };
+type Result =
+  | { ok: true; contactId: string; clientId: string | null }
+  | { ok: false; error: string };
 
-const schema = z
-  .object({
-    name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres.").max(120),
-    title: z.string().trim().max(120).optional(),
-    phone: z.string().trim().max(40).optional(),
-    email: z.union([z.literal(""), z.email("Correo electrónico inválido.")]).optional(),
-    rif: z.string().trim().max(20).optional(),
-    referredBy: z.string().trim().max(120).optional(),
-    notes: z.string().trim().max(2000).optional(),
-    // Cliente: existente (clientId) o nuevo (newClientName + tipo)
-    clientId: z.string().trim().optional(),
-    newClientName: z.string().trim().max(160).optional(),
-    newClientType: z.enum(CLIENT_TYPES).optional(),
-  })
-  .refine((d) => Boolean(d.clientId) || (d.newClientName?.trim().length ?? 0) >= 2, {
-    message: "Elegí un cliente existente o escribí la razón social del cliente nuevo.",
-  });
+// El cliente es OPCIONAL: un contacto puede crearse libre (sin empresa),
+// vincularse a una existente, o a una nueva (walk-in).
+const schema = z.object({
+  name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres.").max(120),
+  title: z.string().trim().max(120).optional(),
+  phone: z.string().trim().max(40).optional(),
+  email: z.union([z.literal(""), z.email("Correo electrónico inválido.")]).optional(),
+  rif: z.string().trim().max(20).optional(),
+  referredBy: z.string().trim().max(120).optional(),
+  notes: z.string().trim().max(2000).optional(),
+  // Cliente: ninguno (libre), existente (clientId) o nuevo (newClientName + tipo)
+  clientId: z.string().trim().optional(),
+  newClientName: z.string().trim().max(160).optional(),
+  newClientType: z.enum(CLIENT_TYPES).optional(),
+});
 
 function nn(s?: string): string | null {
   const v = (s ?? "").trim();
   return v === "" ? null : v;
 }
 
-/** Crea un contacto. Si no hay clientId, crea el cliente nuevo (walk-in) en la misma transacción. */
+/**
+ * Crea un contacto. El cliente es opcional: sin cliente (libre), con uno
+ * existente (se vincula vía ClientContact), o con uno nuevo (walk-in).
+ */
 export async function createWalkInContactAction(input: {
   name: string;
   title?: string;
@@ -52,6 +55,7 @@ export async function createWalkInContactAction(input: {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
   }
   const d = parsed.data;
+  const wantsNewClient = (d.newClientName?.trim().length ?? 0) >= 2;
 
   if (d.clientId) {
     const exists = await prisma.client.findUnique({
@@ -63,7 +67,7 @@ export async function createWalkInContactAction(input: {
 
   const res = await prisma.$transaction(async (tx) => {
     let clientId = d.clientId || null;
-    if (!clientId) {
+    if (!clientId && wantsNewClient) {
       const client = await tx.client.create({
         data: {
           legalName: d.newClientName!.trim(),
@@ -72,7 +76,7 @@ export async function createWalkInContactAction(input: {
         },
       });
       clientId = client.id;
-    } else if (nn(d.rif)) {
+    } else if (clientId && nn(d.rif)) {
       // Completa el RIF del cliente existente solo si todavía no tiene uno (no pisa).
       const existing = await tx.client.findUnique({
         where: { id: clientId },
@@ -83,27 +87,33 @@ export async function createWalkInContactAction(input: {
       }
     }
 
-    const count = await tx.contact.count({ where: { clientId } });
     const contact = await tx.contact.create({
       data: {
-        clientId,
         name: d.name,
         title: nn(d.title),
         phone: nn(d.phone),
         email: nn(d.email),
-        isPrimary: count === 0, // primer contacto del cliente => primario
       },
+      select: { id: true },
     });
 
-    // Notas + referido => nota en el timeline del cliente.
-    const noteParts: string[] = [];
-    if (nn(d.referredBy)) noteParts.push(`Referido por: ${d.referredBy!.trim()}.`);
-    if (nn(d.notes)) noteParts.push(d.notes!.trim());
-    const noteBody = noteParts.join(" ").trim();
-    if (noteBody.length >= 3) {
-      await tx.clientNote.create({
-        data: { clientId, authorId: session.user.id, body: noteBody },
+    // Si hay cliente, se vincula (primario si es el primer contacto del cliente).
+    if (clientId) {
+      const count = await tx.clientContact.count({ where: { clientId } });
+      await tx.clientContact.create({
+        data: { clientId, contactId: contact.id, isPrimary: count === 0 },
       });
+
+      // Notas + referido => nota en el timeline del cliente.
+      const noteParts: string[] = [];
+      if (nn(d.referredBy)) noteParts.push(`Referido por: ${d.referredBy!.trim()}.`);
+      if (nn(d.notes)) noteParts.push(d.notes!.trim());
+      const noteBody = noteParts.join(" ").trim();
+      if (noteBody.length >= 3) {
+        await tx.clientNote.create({
+          data: { clientId, authorId: session.user.id, body: noteBody },
+        });
+      }
     }
 
     return { contactId: contact.id, clientId };

@@ -9,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─────────────────────────── Usuarios y roles ───────────────────────────
@@ -55,23 +56,44 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  contacts      Contact[]
+  contactLinks  ClientContact[]
   opportunities Opportunity[]
   clientNotes   ClientNote[]
   activities    Activity[]
+
+  @@index([active])
 }
 
 model Contact {
-  id        String  @id @default(cuid())
-  clientId  String
-  name      String
-  title     String? // cargo
-  phone     String?
-  email     String?
-  isPrimary Boolean @default(false)
+  id    String  @id @default(cuid())
+  name  String
+  title String? // cargo
+  phone String?
+  email String?
 
-  client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  // Empresas a las que pertenece (0, 1 o varias) vía la tabla M-N.
+  clientLinks   ClientContact[]
   opportunities Opportunity[]
+  reservations  SpaceReservation[]
+
+  @@index([name])
+}
+
+// Vínculo M-N entre Cliente y Contacto: un contacto puede pertenecer a 0, 1 o
+// varias empresas; `isPrimary` marca el contacto principal POR cliente.
+model ClientContact {
+  id        String   @id @default(cuid())
+  clientId  String
+  contactId String
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, contactId])
+  @@index([clientId])
+  @@index([contactId])
 }
 
 model ClientNote {
@@ -83,6 +105,9 @@ model ClientNote {
 
   client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
   author User   @relation(fields: [authorId], references: [id])
+
+  @@index([clientId])
+  @@index([authorId])
 }
 
 // ─────────────────────────── Pipeline de ventas ───────────────────────────
@@ -90,7 +115,7 @@ model ClientNote {
 model Opportunity {
   id                String    @id @default(cuid())
   code              String    @unique // OP-2026-0001
-  clientId          String
+  clientId          String? // empresa: opcional (puede ser un contacto sin empresa)
   contactId         String?
   ownerId           String // ejecutivo responsable
   title             String // "Fiesta de Navidad Alimentos Mary"
@@ -111,7 +136,7 @@ model Opportunity {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  client     Client      @relation(fields: [clientId], references: [id])
+  client     Client?     @relation(fields: [clientId], references: [id])
   contact    Contact?    @relation(fields: [contactId], references: [id])
   owner      User        @relation("OwnerOpportunities", fields: [ownerId], references: [id])
   events      Event[]
@@ -124,6 +149,9 @@ model Opportunity {
 
   @@index([stage])
   @@index([ownerId])
+  @@index([clientId])
+  @@index([contactId])
+  @@index([updatedAt])
 }
 
 // ─────────────────────────── Eventos ───────────────────────────
@@ -154,6 +182,10 @@ model Event {
   staff         EventStaff[]
   supplierCosts SupplierEventCost[]
   beo           Beo?
+
+  @@index([opportunityId])
+  @@index([parentEventId])
+  @@index([startDate, status])
 }
 
 model EventStaff {
@@ -164,6 +196,8 @@ model EventStaff {
   costCharged Float? // costo cargado al cliente
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
 }
 
 // ─────────────────────────── Cotizaciones ───────────────────────────
@@ -187,6 +221,13 @@ model Quote {
   approvedByName String? // quién aprobó del lado del cliente
   approvedAt     DateTime?
   rejectionNote  String?
+
+  // Comentario del cliente desde el link público (no es un rechazo). Pasa la
+  // cotización a estado REVISAR. `commentUnread` lo marca como pendiente de leer
+  // para el badge del listado; se limpia cuando el ejecutivo lo lee.
+  clientComment   String?
+  clientCommentAt DateTime?
+  commentUnread   Boolean   @default(false)
 
   clientMessage   String? // mensaje de cortesía del encabezado
   legalConditions String? // cláusulas (snapshot de la plantilla)
@@ -238,6 +279,9 @@ model Quote {
 
   @@index([status])
   @@index([opportunityId])
+  @@index([eventId])
+  @@index([signerId])
+  @@index([issueDate, version])
 }
 
 model QuoteLine {
@@ -274,6 +318,9 @@ model QuoteLine {
   discountAuthor User?     @relation("DiscountAuthor", fields: [discountAuthorId], references: [id])
 
   @@index([quoteId])
+  @@index([productId])
+  @@index([supplierId])
+  @@index([discountAuthorId])
 }
 
 // ─────────────────────────── Catálogo de productos ───────────────────────────
@@ -311,6 +358,7 @@ model Product {
 
   @@index([categoryId])
   @@index([spaceId])
+  @@index([supplierId])
 }
 
 model PriceHistory {
@@ -324,6 +372,9 @@ model PriceHistory {
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   author  User?   @relation(fields: [authorId], references: [id])
+
+  @@index([productId, validFrom])
+  @@index([authorId])
 }
 
 // ─────────────────────────── Salones y calendario ───────────────────────────
@@ -347,10 +398,11 @@ model Space {
 model SpaceReservation {
   id        String   @id @default(cuid())
   spaceId   String
-  eventId   String? // null en bloqueos de mantenimiento
-  quoteId   String? // cotización que originó la reserva (trazabilidad / liberación)
+  contactId String? // persona para la que se reserva (reservas manuales del calendario)
+  eventId   String? // null en reservas por contacto y en bloqueos de mantenimiento
+  quoteId   String? // cotización abierta vinculada (opcional) / trazabilidad
   type      String   @default("EVENTO") // EVENTO | MANTENIMIENTO
-  title     String? // descripción del bloqueo (mantenimiento, cuando no hay evento)
+  title     String? // etiqueta a mostrar (nombre del contacto, descripción o motivo del bloqueo)
   date      DateTime // día reservado
   startTime String? // franja horaria
   endTime   String?
@@ -358,11 +410,14 @@ model SpaceReservation {
   notes     String?
   createdAt DateTime @default(now())
 
-  space Space  @relation(fields: [spaceId], references: [id])
-  event Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  quote Quote? @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  space   Space    @relation(fields: [spaceId], references: [id])
+  contact Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  event   Event?   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  quote   Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  beo     Beo? // BEO generado desde esta reserva (reservas manuales por contacto)
 
   @@index([spaceId, date])
+  @@index([contactId])
   @@index([eventId])
   @@index([quoteId])
 }
@@ -398,6 +453,9 @@ model SupplierEventCost {
 
   event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@index([eventId])
+  @@index([supplierId])
 }
 
 // ─────────────────────────── Pagos y cobranza ───────────────────────────
@@ -412,6 +470,8 @@ model PaymentInstallment {
 
   quote    Quote     @relation(fields: [quoteId], references: [id], onDelete: Cascade)
   payments Payment[]
+
+  @@index([quoteId])
 }
 
 model Payment {
@@ -443,7 +503,11 @@ model Payment {
   bankAccount  BankAccount?        @relation(fields: [bankAccountId], references: [id])
   allocations  PaymentAllocation[]
 
-  @@index([bankAccountId])
+  @@index([bankAccountId, date])
+  @@index([opportunityId])
+  @@index([quoteId])
+  @@index([installmentId])
+  @@index([date])
 }
 
 model BankAccount {
@@ -472,6 +536,9 @@ model PaymentAllocation {
 
   payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
   quote   Quote   @relation(fields: [quoteId], references: [id])
+
+  @@index([paymentId])
+  @@index([quoteId])
 }
 
 // ─────────────────────────── Facturación ───────────────────────────
@@ -494,6 +561,10 @@ model Invoice {
   quote        Quote?        @relation(fields: [quoteId], references: [id])
   exchangeRate ExchangeRate? @relation(fields: [exchangeRateId], references: [id])
   retentions   Retention[]
+
+  @@index([opportunityId])
+  @@index([quoteId])
+  @@index([date])
 }
 
 model Retention {
@@ -505,6 +576,8 @@ model Retention {
   countsAsPayment Boolean   @default(true) // práctica actual: cuentan como pago
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
 }
 
 model ExchangeRate {
@@ -564,6 +637,9 @@ model Activity {
 
   @@index([opportunityId])
   @@index([clientId])
+  @@index([userId])
+  @@index([quoteId])
+  @@index([createdAt])
 }
 
 // ─────────────────────────── Tareas programadas ───────────────────────────
@@ -589,6 +665,7 @@ model Task {
 
   @@index([opportunityId])
   @@index([assigneeId, status, dueAt])
+  @@index([creatorId])
 }
 
 // ─────────────────────────── Log de actividad de reservas ───────────────────────────
@@ -608,12 +685,17 @@ model ReservationLog {
 // ─────────────────────────── BEO (Banquet Event Order) ───────────────────────────
 
 model Beo {
-  id          String @id @default(cuid())
-  number      Int    @unique // número de BEO correlativo (ej. 445)
-  eventId     String @unique // un BEO por evento (BEO → Evento → Cotización → Cliente)
-  status      String @default("BORRADOR") // BORRADOR | EMITIDO
+  id          String  @id @default(cuid())
+  number      Int     @unique // número de BEO correlativo (ej. 445)
+  // El BEO sale de una RESERVA de salón confirmada. Si la reserva proviene de una
+  // cotización (tiene evento), el BEO se ata al evento (1 BEO por evento, evita
+  // duplicados multi-día); si es una reserva manual por contacto, se ata a la reserva.
+  // Exactamente uno de los dos está presente.
+  eventId       String? @unique // BEO de un evento (reserva originada en cotización)
+  reservationId String? @unique // BEO de una reserva manual (por contacto)
+  status      String  @default("BORRADOR") // BORRADOR | EMITIDO
   responsable String?
-  publicToken String @unique // para el link público /beo/[token]
+  publicToken String  @unique // para el link público /beo/[token]
 
   // Cabecera: snapshot autocompletado del evento/cotización/cliente, editable.
   eventName  String?
@@ -632,7 +714,11 @@ model Beo {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  event       Event?            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  reservation SpaceReservation? @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([eventDate])
 }
 
 model BeoLog {
@@ -662,4 +748,5 @@ model Attachment {
   uploadedBy  User        @relation(fields: [uploadedById], references: [id])
 
   @@index([opportunityId])
+  @@index([uploadedById])
 }

@@ -8,8 +8,15 @@ export const dynamic = "force-dynamic";
 
 export default async function BeoDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const beo = await prisma.beo.findUnique({ where: { id } });
+  const [beo, editedCount] = await Promise.all([
+    prisma.beo.findUnique({ where: { id } }),
+    // ¿El BEO ya fue guardado/emitido alguna vez? (más allá del CREADO automático
+    // de la generación). Persistente: al reabrir un BEO ya trabajado, los botones
+    // de compartir/emitir vuelven a aparecer sin necesidad de re-guardar.
+    prisma.beoLog.count({ where: { beoId: id, action: { not: "CREADO" } } }),
+  ]);
   if (!beo) notFound();
+  const savedBefore = editedCount > 0 || beo.status === "EMITIDO";
 
   const data: BeoData = {
     id: beo.id,
@@ -29,5 +36,5 @@ export default async function BeoDetailPage({ params }: { params: Promise<{ id: 
     generalNotes: beo.generalNotes ?? "",
   };
 
-  return <BeoEditor beo={data} />;
+  return <BeoEditor beo={data} savedBefore={savedBefore} />;
 }

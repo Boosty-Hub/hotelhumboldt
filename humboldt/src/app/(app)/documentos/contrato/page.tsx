@@ -13,7 +13,7 @@ export default async function ContratoPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const clients = await prisma.client.findMany({
+  const clientRows = await prisma.client.findMany({
     where: { active: true },
     orderBy: { legalName: "asc" },
     select: {
@@ -22,12 +22,17 @@ export default async function ContratoPage() {
       brandName: true,
       rif: true,
       address: true,
-      contacts: {
-        select: { id: true, name: true, title: true },
-        orderBy: [{ isPrimary: "desc" }, { name: "asc" }],
+      contactLinks: {
+        orderBy: [{ isPrimary: "desc" }, { contact: { name: "asc" } }],
+        select: { contact: { select: { id: true, name: true, title: true } } },
       },
     },
   });
+  // Aplana los vínculos M-N a la forma { ...cliente, contacts } que espera el generador.
+  const clients = clientRows.map(({ contactLinks, ...c }) => ({
+    ...c,
+    contacts: contactLinks.map((l) => l.contact),
+  }));
 
   // Cotizaciones ganadas/aprobadas: el contrato se ata a una de ellas.
   const wonQuotes = await prisma.quote.findMany({
@@ -38,7 +43,13 @@ export default async function ContratoPage() {
       opportunity: {
         include: {
           client: {
-            include: { contacts: { orderBy: [{ isPrimary: "desc" }, { name: "asc" }], take: 1 } },
+            include: {
+              contactLinks: {
+                where: { isPrimary: true },
+                take: 1,
+                select: { contact: { select: { id: true, name: true, title: true } } },
+              },
+            },
           },
           contact: true,
         },
@@ -49,16 +60,16 @@ export default async function ContratoPage() {
 
   const quotes = wonQuotes.map((q) => {
     const c = q.opportunity.client;
-    const ct = q.opportunity.contact ?? c.contacts[0] ?? null;
+    const ct = q.opportunity.contact ?? c?.contactLinks[0]?.contact ?? null;
     const ev = q.event;
     const numero = `${quoteBaseNumber(q.number)}${q.version > 1 ? ` v${q.version}` : ""}`;
     return {
       id: q.id,
       numero,
-      label: `${numero} · ${c.brandName ?? c.legalName}${ev?.name ? ` · ${ev.name}` : ""}`,
-      cliente: c.brandName ?? c.legalName,
-      rif: c.rif ?? "",
-      direccion: c.address ?? "",
+      label: `${numero} · ${c ? (c.brandName ?? c.legalName) : (ct?.name ?? "Sin empresa")}${ev?.name ? ` · ${ev.name}` : ""}`,
+      cliente: c ? (c.brandName ?? c.legalName) : (ct?.name ?? "Sin empresa"),
+      rif: c?.rif ?? "",
+      direccion: c?.address ?? "",
       representante: ct?.name ?? "",
       contacto: ct?.name ?? "",
       fechaEvento: ev?.startDate ? formatDayEs(ev.startDate, "d 'de' MMMM 'de' yyyy") : "",

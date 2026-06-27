@@ -62,8 +62,8 @@ export function lineSubtotal(line: CalcLine): number {
 
 export function lineCost(line: CalcLine): number {
   if (line.isOptional || line.unitCost == null) return 0;
-  const qty = line.costQuantity ?? line.quantity;
-  return round2(line.unitCost * qty);
+  // El costo total usa SIEMPRE la cantidad del ítem (la misma que se cotiza).
+  return round2(line.unitCost * line.quantity);
 }
 
 export function calcQuoteTotals(

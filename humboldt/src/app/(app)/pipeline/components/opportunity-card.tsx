@@ -35,7 +35,7 @@ export function OpportunityCard({
       </div>
 
       <p className="truncate text-xs text-muted-foreground">
-        {opp.client.brandName ?? opp.client.legalName}
+        {opp.client?.brandName ?? opp.client?.legalName ?? "Sin empresa"}
       </p>
 
       <div className="flex flex-wrap items-center gap-1.5">

@@ -147,7 +147,7 @@ export function EditOpportunityDialog({
         <DialogHeader>
           <DialogTitle>Editar oportunidad</DialogTitle>
           <DialogDescription>
-            {opp.code} · {opp.client.brandName ?? opp.client.legalName}
+            {opp.code} · {opp.client?.brandName ?? opp.client?.legalName ?? "Sin empresa"}
           </DialogDescription>
         </DialogHeader>
 

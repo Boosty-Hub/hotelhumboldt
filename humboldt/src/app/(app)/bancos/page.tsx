@@ -10,11 +10,11 @@ export default async function BancosPage() {
   if (!session?.user) redirect("/login");
   if (!canViewCosts(session.user.role)) redirect("/"); // módulo de finanzas
 
-  const accounts = await prisma.bankAccount.findMany({
-    orderBy: [{ active: "desc" }, { sortOrder: "asc" }, { name: "asc" }],
-  });
-
-  const [totals, pend] = await Promise.all([
+  // Las cuentas y los dos agregados de pagos son independientes → en paralelo.
+  const [accounts, totals, pend] = await Promise.all([
+    prisma.bankAccount.findMany({
+      orderBy: [{ active: "desc" }, { sortOrder: "asc" }, { name: "asc" }],
+    }),
     prisma.payment.groupBy({ by: ["bankAccountId"], _count: { _all: true } }),
     prisma.payment.groupBy({
       by: ["bankAccountId"],

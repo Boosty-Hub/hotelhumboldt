@@ -28,7 +28,7 @@ import {
   MessageSquareText,
   MailCheck,
 } from "lucide-react";
-import { approveQuotePublic, rejectQuotePublic } from "./actions";
+import { approveQuotePublic, commentQuotePublic } from "./actions";
 
 interface Props {
   token: string;
@@ -39,8 +39,8 @@ interface Props {
   signerName: string;
 }
 
-type OpenDialog = "approve" | "reject" | null;
-type Result = { kind: "approved"; name: string } | { kind: "rejected" } | null;
+type OpenDialog = "approve" | "comment" | null;
+type Result = { kind: "approved"; name: string } | { kind: "commented" } | null;
 
 export function PublicActionBar({
   token,
@@ -56,7 +56,7 @@ export function PublicActionBar({
 
   const [approverName, setApproverName] = useState("");
   const [approveNote, setApproveNote] = useState("");
-  const [rejectNote, setRejectNote] = useState("");
+  const [commentNote, setCommentNote] = useState("");
 
   function submitApprove() {
     if (approverName.trim().length < 3) {
@@ -78,16 +78,16 @@ export function PublicActionBar({
     });
   }
 
-  function submitReject() {
-    if (rejectNote.trim().length < 5) {
-      toast.error("Cuéntanos qué te gustaría ajustar (mínimo 5 caracteres)");
+  function submitComment() {
+    if (commentNote.trim().length < 5) {
+      toast.error("Escribe tu comentario (mínimo 5 caracteres)");
       return;
     }
     startTransition(async () => {
-      const res = await rejectQuotePublic(token, { note: rejectNote.trim() });
+      const res = await commentQuotePublic(token, { note: commentNote.trim() });
       if (res.ok) {
         setOpen(null);
-        setResult({ kind: "rejected" });
+        setResult({ kind: "commented" });
         router.refresh();
       } else {
         toast.error(res.error);
@@ -123,7 +123,7 @@ export function PublicActionBar({
     );
   }
 
-  if (result?.kind === "rejected") {
+  if (result?.kind === "commented") {
     return (
       <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-5 bg-white px-6 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-sky-100 ring-8 ring-sky-50">
@@ -174,13 +174,13 @@ export function PublicActionBar({
           <div className="flex shrink-0 items-center gap-2">
             <Button
               variant="outline"
-              onClick={() => setOpen("reject")}
+              onClick={() => setOpen("comment")}
               disabled={isPending}
               className="h-11 px-3 text-sm sm:px-5"
             >
               <MessageSquareText className="h-4 w-4" />
-              <span className="hidden sm:inline">Solicitar cambios</span>
-              <span className="sm:hidden">Cambios</span>
+              <span className="hidden sm:inline">Dejar un comentario</span>
+              <span className="sm:hidden">Comentar</span>
             </Button>
             <Button
               onClick={() => setOpen("approve")}
@@ -272,26 +272,27 @@ export function PublicActionBar({
         </DialogContent>
       </Dialog>
 
-      {/* ── Diálogo: solicitar cambios / rechazar ─────────────────── */}
-      <Dialog open={open === "reject"} onOpenChange={(o) => !o && !isPending && setOpen(null)}>
+      {/* ── Diálogo: dejar un comentario (no es un rechazo) ───────── */}
+      <Dialog open={open === "comment"} onOpenChange={(o) => !o && !isPending && setOpen(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Solicitar cambios</DialogTitle>
+            <DialogTitle>Dejar un comentario</DialogTitle>
             <DialogDescription>
-              Cuéntanos qué te gustaría ajustar — precios, menú, fechas o cualquier
-              detalle. El equipo comercial te contactará con una propuesta actualizada.
+              Cuéntanos lo que quieras — dudas, ajustes de precios, menú, fechas o cualquier
+              detalle. No rechaza la cotización: el equipo comercial verá tu comentario y te
+              contactará.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-1.5">
-            <Label htmlFor="public-reject-note">
-              ¿Qué te gustaría cambiar? <span className="text-rose-500">*</span>
+            <Label htmlFor="public-comment-note">
+              Tu comentario <span className="text-rose-500">*</span>
             </Label>
             <Textarea
-              id="public-reject-note"
-              value={rejectNote}
-              onChange={(e) => setRejectNote(e.target.value)}
-              placeholder="Ej.: el presupuesto excede lo previsto; quisiéramos otra fecha; cambiar el menú…"
+              id="public-comment-note"
+              value={commentNote}
+              onChange={(e) => setCommentNote(e.target.value)}
+              placeholder="Ej.: quisiéramos revisar el menú; consultar otra fecha; una duda sobre el total…"
               rows={4}
               maxLength={2000}
               className="text-sm"
@@ -308,8 +309,8 @@ export function PublicActionBar({
               Cancelar
             </Button>
             <Button
-              onClick={submitReject}
-              disabled={isPending || rejectNote.trim().length < 5}
+              onClick={submitComment}
+              disabled={isPending || commentNote.trim().length < 5}
               className="h-10 text-sm"
             >
               {isPending ? (
@@ -317,7 +318,7 @@ export function PublicActionBar({
               ) : (
                 <MessageSquareText className="h-4 w-4" />
               )}
-              Enviar comentarios
+              Enviar comentario
             </Button>
           </DialogFooter>
         </DialogContent>

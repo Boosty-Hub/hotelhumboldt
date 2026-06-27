@@ -87,29 +87,151 @@ function revalidateQuotePaths(id: string) {
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
+// ──────────────── Crear oportunidad desde el cotizador ────────────────
+// Toda cotización nace de una oportunidad. Cuando no existe, se crea aquí
+// mismo, SIEMPRE atada a un contacto existente (el cliente se deduce de él).
+
+const createOppForQuoteSchema = z.object({
+  contactId: z.string().min(1, "Selecciona un contacto"),
+  // Empresa OPCIONAL: el contacto puede no tener empresa.
+  clientId: z.string().trim().optional().or(z.literal("")),
+  title: z
+    .string()
+    .trim()
+    .min(3, "El título debe tener al menos 3 caracteres")
+    .max(160, "El título es demasiado largo"),
+  eventType: z.string().trim().min(1).optional().or(z.literal("")),
+  segment: z.string().trim().min(1).optional().or(z.literal("")),
+  channel: z.string().trim().min(1).optional().or(z.literal("")),
+  expectedEventDate: z.string().trim().optional().or(z.literal("")), // yyyy-MM-dd
+  pax: z.coerce.number().int().positive().optional(),
+  estimatedValue: z.coerce.number().min(0).optional(),
+});
+
+export type CreateOppForQuoteInput = z.input<typeof createOppForQuoteSchema>;
+
+/** Opción de oportunidad lista para inyectar en el selector del cotizador. */
+export interface NewOppOption {
+  id: string;
+  code: string;
+  title: string;
+  clientName: string;
+  expectedEventDate: string | null; // yyyy-MM-dd
+  pax: number | null;
+}
+
+export async function createOpportunityForQuote(
+  input: CreateOppForQuoteInput
+): Promise<{ ok: true; opportunity: NewOppOption } | { ok: false; error: string }> {
+  const session = await requireSession();
+
+  const parsed = createOppForQuoteSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  }
+  const data = parsed.data;
+
+  // El contacto debe existir. La empresa es opcional; si viene, debe existir.
+  const [contact, client] = await Promise.all([
+    prisma.contact.findUnique({
+      where: { id: data.contactId },
+      select: { id: true, name: true },
+    }),
+    data.clientId
+      ? prisma.client.findUnique({
+          where: { id: data.clientId },
+          select: { id: true, legalName: true, brandName: true },
+        })
+      : Promise.resolve(null),
+  ]);
+  if (!contact) return { ok: false, error: "El contacto seleccionado no existe" };
+  if (data.clientId && !client) {
+    return { ok: false, error: "La empresa (cliente) seleccionada no existe" };
+  }
+
+  const expectedEventDate = data.expectedEventDate
+    ? dateKeyToUtcDate(data.expectedEventDate)
+    : null;
+
+  // Reintenta ante colisión del código secuencial (creaciones concurrentes).
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const code = await nextOpportunityCode();
+      const opp = await prisma.$transaction(async (tx) => {
+        // Si hay empresa, asegura el vínculo contacto↔empresa (no pisa si ya existe).
+        if (client) {
+          await tx.clientContact.upsert({
+            where: { clientId_contactId: { clientId: client.id, contactId: contact.id } },
+            update: {},
+            create: { clientId: client.id, contactId: contact.id },
+          });
+        }
+        const created = await tx.opportunity.create({
+          data: {
+            code,
+            clientId: client?.id ?? null,
+            contactId: contact.id,
+            ownerId: session.user.id,
+            title: data.title,
+            eventType: data.eventType || null,
+            segment: data.segment || null,
+            channel: data.channel || null,
+            expectedEventDate,
+            pax: data.pax ?? null,
+            estimatedValue: data.estimatedValue ?? 0,
+            stage: "PROPUESTA",
+            probability: STAGE_DEFAULT_PROBABILITY.PROPUESTA,
+          },
+        });
+        await tx.activity.create({
+          data: {
+            userId: session.user.id,
+            opportunityId: created.id,
+            type: "SISTEMA",
+            body: `Oportunidad ${code} creada desde el cotizador`,
+          },
+        });
+        return created;
+      });
+
+      revalidatePath("/pipeline");
+      revalidatePath("/clientes");
+      return {
+        ok: true,
+        opportunity: {
+          id: opp.id,
+          code: opp.code,
+          title: opp.title,
+          clientName: client ? client.brandName ?? client.legalName : contact.name,
+          expectedEventDate: opp.expectedEventDate ? toDayKey(opp.expectedEventDate) : null,
+          pax: opp.pax,
+        },
+      };
+    } catch (err) {
+      const isUniqueViolation =
+        typeof err === "object" && err !== null && (err as { code?: string }).code === "P2002";
+      if (isUniqueViolation && attempt < 2) continue;
+      return { ok: false, error: "No se pudo crear la oportunidad. Verifica los datos." };
+    }
+  }
+  return { ok: false, error: "No se pudo generar el código de la oportunidad." };
+}
+
 // ─────────────────────────── Crear cotización ───────────────────────────
 
-const createQuoteSchema = z
-  .object({
-    opportunityId: z.string().trim().optional().or(z.literal("")),
-    clientId: z.string().trim().optional().or(z.literal("")),
-    eventName: z.string().trim().min(3, "El nombre del evento debe tener al menos 3 caracteres"),
-    startDate: z.string().trim().optional().or(z.literal("")), // yyyy-MM-dd
-    datesTentative: z.boolean().default(false),
-    startTime: z.string().trim().optional().or(z.literal("")),
-    endTime: z.string().trim().optional().or(z.literal("")),
-    pax: z.coerce.number().int().min(0).optional(),
-    paxApproximate: z.boolean().default(false),
-    daysCount: z.coerce.number().int().min(1, "Mínimo 1 día").max(30, "Máximo 30 días").default(1),
-    spaceIds: z.array(z.string()).optional().default([]), // salones a reservar (tentativo)
-    contactId: z.string().trim().optional().or(z.literal("")), // requerido en el camino "desde cero"
-  })
-  .refine((d) => d.opportunityId || d.clientId, {
-    message: "Selecciona una oportunidad existente o un cliente",
-  })
-  .refine((d) => d.opportunityId || d.contactId, {
-    message: "Registra el contacto del cliente para la cotización",
-  });
+const createQuoteSchema = z.object({
+  // Toda cotización nace de una oportunidad (existente o creada en el cotizador).
+  opportunityId: z.string().trim().min(1, "Selecciona una oportunidad"),
+  eventName: z.string().trim().min(3, "El nombre del evento debe tener al menos 3 caracteres"),
+  startDate: z.string().trim().optional().or(z.literal("")), // yyyy-MM-dd
+  datesTentative: z.boolean().default(false),
+  startTime: z.string().trim().optional().or(z.literal("")),
+  endTime: z.string().trim().optional().or(z.literal("")),
+  pax: z.coerce.number().int().min(0).optional(),
+  paxApproximate: z.boolean().default(false),
+  daysCount: z.coerce.number().int().min(1, "Mínimo 1 día").max(30, "Máximo 30 días").default(1),
+  spaceIds: z.array(z.string()).optional().default([]), // salones a reservar (tentativo)
+});
 
 export type CreateQuoteInput = z.input<typeof createQuoteSchema>;
 
@@ -126,50 +248,13 @@ export async function createQuote(input: CreateQuoteInput): Promise<{ ok: false;
   let reservedCount = 0;
   let blockedCount = 0;
   try {
-    // 1) Oportunidad: existente o nueva desde cero
-    let opportunityId = data.opportunityId || null;
-    if (!opportunityId) {
-      const client = await prisma.client.findUnique({ where: { id: data.clientId! } });
-      if (!client) return { ok: false, error: "El cliente seleccionado no existe" };
-      // Toda cotización desde cero queda atada a un contacto del cliente.
-      // (El guard explícito evita el footgun de Prisma de `id: undefined` → matchea cualquiera.)
-      if (!data.contactId) {
-        return { ok: false, error: "Registra el contacto del cliente para la cotización" };
-      }
-      const contact = await prisma.contact.findFirst({
-        where: { id: data.contactId, clientId: client.id },
-        select: { id: true },
-      });
-      if (!contact) {
-        return { ok: false, error: "El contacto no existe o no pertenece a este cliente" };
-      }
-      const code = await nextOpportunityCode();
-      const opp = await prisma.opportunity.create({
-        data: {
-          code,
-          clientId: client.id,
-          contactId: contact.id,
-          ownerId: session.user.id,
-          title: data.eventName,
-          stage: "PROPUESTA",
-          probability: STAGE_DEFAULT_PROBABILITY.PROPUESTA,
-          pax: data.pax ?? null,
-          expectedEventDate: data.startDate ? dateKeyToUtcDate(data.startDate) : null,
-        },
-      });
-      opportunityId = opp.id;
-      await prisma.activity.create({
-        data: {
-          userId: session.user.id,
-          opportunityId,
-          type: "SISTEMA",
-          body: `Oportunidad ${code} creada desde el cotizador`,
-        },
-      });
-    } else {
-      const exists = await prisma.opportunity.findUnique({ where: { id: opportunityId } });
-      if (!exists) return { ok: false, error: "La oportunidad seleccionada no existe" };
-    }
+    // 1) La oportunidad debe existir.
+    const opportunityId = data.opportunityId;
+    const exists = await prisma.opportunity.findUnique({
+      where: { id: opportunityId },
+      select: { id: true },
+    });
+    if (!exists) return { ok: false, error: "La oportunidad seleccionada no existe" };
 
     // 2) Evento: reutiliza el de la oportunidad si existe; si no, lo crea.
     // Fechas a medianoche UTC (canónico) para que coincidan con el calendario.
@@ -573,14 +658,13 @@ export async function saveQuoteLines(
 
 // ─────────────────────────── Cambios de estado ───────────────────────────
 
-const ALLOWED_TRANSITIONS: Record<string, QuoteStatus[]> = {
-  ENVIADA: ["BORRADOR", "VENCIDA", "ENVIADA"],
-  APROBADA: ["ENVIADA", "VENCIDA"],
-  RECHAZADA: ["ENVIADA", "VENCIDA", "APROBADA"],
-  CONTRATADA: ["ENVIADA", "APROBADA"],
-  VENCIDA: ["ENVIADA"],
-  BORRADOR: [],
-};
+// Cualquier estado puede pasar a cualquier otro: a veces la cotización se crea
+// y se aprueba/contrata de una vez (el cliente ya la había aceptado). El único
+// guard de negocio que se mantiene es REQUIRES_CONTENT (no aprobar/enviar una
+// cotización vacía) y la cascada de "ganada" al aprobar/contratar.
+const ALLOWED_TRANSITIONS: Record<string, QuoteStatus[]> = Object.fromEntries(
+  QUOTE_STATUSES.map((target) => [target, QUOTE_STATUSES.filter((s) => s !== target)])
+) as Record<string, QuoteStatus[]>;
 
 const STATUS_ACTIVITY: Record<string, string> = {
   ENVIADA: "marcada como enviada al cliente",
@@ -919,5 +1003,18 @@ export async function deleteQuote(quoteId: string): Promise<ActionResult> {
   revalidatePath("/calendario");
   revalidatePath("/clientes");
   revalidatePath("/");
+  return { ok: true };
+}
+
+// ─────────────────────── Comentario del cliente (link público) ───────────────────────
+
+/** Marca como LEÍDO el comentario que dejó el cliente desde el link público. */
+export async function markQuoteCommentRead(quoteId: string): Promise<ActionResult> {
+  await requireSession();
+  await prisma.quote.updateMany({
+    where: { id: quoteId, commentUnread: true },
+    data: { commentUnread: false },
+  });
+  revalidatePath("/cotizaciones");
   return { ok: true };
 }

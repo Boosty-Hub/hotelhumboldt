@@ -8,10 +8,11 @@ import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   ArrowLeft,
+  Download,
   History,
   Link2,
+  Loader2,
   Plus,
-  Printer,
   Send,
   Trash2,
 } from "lucide-react";
@@ -80,9 +81,15 @@ function to24h(raw: string | null | undefined): string {
   return "";
 }
 
-export function BeoEditor({ beo }: { beo: BeoData }) {
+export function BeoEditor({ beo, savedBefore }: { beo: BeoData; savedBefore: boolean }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+
+  // ¿El BEO fue guardado alguna vez? Un BEO recién generado todavía no se guardó:
+  // ocultamos compartir/imprimir/emitir hasta que el usuario lo guarde. Persistente
+  // entre sesiones vía `savedBefore` (ver beo/[id]/page.tsx).
+  const [saved, setSaved] = useState(savedBefore);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const [status, setStatus] = useState(beo.status);
   const [responsable, setResponsable] = useState(beo.responsable);
@@ -135,6 +142,9 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
   );
   const [savedSnapshot, setSavedSnapshot] = useState(snapshot);
   const dirty = snapshot !== savedSnapshot;
+  // Compartir/imprimir/emitir operan sobre lo PERSISTIDO: solo se habilitan cuando
+  // el BEO ya se guardó al menos una vez y no hay cambios pendientes.
+  const canPublish = saved && !dirty;
 
   const [logs, setLogs] = useState<BeoLogEntry[]>([]);
   useEffect(() => {
@@ -172,7 +182,8 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
         generalNotes: generalNotes || null,
       });
       if (res.ok) {
-        setSavedSnapshot(snap); // ya no hay cambios pendientes → reaparece el PDF
+        setSavedSnapshot(snap); // ya no hay cambios pendientes
+        setSaved(true); // primer guardado → aparecen compartir/imprimir/emitir
         toast.success("BEO guardado.");
         getBeoLog(beo.id).then(setLogs).catch(() => {});
         router.refresh();
@@ -208,6 +219,19 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
     );
   }
 
+  /** Descarga el BEO como PDF nativo (generado en el servidor). Sin previsualización. */
+  function downloadPdf() {
+    setPdfBusy(true);
+    const a = document.createElement("a");
+    a.href = `/beo/${beo.id}/pdf`;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    // El navegador maneja la descarga; liberamos el botón al poco rato.
+    window.setTimeout(() => setPdfBusy(false), 1500);
+  }
+
   return (
     <div className="space-y-4">
       {/* Encabezado */}
@@ -234,22 +258,28 @@ export function BeoEditor({ beo }: { beo: BeoData }) {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={copyLink}>
-            <Link2 data-icon="inline-start" />
-            Copiar link
-          </Button>
-          {!dirty && (
-            <Button asChild variant="outline">
-              <Link href={`/orden/${beo.publicToken}`} target="_blank">
-                <Printer data-icon="inline-start" />
-                Ver / Imprimir PDF
-              </Link>
-            </Button>
+          {/* Compartir / imprimir / emitir solo cuando el BEO ya está guardado y
+              sin cambios pendientes — reflejan lo persistido (la orden pública). */}
+          {canPublish && (
+            <>
+              <Button variant="outline" onClick={copyLink}>
+                <Link2 data-icon="inline-start" />
+                Copiar link
+              </Button>
+              <Button variant="outline" onClick={downloadPdf} disabled={pdfBusy}>
+                {pdfBusy ? (
+                  <Loader2 className="animate-spin" data-icon="inline-start" />
+                ) : (
+                  <Download data-icon="inline-start" />
+                )}
+                {pdfBusy ? "Generando…" : "Descargar PDF"}
+              </Button>
+              <Button variant="outline" onClick={emit} disabled={pending}>
+                <Send data-icon="inline-start" />
+                {status === "EMITIDO" ? "Volver a borrador" : "Emitir"}
+              </Button>
+            </>
           )}
-          <Button variant="outline" onClick={emit} disabled={pending}>
-            <Send data-icon="inline-start" />
-            {status === "EMITIDO" ? "Volver a borrador" : "Emitir"}
-          </Button>
           <Button onClick={save} disabled={pending} className="bg-sky-950 hover:bg-sky-900">
             {pending ? "Guardando…" : "Guardar"}
           </Button>

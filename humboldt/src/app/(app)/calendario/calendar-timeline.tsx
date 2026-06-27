@@ -30,8 +30,8 @@ import { ReservationSheet } from "./reservation-sheet";
 import type {
   CalendarSpaceDTO,
   ConflictDTO,
-  EventOptionDTO,
-  OpportunityOptionDTO,
+  ContactOptionDTO,
+  OpenQuoteOptionDTO,
   ReservationDTO,
 } from "./types";
 
@@ -40,8 +40,8 @@ interface CalendarTimelineProps {
   spaces: CalendarSpaceDTO[];
   reservations: ReservationDTO[];
   conflicts: ConflictDTO[];
-  events: EventOptionDTO[];
-  opportunities: OpportunityOptionDTO[];
+  contacts: ContactOptionDTO[];
+  openQuotes: OpenQuoteOptionDTO[];
   showCancelled: boolean;
 }
 
@@ -54,8 +54,8 @@ export function CalendarTimeline({
   spaces,
   reservations,
   conflicts,
-  events,
-  opportunities,
+  contacts,
+  openQuotes,
   showCancelled,
 }: CalendarTimelineProps) {
   const router = useRouter();
@@ -322,8 +322,8 @@ export function CalendarTimeline({
         onOpenChange={setNewOpen}
         month={month}
         spaces={spaces}
-        events={events}
-        opportunities={opportunities}
+        contacts={contacts}
+        openQuotes={openQuotes}
         presetDate={presetDate}
         presetSpaceId={presetSpaceId}
       />

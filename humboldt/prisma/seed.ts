@@ -302,13 +302,17 @@ async function main() {
           address: c.address ?? null,
           notes: c.notes ?? null,
           type: "EMPRESA",
-          contacts: c.contactName
+          contactLinks: c.contactName
             ? {
                 create: {
-                  name: c.contactName,
-                  phone: c.phone ?? null,
-                  email: c.email ?? null,
                   isPrimary: true,
+                  contact: {
+                    create: {
+                      name: c.contactName,
+                      phone: c.phone ?? null,
+                      email: c.email ?? null,
+                    },
+                  },
                 },
               }
             : undefined,

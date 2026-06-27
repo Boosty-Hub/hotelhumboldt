@@ -1,7 +1,7 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { Inbox } from "lucide-react";
+import { ArrowDownNarrowWide, ArrowUpNarrowWide, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fmtUsd } from "@/lib/money";
 import { STAGE_LABELS, type Stage } from "@/lib/constants";
@@ -13,10 +13,15 @@ export function KanbanColumn({
   stage,
   opportunities,
   onOpen,
+  sortDir,
+  onToggleSort,
 }: {
   stage: Stage;
   opportunities: PipelineOpportunity[];
   onOpen: (id: string) => void;
+  /** Orden por fecha de creación de la columna. */
+  sortDir: "asc" | "desc";
+  onToggleSort: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage });
   const total = opportunities.reduce((sum, o) => sum + o.estimatedValue, 0);
@@ -38,9 +43,28 @@ export function KanbanColumn({
             {opportunities.length}
           </span>
         </div>
-        <span className="text-[11px] font-medium tabular-nums text-muted-foreground">
-          {fmtUsd(total)}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onToggleSort}
+            aria-label="Ordenar por fecha de creación"
+            title={
+              sortDir === "desc"
+                ? "Más recientes primero (fecha de creación) — clic para invertir"
+                : "Más antiguas primero (fecha de creación) — clic para invertir"
+            }
+            className="flex size-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+          >
+            {sortDir === "desc" ? (
+              <ArrowDownNarrowWide className="size-3.5" />
+            ) : (
+              <ArrowUpNarrowWide className="size-3.5" />
+            )}
+          </button>
+          <span className="text-[11px] font-medium tabular-nums text-muted-foreground">
+            {fmtUsd(total)}
+          </span>
+        </div>
       </div>
 
       {/* Tarjetas */}

@@ -19,6 +19,22 @@ const nextConfig: NextConfig = {
       "@hugeicons/core-free-icons",
     ],
   },
+
+  async headers() {
+    return [
+      {
+        // Permite que Boosty Hub embeba la app en su iframe workspace.
+        source: "/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://boosty-projects-hub.netlify.app",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

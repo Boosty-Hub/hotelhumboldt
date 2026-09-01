@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PinInput } from "@/components/pin-input";
-import { KeyRound, Loader2, Mail } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Loader2, Mail } from "lucide-react";
 import { loginAction, loginWithPinAction } from "./actions";
 
 const PIN_LENGTH = 4;
@@ -43,6 +43,7 @@ export function LoginForm({ pinUsers }: { pinUsers: PinUser[] }) {
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [pinUserId, setPinUserId] = useState("");
   const [pin, setPin] = useState("");
   const [redirecting, setRedirecting] = useState(false);
@@ -128,14 +129,31 @@ export function LoginForm({ pinUsers }: { pinUsers: PinUser[] }) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                disabled={busy}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  disabled={busy}
+                  required
+                  className="pr-8"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  disabled={busy}
+                  tabIndex={-1}
+                  className="absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={busy}>
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
